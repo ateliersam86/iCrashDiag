@@ -15,6 +15,7 @@ enum LoadingStage: Equatable {
 @Observable
 @MainActor
 final class AppViewModel {
+    static weak var current: AppViewModel?
     var crashLogs: [CrashLog] = []
     var selectedCrashID: UUID?
     var selectedCategory: CrashCategory?
@@ -86,6 +87,7 @@ final class AppViewModel {
         self.parserEngine = CrashParserEngine(knowledgeBase: kb)
         self.diagnosisEngine = DiagnosisEngine(knowledgeBase: kb)
         self.sessionHistory = historyStore.load()
+        AppViewModel.current = self
     }
 
     var rebootEvents: [CrashLog] {
@@ -170,12 +172,21 @@ final class AppViewModel {
 
     // MARK: - Import (Batched Progressive Streaming)
 
-    private let freeFileCap = 50
+    let freeFileCap = 50
+    // IDs of crash logs locked behind Pro (beyond the 50-file cap)
+    private(set) var lockedCrashIDs: Set<UUID> = []
+
+    func isLocked(_ crash: CrashLog) -> Bool {
+        !licenseService.isPro && lockedCrashIDs.contains(crash.id)
+    }
+
+    var lockedCount: Int { lockedCrashIDs.count }
 
     func importFolder(url: URL, sourceLabel: String? = nil) async {
         isLoading = true
         loadingStage = .scanning
         crashLogs = []
+        lockedCrashIDs = []
         analysisReport = nil
 
         let engine = parserEngine
@@ -184,7 +195,6 @@ final class AppViewModel {
         var lastFlushIndex = 0
         let batchSize = 20
         var parsedCount = 0
-        let isPro = licenseService.isPro
 
         for await event in engine.parseDirectoryStream(url: url) {
             switch event {
@@ -195,7 +205,6 @@ final class AppViewModel {
                 loadingStage = .parsing(index: 0, total: n, file: "")
 
             case .progress(let index, let total, _, let fileName, let crash):
-                // Update stage with throttled file name (every 5th file to avoid jank)
                 if index % 5 == 0 || index == total {
                     loadingStage = .parsing(index: index, total: total, file: fileName)
                 } else if case .parsing(_, _, _) = loadingStage {
@@ -203,8 +212,6 @@ final class AppViewModel {
                 }
 
                 if var c = crash {
-                    // Enforce 50-file cap for free users
-                    if !isPro && parsedCount >= freeFileCap { break }
                     c.diagnosis = diag.diagnose(crash: c)
                     buffer.append(c)
                     parsedCount += 1
@@ -244,15 +251,16 @@ final class AppViewModel {
             analysisReport = report
         }
 
+        // Mark logs beyond free cap as locked (for free users)
+        if !licenseService.isPro && crashLogs.count > freeFileCap {
+            let locked = Set(crashLogs.dropFirst(freeFileCap).map(\.id))
+            lockedCrashIDs = locked
+        }
+
         loadingStage = .done(count: crashLogs.count)
         isLoading = false
 
-        // Show license gate if free user hit the file cap
-        if !isPro && parsedCount >= freeFileCap {
-            showLicenseGate = true
-        }
-
-        // Persist session to history
+        // Persist session to history (use free cap count for history, not total)
         if !crashLogs.isEmpty {
             let label = sourceLabel ?? url.lastPathComponent
             let session = AnalysisSession(
@@ -268,6 +276,11 @@ final class AppViewModel {
     }
 
     func dismissLicenseGate() {
+        showLicenseGate = false
+    }
+
+    func unlockAllCrashes() {
+        lockedCrashIDs = []
         showLicenseGate = false
     }
 

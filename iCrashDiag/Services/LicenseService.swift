@@ -78,6 +78,10 @@ final class LicenseService {
         licenseKey = trimmed
         UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: lastValidatedKey)
         state = .pro
+        // Notify app to unlock blurred crashes
+        await MainActor.run {
+            AppViewModel.current?.unlockAllCrashes()
+        }
     }
 
     // MARK: - Deactivation

@@ -16,6 +16,7 @@ struct CrashListView: View {
                 .transition(.opacity.combined(with: .scale(scale: 0.97)))
             } else {
                 VStack(spacing: 0) {
+                    // Quick filter chips
                     if !viewModel.crashLogs.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 6) {
@@ -37,9 +38,28 @@ struct CrashListView: View {
                         Divider()
                     }
 
+                    // Pro upsell banner when locked crashes exist
+                    if viewModel.lockedCount > 0 && !viewModel.licenseService.isPro {
+                        LockedCrashesBanner(lockedCount: viewModel.lockedCount) {
+                            viewModel.showLicenseGate = true
+                        }
+                        Divider()
+                    }
+
                     List(viewModel.filteredCrashLogs, selection: $vm.selectedCrashID) { crash in
-                        CrashRowView(crash: crash)
+                        let locked = viewModel.isLocked(crash)
+                        CrashRowView(crash: crash, isLocked: locked)
                             .tag(crash.id)
+                            .onTapGesture {
+                                if locked {
+                                    viewModel.showLicenseGate = true
+                                } else {
+                                    vm.selectedCrashID = crash.id
+                                }
+                            }
+                            .listRowBackground(
+                                locked ? Color.primary.opacity(0.02) : Color.clear
+                            )
                     }
                     .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.filteredCrashLogs.map(\.id))
                     .searchable(text: $vm.searchText, prompt: "Search crashes...")
@@ -81,6 +101,52 @@ struct CrashListView: View {
         }
     }
 }
+
+// MARK: - Locked crashes banner
+
+private struct LockedCrashesBanner: View {
+    let lockedCount: Int
+    let onUpgrade: () -> Void
+
+    var body: some View {
+        Button(action: onUpgrade) {
+            HStack(spacing: 10) {
+                ZStack {
+                    Circle()
+                        .fill(Color.orange.opacity(0.15))
+                        .frame(width: 28, height: 28)
+                    Image(systemName: "lock.fill")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(.orange)
+                }
+
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("\(lockedCount) crashes hidden")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(.primary)
+                    Text("Upgrade to Pro to see all results")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                Text("Unlock Pro →")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.orange)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(Color.orange.opacity(0.12), in: Capsule())
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color.orange.opacity(0.04))
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Quick Filter Chip
 
 private struct QuickFilterChip: View {
     let filter: QuickFilter
