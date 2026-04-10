@@ -1,0 +1,58 @@
+{
+  "components": {
+    "lightning_flex": {
+      "name": "Lightning / Charging Flex Cable",
+      "aliases": ["charge port", "dock connector", "bottom flex"],
+      "sensors_on_flex": ["mic1"],
+      "parts_included": ["charging port", "bottom microphone", "haptic engine connector", "bottom screws bracket"],
+      "difficulty": "easy",
+      "estimated_time_minutes": 20,
+      "ifixit_difficulty": 3
+    },
+    "display_touch": {
+      "name": "Display Assembly",
+      "aliases": ["screen", "LCD", "OLED", "digitizer"],
+      "sensors_on_flex": ["als", "prox"],
+      "difficulty": "easy",
+      "estimated_time_minutes": 15,
+      "ifixit_difficulty": 2
+    },
+    "soc_gpu": {
+      "name": "System on Chip (GPU)",
+      "aliases": ["A-series chip", "processor"],
+      "difficulty": "not_repairable",
+      "estimated_time_minutes": null,
+      "note": "Part of SoC package. Board swap required."
+    },
+    "memory_nand": {
+      "name": "RAM / NAND Storage",
+      "aliases": ["memory", "flash", "storage"],
+      "difficulty": "expert_microsolder",
+      "estimated_time_minutes": 120,
+      "note": "NAND can be swapped by expert. RAM is part of SoC (not repairable)."
+    },
+    "wifi_bt_chip": {
+      "name": "WiFi / Bluetooth IC",
+      "aliases": ["wireless chip", "USI module"],
+      "difficulty": "expert_microsolder",
+      "estimated_time_minutes": 90
+    },
+    "secure_enclave": {
+      "name": "Secure Enclave Processor",
+      "aliases": ["SEP", "biometric processor"],
+      "difficulty": "not_repairable",
+      "note": "Fused to SoC. Board swap required. Paired to device."
+    },
+    "thermal_system": {
+      "name": "Thermal Monitoring System",
+      "aliases": ["thermal sensor", "NTC"],
+      "difficulty": "varies",
+      "note": "Depends on which sensor. Usually on a flex cable."
+    },
+    "system_memory": {
+      "name": "System Memory (RAM)",
+      "difficulty": "not_repairable",
+      "note": "Part of SoC package."
+    }
+  }
+}

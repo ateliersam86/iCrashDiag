@@ -1,0 +1,227 @@
+{
+  "version": "2026.04",
+  "patterns": [
+    {
+      "id": "mic1_missing",
+      "keywords": ["Missing sensor(s): mic1", "Missing sensor: mic1"],
+      "category": "kernelPanic",
+      "component": "lightning_flex",
+      "severity": "hardware",
+      "confidence": 95,
+      "title": "Bottom microphone thermal sensor failure",
+      "diagnosis": "The mic1 NTC thermal sensor on the lightning/charging flex cable is disconnected or damaged.",
+      "probabilities": [
+        { "cause": "Lightning flex cable defective", "percent": 85, "description": "The NTC sensor is soldered on the flex. Flex replacement resolves." },
+        { "cause": "Audio codec IC damage", "percent": 10, "description": "Codec IC (338S00509) not reading sensor. Requires micro-soldering." },
+        { "cause": "NTC resistor only", "percent": 5, "description": "Standalone NTC failure. Replaceable with micro-soldering." }
+      ],
+      "repair_steps": [
+        "1. Replace lightning/charging flex cable assembly",
+        "2. Test bottom microphone in Voice Memos (record + playback)",
+        "3. Verify thermal sensor reads in diagnostics",
+        "4. If persists: inspect codec IC under microscope"
+      ],
+      "test_procedure": [
+        "Voice Memos: record 10s, play back — should hear clear audio from bottom mic",
+        "Phone call: speaker on mute, other party should hear you clearly",
+        "Diagnostics: Settings > Privacy > Analytics > check for new panic-full logs"
+      ],
+      "models_affected": ["iPhone8,*", "iPhone9,*", "iPhone10,*", "iPhone11,*", "iPhone12,*", "iPhone13,*", "iPhone14,*"],
+      "related_patterns": ["thermalmonitord_watchdog"]
+    },
+    {
+      "id": "thermalmonitord_watchdog",
+      "keywords": ["no successful checkins from thermalmonitord", "thermalmonitord watchdog"],
+      "category": "watchdog",
+      "component": "thermal_system",
+      "severity": "hardware",
+      "confidence": 80,
+      "title": "Thermal monitoring service failure",
+      "diagnosis": "thermalmonitord crashed or hung, usually due to a missing/disconnected thermal sensor.",
+      "probabilities": [
+        { "cause": "Disconnected thermal sensor", "percent": 70, "description": "A sensor cable is damaged or not seated. Check panic string for 'Missing sensor' to identify which." },
+        { "cause": "Thermal IC failure", "percent": 20, "description": "PMU or thermal controller IC fault." },
+        { "cause": "iOS software bug", "percent": 10, "description": "Rare. Check if specific to one iOS version." }
+      ],
+      "repair_steps": [
+        "1. Identify which sensor is missing from panic string",
+        "2. Map sensor to physical component (mic1=lightning flex, als=proximity flex, etc.)",
+        "3. Replace the corresponding flex cable",
+        "4. If no sensor identified: check all flex connections, reseat"
+      ],
+      "test_procedure": [
+        "Monitor for recurrence over 24h after repair",
+        "Check Analytics for new crash logs"
+      ],
+      "models_affected": ["*"],
+      "related_patterns": ["mic1_missing", "als_missing", "prox_missing"]
+    },
+    {
+      "id": "gpu_hang",
+      "keywords": ["GPU Hang", "gpu hang", "firmware-detected lockup", "AGXFirmwareKextG"],
+      "category": "gpuEvent",
+      "component": "soc_gpu",
+      "severity": "hardware",
+      "confidence": 70,
+      "title": "GPU firmware lockup / hang",
+      "diagnosis": "The GPU core locked up, triggering a firmware reset or kernel panic.",
+      "probabilities": [
+        { "cause": "BGA solder joint failure", "percent": 70, "description": "Cold solder joint under SoC. Common after drop or thermal cycling." },
+        { "cause": "Overheating / thermal throttle failure", "percent": 20, "description": "GPU thermal paste dried, heatsink not seated." },
+        { "cause": "iOS driver bug", "percent": 10, "description": "Check if specific to one iOS version. Try DFU restore." }
+      ],
+      "repair_steps": [
+        "1. DFU restore to rule out software",
+        "2. If persists: inspect board for signs of heat damage near SoC",
+        "3. Reball SoC (advanced micro-soldering, low success rate)",
+        "4. Board swap may be necessary"
+      ],
+      "test_procedure": [
+        "Run a graphics-intensive app (game or benchmark)",
+        "Monitor for GPU recovery messages in console",
+        "Check for visual artifacts on screen"
+      ],
+      "models_affected": ["*"],
+      "related_patterns": []
+    },
+    {
+      "id": "kernel_data_abort",
+      "keywords": ["Data Abort", "data_abort", "kernel data abort"],
+      "category": "kernelPanic",
+      "component": "memory_nand",
+      "severity": "hardware",
+      "confidence": 60,
+      "title": "Kernel data abort — invalid memory access",
+      "diagnosis": "The kernel accessed an invalid memory address, causing an immediate panic.",
+      "probabilities": [
+        { "cause": "RAM defect", "percent": 60, "description": "LPDDR4/5 cell failure. Not repairable." },
+        { "cause": "NAND corruption", "percent": 30, "description": "Flash storage read error propagated to kernel. Try DFU restore first." },
+        { "cause": "iOS kernel bug", "percent": 10, "description": "Rare. Check if tied to specific iOS version." }
+      ],
+      "repair_steps": [
+        "1. DFU restore (rule out NAND filesystem corruption)",
+        "2. If persists: board-level diagnosis required",
+        "3. RAM is part of SoC package — not field-repairable",
+        "4. Board swap"
+      ],
+      "test_procedure": [
+        "After DFU restore, use phone normally for 48h",
+        "Run memory-intensive apps",
+        "Check Analytics for recurrence"
+      ],
+      "models_affected": ["*"],
+      "related_patterns": []
+    },
+    {
+      "id": "watchdog_backboardd",
+      "keywords": ["no successful checkins from backboardd", "backboardd watchdog"],
+      "category": "watchdog",
+      "component": "display_touch",
+      "severity": "hardware",
+      "confidence": 80,
+      "title": "Display/touch service timeout",
+      "diagnosis": "backboardd (display + touch input service) stopped responding.",
+      "probabilities": [
+        { "cause": "Display flex cable", "percent": 80, "description": "Damaged or poorly seated display flex. Check FPC connector." },
+        { "cause": "FPC connector damage", "percent": 15, "description": "Connector pins bent or corroded on logic board." },
+        { "cause": "Meson touch IC", "percent": 5, "description": "Touch controller IC failure. Requires micro-soldering." }
+      ],
+      "repair_steps": [
+        "1. Reseat display flex cable",
+        "2. Inspect FPC connector under microscope (bent/missing pins)",
+        "3. Try known-good display",
+        "4. If persists with good display: Meson IC or board issue"
+      ],
+      "test_procedure": [
+        "Touch responsiveness test (draw app, all screen areas)",
+        "3D Touch / Haptic Touch pressure test",
+        "Display color/dead pixel check"
+      ],
+      "models_affected": ["*"],
+      "related_patterns": []
+    },
+    {
+      "id": "watchdog_wifid",
+      "keywords": ["no successful checkins from wifid", "wifid watchdog"],
+      "category": "watchdog",
+      "component": "wifi_bt_chip",
+      "severity": "hardware",
+      "confidence": 70,
+      "title": "WiFi/Bluetooth service failure",
+      "diagnosis": "wifid stopped responding, indicating WiFi/BT chip communication failure.",
+      "probabilities": [
+        { "cause": "WiFi/BT chip defect", "percent": 70, "description": "USI 339S00648 or similar. Common after water damage." },
+        { "cause": "Antenna disconnected", "percent": 20, "description": "WiFi antenna cable not seated or damaged." },
+        { "cause": "Software/firmware", "percent": 10, "description": "Try network settings reset, then DFU restore." }
+      ],
+      "repair_steps": [
+        "1. Reset network settings",
+        "2. DFU restore",
+        "3. Check antenna connections",
+        "4. If persists: WiFi IC replacement (micro-soldering)"
+      ],
+      "test_procedure": [
+        "WiFi: connect to 2.4GHz and 5GHz networks, speed test",
+        "Bluetooth: pair AirPods or speaker",
+        "AirDrop: test file transfer",
+        "Check Settings > General > About > WiFi Address (if 'N/A' = chip dead)"
+      ],
+      "models_affected": ["*"],
+      "related_patterns": []
+    },
+    {
+      "id": "sep_panic",
+      "keywords": ["SEP panic", "SEP Panic", "Secure Enclave"],
+      "category": "kernelPanic",
+      "component": "secure_enclave",
+      "severity": "critical",
+      "confidence": 95,
+      "title": "Secure Enclave Processor panic",
+      "diagnosis": "The SEP crashed. This is a critical, board-level issue.",
+      "probabilities": [
+        { "cause": "SEP hardware failure", "percent": 90, "description": "SEP is part of the SoC. Not field-repairable." },
+        { "cause": "Board damage near SEP", "percent": 10, "description": "Power rail issue affecting SEP." }
+      ],
+      "repair_steps": [
+        "1. DFU restore (very unlikely to help but worth trying)",
+        "2. Board swap — SEP is fused to SoC, cannot be replaced independently",
+        "3. Device may be unrepairable if paired components are involved"
+      ],
+      "test_procedure": [
+        "Face ID / Touch ID test",
+        "Apple Pay enrollment test",
+        "Keychain access test"
+      ],
+      "models_affected": ["*"],
+      "related_patterns": []
+    },
+    {
+      "id": "jetsam_memory_pressure",
+      "keywords": ["JetsamEvent", "per-process-limit"],
+      "category": "jetsam",
+      "component": "system_memory",
+      "severity": "informational",
+      "confidence": 40,
+      "title": "Memory pressure — app killed by Jetsam",
+      "diagnosis": "iOS killed a process due to memory pressure. Usually normal behavior under heavy multitasking.",
+      "probabilities": [
+        { "cause": "Normal iOS behavior", "percent": 70, "description": "Heavy app usage, many background processes. Not a hardware issue." },
+        { "cause": "Memory leak in app", "percent": 20, "description": "A specific app consuming excessive memory." },
+        { "cause": "RAM defect", "percent": 10, "description": "If Jetsam events are extremely frequent (100+/day), may indicate bad RAM cells." }
+      ],
+      "repair_steps": [
+        "1. Check frequency — occasional Jetsam is normal",
+        "2. If excessive: identify the largest process in the log",
+        "3. Force-close heavy apps, restart device",
+        "4. If 100+ events/day: DFU restore, then suspect RAM if persists"
+      ],
+      "test_procedure": [
+        "Monitor Jetsam frequency over 24h",
+        "Note which apps trigger the most events",
+        "Compare to baseline (5-20/day is normal under active use)"
+      ],
+      "models_affected": ["*"],
+      "related_patterns": []
+    }
+  ]
+}
