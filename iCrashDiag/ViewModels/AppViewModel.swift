@@ -20,6 +20,7 @@ final class AppViewModel {
     var selectedCategory: CrashCategory?
     var selectedSeverity: Severity?
     var showRebootsOnly: Bool = false
+    var quickFilter: QuickFilter = .all
     var searchText = ""
     var sortOrder: SortOrder = .dateDescending
     var analysisReport: AnalysisReport?
@@ -95,15 +96,25 @@ final class AppViewModel {
 
     var filteredCrashLogs: [CrashLog] {
         var logs = crashLogs
-        if showRebootsOnly {
-            logs = logs.filter(\.isRebootEvent)
+
+        // Quick filter (overrides sidebar filters)
+        switch quickFilter {
+        case .all: break
+        case .hardware: logs = logs.filter { $0.diagnosis?.severity == .hardware }
+        case .critical: logs = logs.filter { $0.diagnosis?.severity == .critical }
+        case .today:
+            let start = Calendar.current.startOfDay(for: Date())
+            logs = logs.filter { $0.timestamp >= start }
+        case .reboots: logs = logs.filter(\.isRebootEvent)
         }
-        if let cat = selectedCategory {
-            logs = logs.filter { $0.category == cat }
+
+        // Sidebar filters (only apply when quickFilter == .all)
+        if quickFilter == .all {
+            if showRebootsOnly { logs = logs.filter(\.isRebootEvent) }
+            if let cat = selectedCategory { logs = logs.filter { $0.category == cat } }
+            if let sev = selectedSeverity { logs = logs.filter { $0.diagnosis?.severity == sev } }
         }
-        if let sev = selectedSeverity {
-            logs = logs.filter { $0.diagnosis?.severity == sev }
-        }
+
         if !searchText.isEmpty {
             let query = searchText.lowercased()
             logs = logs.filter { crash in
@@ -126,6 +137,8 @@ final class AppViewModel {
                 return ai < bi
             }
         case .category: logs.sort { $0.category.rawValue < $1.category.rawValue }
+        case .confidence:
+            logs.sort { ($0.diagnosis?.confidencePercent ?? 0) > ($1.diagnosis?.confidencePercent ?? 0) }
         }
         return logs
     }

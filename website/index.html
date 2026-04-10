@@ -40,19 +40,121 @@
       50% { transform: translateY(-8px); }
     }
     .float { animation: float 4s ease-in-out infinite; }
+
+    /* Mockup styles */
+    .mock-sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 8px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      cursor: default;
+    }
+    .mock-sidebar-item.active {
+      background: rgba(249,115,22,0.12);
+      border: 1px solid rgba(249,115,22,0.2);
+      color: #fb923c;
+    }
+    .mock-sidebar-item:not(.active) { color: #9ca3af; }
+    .mock-sidebar-item .count {
+      margin-left: auto;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .mock-log-row {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 10.5px;
+      cursor: default;
+    }
+    .mock-log-row .bar {
+      width: 3px;
+      align-self: stretch;
+      border-radius: 2px;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+    .mock-log-row .filename {
+      color: #e5e7eb;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 140px;
+      flex-shrink: 0;
+    }
+    .mock-log-row .cat-badge {
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 600;
+      margin-left: 6px;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .mock-log-row .diag-name {
+      color: #6b7280;
+      font-size: 10px;
+      margin-left: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+    .mock-log-row .time {
+      color: #4b5563;
+      font-size: 9px;
+      margin-left: 6px;
+      flex-shrink: 0;
+    }
+    .timeline-bar {
+      height: 28px;
+      border-radius: 3px;
+      display: flex;
+      align-items: flex-end;
+    }
   </style>
 </head>
 <body class="text-gray-100 font-sans antialiased">
+
+  <!-- LOGO SVG — defined once as a symbol, reused via <use> -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <symbol id="logo-stethoscope" viewBox="0 0 32 32">
+        <!-- Rounded dark background -->
+        <rect width="32" height="32" rx="8" fill="url(#logoGrad)"/>
+        <!-- Stethoscope: earpiece tubes -->
+        <path d="M9 7 C9 7, 8 8, 8 10 L8 14" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M23 7 C23 7, 24 8, 24 10 L24 14" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <!-- Tubes joining into main tube -->
+        <path d="M8 14 C8 17, 10 18, 12 18 L12 21 C12 24, 14 26, 16 26 C18 26, 20 24, 20 21 L20 18" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M24 14 C24 17, 22 18, 20 18" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <!-- Chest piece circle -->
+        <circle cx="16" cy="26" r="3.2" fill="none" stroke="#fff" stroke-width="2"/>
+        <circle cx="16" cy="26" r="1.2" fill="#fff"/>
+        <!-- Eartips -->
+        <circle cx="9" cy="7" r="1.6" fill="#fff"/>
+        <circle cx="23" cy="7" r="1.6" fill="#fff"/>
+        <defs>
+          <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#F97316"/>
+            <stop offset="100%" stop-color="#EA580C"/>
+          </linearGradient>
+        </defs>
+      </symbol>
+    </defs>
+  </svg>
 
   <!-- NAV -->
   <nav class="fixed top-0 inset-x-0 z-50 border-b border-white/5 backdrop-blur-xl bg-black/40">
     <div class="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-orange-500 to-amber-400 flex items-center justify-center shadow-lg">
-          <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/>
-          </svg>
-        </div>
+        <svg width="32" height="32" class="shadow-lg rounded-xl"><use href="#logo-stethoscope"/></svg>
         <span class="font-semibold text-white">iCrashDiag</span>
       </div>
       <div class="hidden md:flex items-center gap-8 text-sm text-gray-400">
@@ -95,71 +197,239 @@
       <p class="text-sm text-gray-600 mt-4">Free version available · No subscription · One license per Mac</p>
     </div>
 
-    <!-- App mockup -->
+    <!-- App mockup — fidèle à l'interface réelle -->
     <div class="max-w-5xl mx-auto mt-16 float">
-      <div class="rounded-2xl border border-white/10 bg-[#111318] glow overflow-hidden shadow-2xl">
+      <div class="rounded-2xl border border-white/10 bg-[#0d0f14] glow overflow-hidden shadow-2xl" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;">
+
         <!-- Window chrome -->
-        <div class="flex items-center gap-2 px-4 py-3 border-b border-white/5 bg-[#0d0f14]">
-          <div class="w-3 h-3 rounded-full bg-red-500/70"></div>
+        <div class="flex items-center gap-2 px-4 py-3 border-b border-white/5 bg-[#080a0e]">
+          <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
           <div class="w-3 h-3 rounded-full bg-yellow-500/70"></div>
           <div class="w-3 h-3 rounded-full bg-green-500/70"></div>
-          <span class="ml-3 text-xs text-gray-500 font-mono">iCrashDiag — iPhone 14 Pro · 127 crash logs</span>
+          <span class="ml-3 text-xs text-gray-600 font-mono">iCrashDiag — iPhone 14 Pro · 127 logs</span>
         </div>
-        <!-- Fake UI -->
-        <div class="flex h-72">
-          <!-- Sidebar -->
-          <div class="w-56 border-r border-white/5 p-4 flex flex-col gap-3">
-            <div class="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">Categories</div>
-            <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-500/10 border border-orange-500/20">
-              <span class="text-orange-400 text-xs">⚡</span>
-              <span class="text-sm text-orange-300 font-medium">Kernel Panics</span>
-              <span class="ml-auto text-xs text-orange-400 font-bold">43</span>
+
+        <!-- Three-pane layout -->
+        <div class="flex" style="height: 340px;">
+
+          <!-- LEFT SIDEBAR (220px) -->
+          <div class="border-r border-white/5 flex flex-col" style="width: 210px; background: #0d0f14; flex-shrink: 0;">
+
+            <!-- Import buttons -->
+            <div class="p-3 border-b border-white/5 flex flex-col gap-2">
+              <button style="background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.3); color: #fb923c; border-radius: 7px; padding: 5px 10px; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 6px; cursor: default;">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 7v13a2 2 0 002 2h14a2 2 0 002-2V7"/><polyline points="16 3 12 7 8 3"/><line x1="12" y1="7" x2="12" y2="17"/></svg>
+                Import Folder
+              </button>
+              <button style="background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.2); color: #60a5fa; border-radius: 7px; padding: 5px 10px; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 6px; cursor: default;">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18" stroke-linecap="round" stroke-width="3"/></svg>
+                Pull from iPhone
+              </button>
             </div>
-            <div class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5">
-              <span class="text-gray-400 text-xs">📱</span>
-              <span class="text-sm text-gray-300">App Crashes</span>
-              <span class="ml-auto text-xs text-gray-500">38</span>
-            </div>
-            <div class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5">
-              <span class="text-gray-400 text-xs">🌡️</span>
-              <span class="text-sm text-gray-300">Thermal Events</span>
-              <span class="ml-auto text-xs text-gray-500">21</span>
-            </div>
-            <div class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5">
-              <span class="text-gray-400 text-xs">🔄</span>
-              <span class="text-sm text-gray-300">Reboots Only</span>
-              <span class="ml-auto text-xs text-red-400 font-bold">12</span>
+
+            <!-- Category list -->
+            <div class="flex-1 overflow-hidden p-2" style="overflow-y: auto;">
+              <div style="font-size: 9.5px; color: #4b5563; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 4px 8px 6px;">Categories</div>
+
+              <div class="mock-sidebar-item active">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                All Crashes
+                <span class="count" style="color: #fb923c;">127</span>
+              </div>
+
+              <div class="mock-sidebar-item" style="margin-top:2px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                Reboots Only
+                <span class="count" style="color: #f87171;">12</span>
+              </div>
+
+              <div class="mock-sidebar-item" style="margin-top:2px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                Kernel Panic
+                <span class="count" style="color: #fb923c;">43</span>
+              </div>
+
+              <div class="mock-sidebar-item" style="margin-top:2px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18" stroke-width="3" stroke-linecap="round"/></svg>
+                App Crash
+                <span class="count" style="color: #9ca3af;">38</span>
+              </div>
+
+              <div class="mock-sidebar-item" style="margin-top:2px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                Jetsam
+                <span class="count" style="color: #9ca3af;">21</span>
+              </div>
+
+              <div class="mock-sidebar-item" style="margin-top:2px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                GPU Event
+                <span class="count" style="color: #9ca3af;">9</span>
+              </div>
+
+              <div class="mock-sidebar-item" style="margin-top:2px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
+                Thermal
+                <span class="count" style="color: #9ca3af;">4</span>
+              </div>
             </div>
           </div>
-          <!-- Main -->
-          <div class="flex-1 p-5">
-            <div class="flex items-start gap-4 p-4 rounded-xl bg-orange-500/8 border border-orange-500/20 mb-4">
-              <div class="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center flex-shrink-0">
-                <span class="text-lg">🔧</span>
+
+          <!-- CENTER — Log list -->
+          <div class="border-r border-white/5 flex flex-col" style="width: 260px; background: #0d0f14; flex-shrink: 0;">
+            <div style="padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 10px; color: #6b7280; font-weight: 600;">127 crash logs</div>
+            <div class="flex-1 overflow-hidden px-2 py-1">
+
+              <!-- Row 1 — critical red -->
+              <div class="mock-log-row">
+                <div class="bar" style="background: #ef4444; min-height: 32px;"></div>
+                <div>
+                  <div class="filename">panic-full-2024-03-12…ips</div>
+                  <div style="display:flex; align-items:center; gap:4px; margin-top:2px;">
+                    <span class="cat-badge" style="background:rgba(239,68,68,0.15);color:#f87171;">Kernel Panic</span>
+                    <span class="diag-name" style="max-width:90px;">NAND Degradation</span>
+                    <span class="time">09:14</span>
+                  </div>
+                </div>
               </div>
-              <div>
-                <div class="text-sm font-semibold text-orange-300">HARDWARE ISSUE DETECTED — 89% confidence</div>
-                <div class="text-xs text-gray-400 mt-0.5">43/127 crashes: NAND Storage Degradation — NAND/Storage</div>
+
+              <!-- Row 2 — orange hardware -->
+              <div class="mock-log-row">
+                <div class="bar" style="background: #f97316; min-height: 32px;"></div>
+                <div>
+                  <div class="filename">JetsamEvent-2024-03-11…ips</div>
+                  <div style="display:flex; align-items:center; gap:4px; margin-top:2px;">
+                    <span class="cat-badge" style="background:rgba(249,115,22,0.15);color:#fb923c;">Jetsam</span>
+                    <span class="diag-name" style="max-width:90px;">Memory Pressure</span>
+                    <span class="time">22:47</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Row 3 — yellow software -->
+              <div class="mock-log-row">
+                <div class="bar" style="background: #eab308; min-height: 32px;"></div>
+                <div>
+                  <div class="filename">Springboard-2024-03-10…ips</div>
+                  <div style="display:flex; align-items:center; gap:4px; margin-top:2px;">
+                    <span class="cat-badge" style="background:rgba(234,179,8,0.15);color:#facc15;">App Crash</span>
+                    <span class="diag-name" style="max-width:90px;">SpringBoard fault</span>
+                    <span class="time">18:03</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Row 4 — red reboot -->
+              <div class="mock-log-row">
+                <div class="bar" style="background: #ef4444; min-height: 32px;"></div>
+                <div>
+                  <div class="filename">panic-full-2024-03-09…ips</div>
+                  <div style="display:flex; align-items:center; gap:4px; margin-top:2px;">
+                    <span class="cat-badge" style="background:rgba(239,68,68,0.15);color:#f87171;">Kernel Panic</span>
+                    <span class="diag-name" style="max-width:90px;">GPU Hang Recovery</span>
+                    <span class="time">03:31</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Row 5 — orange -->
+              <div class="mock-log-row">
+                <div class="bar" style="background: #f97316; min-height: 32px;"></div>
+                <div>
+                  <div class="filename">thermalmonitord-2024-03…ips</div>
+                  <div style="display:flex; align-items:center; gap:4px; margin-top:2px;">
+                    <span class="cat-badge" style="background:rgba(249,115,22,0.15);color:#fb923c;">Thermal</span>
+                    <span class="diag-name" style="max-width:90px;">Thermal Shutdown</span>
+                    <span class="time">14:55</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Row 6 — gray software -->
+              <div class="mock-log-row" style="border-bottom:none;">
+                <div class="bar" style="background: #6b7280; min-height: 32px;"></div>
+                <div>
+                  <div class="filename">Safari-2024-03-08-143…ips</div>
+                  <div style="display:flex; align-items:center; gap:4px; margin-top:2px;">
+                    <span class="cat-badge" style="background:rgba(107,114,128,0.2);color:#9ca3af;">App Crash</span>
+                    <span class="diag-name" style="max-width:90px;">Safari WebContent</span>
+                    <span class="time">14:22</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- RIGHT PANEL — Overview / Verdict -->
+          <div class="flex-1 flex flex-col overflow-hidden" style="background: #0d0f14;">
+
+            <!-- Verdict banner -->
+            <div style="margin: 10px; border-radius: 10px; padding: 10px 12px; background: linear-gradient(135deg, rgba(239,68,68,0.12) 0%, rgba(249,115,22,0.08) 100%); border: 1px solid rgba(239,68,68,0.3);">
+              <div style="display:flex; align-items:center; gap:7px; margin-bottom:3px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3" stroke-linecap="round"/></svg>
+                <span style="font-size: 11px; font-weight: 700; color: #f87171; letter-spacing: 0.04em;">HARDWARE ISSUE DETECTED</span>
+                <span style="margin-left:auto; background: rgba(249,115,22,0.2); color: #fb923c; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px;">89%</span>
+              </div>
+              <div style="font-size: 10px; color: #9ca3af;">43/127 crashes match NAND Storage Degradation signature</div>
+            </div>
+
+            <!-- Stats cards -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 6px; padding: 0 10px;">
+              <div style="background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px; text-align:center;">
+                <div style="font-size: 18px; font-weight: 700; color: #e5e7eb; line-height:1.1;">127</div>
+                <div style="font-size: 9px; color: #6b7280; margin-top:2px;">Total Crashes</div>
+              </div>
+              <div style="background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px; text-align:center;">
+                <div style="font-size: 18px; font-weight: 700; color: #f87171; line-height:1.1;">12</div>
+                <div style="font-size: 9px; color: #6b7280; margin-top:2px;">Reboots</div>
+              </div>
+              <div style="background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px; text-align:center;">
+                <div style="font-size: 18px; font-weight: 700; color: #e5e7eb; line-height:1.1;">4.2</div>
+                <div style="font-size: 9px; color: #6b7280; margin-top:2px;">Per Day</div>
+              </div>
+              <div style="background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px; text-align:center;">
+                <div style="font-size: 18px; font-weight: 700; color: #fb923c; line-height:1.1;">8</div>
+                <div style="font-size: 9px; color: #6b7280; margin-top:2px;">Patterns</div>
               </div>
             </div>
-            <div class="grid grid-cols-4 gap-3">
-              <div class="bg-white/4 rounded-xl p-3 text-center">
-                <div class="text-xl font-bold text-white">127</div>
-                <div class="text-xs text-gray-500">Total Crashes</div>
+
+            <!-- Timeline mini chart -->
+            <div style="padding: 10px 10px 0;">
+              <div style="font-size: 9.5px; color: #4b5563; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px;">Activity — Last 30 days</div>
+              <div style="display: flex; align-items: flex-end; gap: 3px; height: 48px;">
+                <!-- bars — varying heights representing crash freq -->
+                <div style="flex:1; background:rgba(107,114,128,0.25); border-radius:2px 2px 0 0; height:20%;"></div>
+                <div style="flex:1; background:rgba(107,114,128,0.25); border-radius:2px 2px 0 0; height:30%;"></div>
+                <div style="flex:1; background:rgba(249,115,22,0.4); border-radius:2px 2px 0 0; height:45%;"></div>
+                <div style="flex:1; background:rgba(107,114,128,0.25); border-radius:2px 2px 0 0; height:20%;"></div>
+                <div style="flex:1; background:rgba(107,114,128,0.25); border-radius:2px 2px 0 0; height:35%;"></div>
+                <div style="flex:1; background:rgba(239,68,68,0.5); border-radius:2px 2px 0 0; height:80%;"></div>
+                <div style="flex:1; background:rgba(249,115,22,0.4); border-radius:2px 2px 0 0; height:55%;"></div>
+                <div style="flex:1; background:rgba(107,114,128,0.25); border-radius:2px 2px 0 0; height:25%;"></div>
+                <div style="flex:1; background:rgba(239,68,68,0.5); border-radius:2px 2px 0 0; height:100%;"></div>
+                <div style="flex:1; background:rgba(249,115,22,0.4); border-radius:2px 2px 0 0; height:70%;"></div>
+                <div style="flex:1; background:rgba(239,68,68,0.5); border-radius:2px 2px 0 0; height:90%;"></div>
+                <div style="flex:1; background:rgba(249,115,22,0.4); border-radius:2px 2px 0 0; height:60%;"></div>
+                <div style="flex:1; background:rgba(239,68,68,0.6); border-radius:2px 2px 0 0; height:95%;"></div>
+                <div style="flex:1; background:rgba(249,115,22,0.35); border-radius:2px 2px 0 0; height:50%;"></div>
+                <div style="flex:1; background:rgba(107,114,128,0.25); border-radius:2px 2px 0 0; height:30%;"></div>
               </div>
-              <div class="bg-white/4 rounded-xl p-3 text-center">
-                <div class="text-xl font-bold text-red-400">12</div>
-                <div class="text-xs text-gray-500">Reboots</div>
-              </div>
-              <div class="bg-white/4 rounded-xl p-3 text-center">
-                <div class="text-xl font-bold text-white">4.2</div>
-                <div class="text-xs text-gray-500">Per Day</div>
-              </div>
-              <div class="bg-white/4 rounded-xl p-3 text-center">
-                <div class="text-xl font-bold text-white">8</div>
-                <div class="text-xs text-gray-500">Patterns</div>
+              <div style="display:flex; justify-content:space-between; margin-top:3px;">
+                <span style="font-size:8.5px; color:#374151;">Mar 1</span>
+                <span style="font-size:8.5px; color:#374151;">Mar 15</span>
+                <span style="font-size:8.5px; color:#374151;">Today</span>
               </div>
             </div>
+
+            <!-- Pattern tags -->
+            <div style="padding: 8px 10px; display:flex; gap:5px; flex-wrap:wrap;">
+              <span style="background:rgba(239,68,68,0.12);color:#f87171;border:1px solid rgba(239,68,68,0.2);border-radius:4px;font-size:9px;padding:2px 7px;font-weight:600;">NAND/Storage</span>
+              <span style="background:rgba(249,115,22,0.1);color:#fb923c;border:1px solid rgba(249,115,22,0.2);border-radius:4px;font-size:9px;padding:2px 7px;">GPU Hang</span>
+              <span style="background:rgba(107,114,128,0.12);color:#9ca3af;border:1px solid rgba(107,114,128,0.2);border-radius:4px;font-size:9px;padding:2px 7px;">Memory</span>
+              <span style="background:rgba(107,114,128,0.12);color:#9ca3af;border:1px solid rgba(107,114,128,0.2);border-radius:4px;font-size:9px;padding:2px 7px;">Thermal</span>
+            </div>
+
           </div>
         </div>
       </div>
@@ -308,7 +578,7 @@
             <li class="flex gap-3"><span class="text-orange-400">✓</span>Priority knowledge base updates</li>
             <li class="flex gap-3"><span class="text-orange-400">✓</span>All future features</li>
           </ul>
-          <a href="#" class="block text-center bg-brand hover:bg-brand-dark text-white font-semibold py-3 rounded-xl transition-colors shadow-lg shadow-orange-500/20">
+          <a href="#pricing" class="block text-center bg-brand hover:bg-brand-dark text-white font-semibold py-3 rounded-xl transition-colors shadow-lg shadow-orange-500/20">
             Buy Pro — $9.99
           </a>
         </div>
@@ -339,7 +609,7 @@
 
         <div class="border-b border-white/8 pb-6">
           <h3 class="font-medium text-white mb-2">What are .ips files?</h3>
-          <p class="text-sm text-gray-400">Apple's crash log format. You can find them in iPhone Settings → Privacy & Security → Analytics & Improvements → Analytics Data, or pull them directly via USB with iCrashDiag.</p>
+          <p class="text-sm text-gray-400">Apple's crash log format. You can find them in iPhone Settings → Privacy &amp; Security → Analytics &amp; Improvements → Analytics Data, or pull them directly via USB with iCrashDiag.</p>
         </div>
 
         <div class="border-b border-white/8 pb-6">
@@ -360,11 +630,7 @@
   <footer class="py-10 px-6 border-t border-white/5">
     <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
       <div class="flex items-center gap-3">
-        <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-500 to-amber-400 flex items-center justify-center">
-          <svg class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/>
-          </svg>
-        </div>
+        <svg width="28" height="28" class="rounded-lg"><use href="#logo-stethoscope"/></svg>
         <span class="text-sm text-gray-400">iCrashDiag © 2026 Atelier Sam</span>
       </div>
       <div class="flex items-center gap-6 text-sm text-gray-500">

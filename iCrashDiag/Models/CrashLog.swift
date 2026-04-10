@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 enum CrashCategory: String, Codable, CaseIterable, Identifiable {
     case kernelPanic = "Kernel Panic"
@@ -64,6 +65,37 @@ enum SortOrder: String, CaseIterable {
     case dateAscending = "Oldest First"
     case severity = "Severity"
     case category = "Category"
+    case confidence = "Confidence"
+}
+
+enum QuickFilter: String, CaseIterable, Identifiable {
+    case all = "All"
+    case hardware = "Hardware"
+    case critical = "Critical"
+    case today = "Today"
+    case reboots = "Reboots"
+
+    var id: String { rawValue }
+
+    var systemImage: String {
+        switch self {
+        case .all: "tray.full"
+        case .hardware: "wrench.fill"
+        case .critical: "exclamationmark.triangle.fill"
+        case .today: "clock"
+        case .reboots: "arrow.clockwise.circle.fill"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .all: .secondary
+        case .hardware: .orange
+        case .critical: .red
+        case .today: .blue
+        case .reboots: .red
+        }
+    }
 }
 
 struct StackFrame: Codable, Sendable {

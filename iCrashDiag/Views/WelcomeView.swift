@@ -1,8 +1,10 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct WelcomeView: View {
     @Environment(AppViewModel.self) private var viewModel
     @State private var showFolderPicker = false
+    @State private var isDragOver = false
 
     var body: some View {
         VStack(spacing: 32) {
@@ -138,6 +140,40 @@ struct WelcomeView: View {
             Spacer()
         }
         .onAppear { viewModel.checkUSBAvailability() }
+        .onDrop(of: [.fileURL], isTargeted: $isDragOver) { providers in
+            for provider in providers {
+                _ = provider.loadObject(ofClass: URL.self) { url, _ in
+                    guard let url else { return }
+                    Task { @MainActor in
+                        if url.hasDirectoryPath {
+                            await viewModel.importFolder(url: url)
+                            viewModel.startWatching(folder: url)
+                        } else if url.pathExtension.lowercased() == "ips" {
+                            await viewModel.importSingleIPS(url: url)
+                        }
+                    }
+                }
+            }
+            return true
+        }
+        .overlay(
+            isDragOver ?
+            RoundedRectangle(cornerRadius: 16)
+                .strokeBorder(Color.accentColor, style: StrokeStyle(lineWidth: 2, dash: [8]))
+                .background(Color.accentColor.opacity(0.05), in: RoundedRectangle(cornerRadius: 16))
+                .padding(12)
+                .overlay(
+                    VStack(spacing: 8) {
+                        Image(systemName: "arrow.down.circle.fill")
+                            .font(.system(size: 40))
+                            .foregroundStyle(Color.accentColor)
+                        Text("Drop folder or .ips files")
+                            .font(.headline)
+                            .foregroundStyle(Color.accentColor)
+                    }
+                )
+            : nil
+        )
         .fileImporter(
             isPresented: $showFolderPicker,
             allowedContentTypes: [.folder]

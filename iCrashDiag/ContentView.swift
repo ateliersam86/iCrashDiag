@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct ContentView: View {
     @Environment(AppViewModel.self) private var viewModel
@@ -105,5 +106,21 @@ struct ContentView: View {
             }
         }
         .animation(.spring(response: 0.4, dampingFraction: 0.85), value: viewModel.isLoading)
+        .onDrop(of: [.fileURL], isTargeted: nil) { providers in
+            for provider in providers {
+                _ = provider.loadObject(ofClass: URL.self) { url, _ in
+                    guard let url else { return }
+                    Task { @MainActor in
+                        if url.hasDirectoryPath {
+                            await viewModel.importFolder(url: url)
+                            viewModel.startWatching(folder: url)
+                        } else if url.pathExtension.lowercased() == "ips" {
+                            await viewModel.importSingleIPS(url: url)
+                        }
+                    }
+                }
+            }
+            return true
+        }
     }
 }

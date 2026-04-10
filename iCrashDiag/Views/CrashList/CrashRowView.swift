@@ -46,6 +46,11 @@ struct CrashRowView: View {
 
                     Spacer()
 
+                    if let conf = crash.diagnosis?.confidencePercent {
+                        Text("\(conf)%")
+                            .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                            .foregroundStyle(conf >= 80 ? .orange : .secondary)
+                    }
                     if let sev = crash.diagnosis?.severity, sev == .critical || sev == .hardware {
                         Image(systemName: sev == .critical ? "exclamationmark.triangle.fill" : "wrench.fill")
                             .font(.system(size: 9))

@@ -41,6 +41,9 @@ struct OverviewView: View {
                     RebootDashboardCard(reboots: reboots)
                 }
 
+                // Hardware probability gauge
+                HardwareGaugeView(report: report)
+
                 HStack(spacing: 16) {
                     StatCard(title: "Total Crashes", value: "\(report.totalCrashes)", icon: "doc.text.fill")
                     StatCard(title: "Reboots", value: "\(viewModel.rebootCount)",
@@ -125,6 +128,74 @@ struct OverviewView: View {
         guard panel.runModal() == .OK, let url = panel.url else { return }
         let md = viewModel.exportService.generateMarkdown(crashes: viewModel.crashLogs, report: report)
         try? md.write(to: url, atomically: true, encoding: .utf8)
+    }
+}
+
+// MARK: - Hardware Gauge
+
+private struct HardwareGaugeView: View {
+    let report: AnalysisReport
+    @State private var animated = false
+
+    private var hardwarePercent: Double {
+        let total = report.totalCrashes
+        guard total > 0 else { return 0 }
+        let hw = report.topPatterns.filter { $0.severity == .hardware || $0.severity == .critical }
+            .map(\.count).reduce(0, +)
+        return min(1.0, Double(hw) / Double(total))
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Hardware Risk")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                Spacer()
+                Text("\(Int(hardwarePercent * 100))%")
+                    .font(.subheadline)
+                    .fontWeight(.bold)
+                    .foregroundStyle(gaugeColor)
+                    .monospacedDigit()
+            }
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(Color.secondary.opacity(0.12))
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(
+                            LinearGradient(
+                                colors: [.green, .yellow, .orange, .red],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                            .opacity(0.85)
+                        )
+                        .frame(width: animated ? geo.size.width * hardwarePercent : 0)
+                        .animation(.spring(response: 0.8, dampingFraction: 0.7).delay(0.3), value: animated)
+                }
+                .frame(height: 8)
+            }
+            .frame(height: 8)
+
+            HStack {
+                Text("Low risk").font(.caption2).foregroundStyle(.secondary)
+                Spacer()
+                Text("High risk").font(.caption2).foregroundStyle(.secondary)
+            }
+        }
+        .padding(12)
+        .background(.quaternary, in: RoundedRectangle(cornerRadius: 10))
+        .onAppear { animated = true }
+    }
+
+    private var gaugeColor: Color {
+        switch hardwarePercent {
+        case 0..<0.3: return .green
+        case 0.3..<0.6: return .yellow
+        case 0.6..<0.8: return .orange
+        default: return .red
+        }
     }
 }
 
