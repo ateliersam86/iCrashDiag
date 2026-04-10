@@ -6847,6 +6847,886 @@
       "related_patterns": [
         "app_crash_sigabrt"
       ]
+    },
+    {
+      "id": "unexpected_shutdown_battery",
+      "keywords": [
+        "unexpected shutdown",
+        "shuts off at 20%",
+        "voltage sag",
+        "sudden power off"
+      ],
+      "category": "kernelPanic",
+      "component": "battery",
+      "severity": "hardware",
+      "confidence": 80,
+      "title": "Unexpected shutdown at non-zero battery — voltage sag",
+      "diagnosis": "Aged battery cells cannot deliver peak current during CPU/GPU spikes. Voltage drops below minimum, triggering emergency shutdown even at 20-30% reported charge.",
+      "probabilities": [
+        {
+          "cause": "Battery cell voltage sag under load",
+          "percent": 60,
+          "description": "Aged cells can't deliver peak current. Voltage drops below threshold during CPU/GPU spike."
+        },
+        {
+          "cause": "Fuel gauge calibration drift",
+          "percent": 25,
+          "description": "Fuel gauge miscalibrated — shows 20% but actual state of charge is lower."
+        },
+        {
+          "cause": "Defective replacement battery",
+          "percent": 15,
+          "description": "Third-party battery with inaccurate fuel gauge or poor cell quality."
+        }
+      ],
+      "repair_steps": [
+        "Check Settings > Battery > Battery Health — under 80% = replace",
+        "Replace battery with Apple-certified part",
+        "After replacement: full discharge/charge cycle to recalibrate"
+      ],
+      "test_procedure": [
+        "Run CPU-intensive app at 20-30% battery — does device shut off?",
+        "Check battery health percentage",
+        "Note exact % at which shutdown occurs"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "battery_voltage_missing",
+        "battery_temp_missing"
+      ]
+    },
+    {
+      "id": "swollen_battery",
+      "keywords": [
+        "swollen battery",
+        "battery swelling",
+        "bulging battery",
+        "screen lifting",
+        "battery puffed"
+      ],
+      "category": "kernelPanic",
+      "component": "battery",
+      "severity": "critical",
+      "confidence": 95,
+      "title": "Swollen battery — electrolyte venting (fire risk)",
+      "diagnosis": "Lithium-ion battery cells producing gas as electrolyte decomposes. Typically after 500+ charge cycles or from overcharging/physical damage. IMMEDIATE safety concern.",
+      "probabilities": [
+        {
+          "cause": "Battery cell aging / electrolyte off-gassing",
+          "percent": 65,
+          "description": "Normal end-of-life degradation producing gas."
+        },
+        {
+          "cause": "Overcharging or charging circuit damage",
+          "percent": 25,
+          "description": "Damaged charging circuit accelerating electrolyte breakdown."
+        },
+        {
+          "cause": "Physical damage to battery",
+          "percent": 10,
+          "description": "Battery punctured or bent causing internal short."
+        }
+      ],
+      "repair_steps": [
+        "STOP USING immediately — fire risk. Do not charge.",
+        "Replace battery urgently — swollen battery damages display and board",
+        "Do NOT puncture or apply pressure",
+        "Dispose at electronics recycling facility"
+      ],
+      "test_procedure": [
+        "Screen lifting from housing?",
+        "Device not sitting flat on table?",
+        "Display clicking when pressed near edges?"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "unexpected_shutdown_battery",
+        "battery_temp_missing"
+      ]
+    },
+    {
+      "id": "water_damage_corrosion",
+      "keywords": [
+        "water damage",
+        "liquid damage",
+        "corrosion",
+        "LCI",
+        "liquid contact indicator",
+        "oxidation"
+      ],
+      "category": "kernelPanic",
+      "component": "logic_board",
+      "severity": "hardware",
+      "confidence": 75,
+      "title": "Liquid damage / corrosion — electrochemical logic board damage",
+      "diagnosis": "Liquid caused electrochemical corrosion on IC pads, traces, or connectors. May appear days to weeks after exposure. Multiple unrelated failures often indicate underlying water damage.",
+      "probabilities": [
+        {
+          "cause": "Corrosion on logic board components",
+          "percent": 55,
+          "description": "Liquid caused corrosion on IC pads, traces, connectors — visible as green/white crystalline deposits."
+        },
+        {
+          "cause": "Short circuit from liquid bridging",
+          "percent": 30,
+          "description": "Liquid creating electrical short between power and ground or signal lines."
+        },
+        {
+          "cause": "Connector corrosion only",
+          "percent": 15,
+          "description": "Liquid contained to connectors/flex cables — cleaning may restore function."
+        }
+      ],
+      "repair_steps": [
+        "Immediately power off after liquid exposure — do NOT charge or power on",
+        "Open device: inspect LCI stickers (red = liquid exposure)",
+        "Ultrasonic cleaning with appropriate solution",
+        "Inspect all ICs under microscope for green/white corrosion",
+        "Treat corroded areas with flux and hot air"
+      ],
+      "test_procedure": [
+        "Check LCI stickers in SIM tray slot",
+        "Inspect under magnification for green/white deposits on board"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "i2c_bus_failure",
+        "audio_ic_failure"
+      ]
+    },
+    {
+      "id": "i2c0_bus_error",
+      "keywords": [
+        "i2C0 error",
+        "i2C2 error",
+        "I2C bus error",
+        "i2c front camera",
+        "J1111",
+        "J2019"
+      ],
+      "category": "kernelPanic",
+      "component": "i2c_bus",
+      "severity": "hardware",
+      "confidence": 72,
+      "title": "I2C0/I2C2 bus error — front sensor communication failure",
+      "diagnosis": "I2C2 bus connects front camera, ALS, proximity, and earpiece components. Panic indicates I2C bus fault on the front sensor chain.",
+      "probabilities": [
+        {
+          "cause": "Front camera flex cable damage",
+          "percent": 55,
+          "description": "I2C2 bus runs through front camera flex — damage causes entire front sensor chain to fail."
+        },
+        {
+          "cause": "I2C controller IC failure",
+          "percent": 30,
+          "description": "I2C controller IC (J1111/J2019 on iPhone 6, varies by model) failed."
+        },
+        {
+          "cause": "Corrosion on I2C lines",
+          "percent": 15,
+          "description": "Liquid corroding I2C SDA/SCL lines between components."
+        }
+      ],
+      "repair_steps": [
+        "Reseat front camera/sensor flex cable",
+        "Test all front-facing components (ALS, proximity, front camera)",
+        "Check I2C continuity — verify SDA/SCL signal integrity",
+        "Replace I2C controller IC if bus-level failure confirmed"
+      ],
+      "test_procedure": [
+        "Test front camera, ALS (auto-brightness), proximity sensor (screen off during call)",
+        "Multiple front component failures confirm bus-level issue"
+      ],
+      "models_affected": [
+        "iPhone7,1",
+        "iPhone7,2",
+        "iPhone8,1",
+        "iPhone8,2",
+        "iPhone9,1",
+        "iPhone9,2",
+        "iPhone10,3",
+        "iPhone10,6"
+      ],
+      "related_patterns": [
+        "i2c_bus_failure",
+        "als_missing"
+      ]
+    },
+    {
+      "id": "i2c3_bus_error",
+      "keywords": [
+        "i2C3 error",
+        "I2C3 bus error",
+        "i2c charging",
+        "i2c display",
+        "i2c audio"
+      ],
+      "category": "kernelPanic",
+      "component": "i2c_bus",
+      "severity": "hardware",
+      "confidence": 68,
+      "title": "I2C3 bus error — charging/audio/display component failure",
+      "diagnosis": "I2C3 bus carries communication to charging port, audio codec, and display components on many models. A bus lockup causes multiple simultaneous failures.",
+      "probabilities": [
+        {
+          "cause": "Dock/charging flex cable damage",
+          "percent": 50,
+          "description": "Charging port assembly flex cable damage disrupts I2C3 bus."
+        },
+        {
+          "cause": "Audio/display IC holding bus low",
+          "percent": 30,
+          "description": "An IC on I2C3 bus pulling SDA low, causing bus lockup."
+        },
+        {
+          "cause": "Board trace damage",
+          "percent": 20,
+          "description": "I2C3 trace broken from board flex or impact stress."
+        }
+      ],
+      "repair_steps": [
+        "Reseat dock flex, audio flex, and display flex connections",
+        "Use oscilloscope on I2C3 SDA/SCL to identify bus lockup",
+        "Replace the IC pulling the bus low"
+      ],
+      "test_procedure": [
+        "Test charging, audio output, display touch simultaneously",
+        "Multiple failures across these areas indicate I2C3 bus-level issue"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "i2c_bus_failure",
+        "audio_ic_failure",
+        "display_backlight_failure"
+      ]
+    },
+    {
+      "id": "exc_crash_sigkill_cachedelete",
+      "keywords": [
+        "0xbaddd15c",
+        "baddd15c",
+        "cache deleted",
+        "purgeable cache"
+      ],
+      "category": "appCrash",
+      "component": "storage",
+      "severity": "informational",
+      "confidence": 75,
+      "title": "0xbaddd15c — iOS deleted app cache for disk space",
+      "diagnosis": "iOS terminated app to delete its purgeable cache when storage is critically low (<500MB free). Normal system behavior, not a bug.",
+      "probabilities": [
+        {
+          "cause": "Storage critically low — iOS reclaiming cache",
+          "percent": 80,
+          "description": "Normal iOS behavior when storage < 500MB free."
+        },
+        {
+          "cause": "Large background app cache targeted",
+          "percent": 15,
+          "description": "App backgrounded with large purgeable cache the system needs to reclaim."
+        },
+        {
+          "cause": "Periodic iOS cache cleanup",
+          "percent": 5,
+          "description": "Routine cache cleanup at iOS discretion."
+        }
+      ],
+      "repair_steps": [
+        "Free up storage: delete unused apps, clear caches",
+        "Enable 'Offload Unused Apps' in Settings > App Store",
+        "Target minimum 2-5GB free storage"
+      ],
+      "test_procedure": [
+        "Check Settings > General > iPhone Storage",
+        "If < 1GB free: this is the cause"
+      ],
+      "models_affected": [],
+      "related_patterns": []
+    },
+    {
+      "id": "dyld_library_missing",
+      "keywords": [
+        "dyld",
+        "Library not loaded",
+        "image not found",
+        "dylib missing",
+        "Symbol not found"
+      ],
+      "category": "appCrash",
+      "component": "dynamic_linker",
+      "severity": "software",
+      "confidence": 88,
+      "title": "dyld — missing dynamic library on launch",
+      "diagnosis": "App references a framework not available on this iOS version, or the app bundle is missing an embedded framework. App crashes immediately on launch.",
+      "probabilities": [
+        {
+          "cause": "Minimum deployment target too high",
+          "percent": 45,
+          "description": "App requires framework only in iOS X.Y+ but installed on older device."
+        },
+        {
+          "cause": "Weak-linked framework used as strong link",
+          "percent": 30,
+          "description": "Optional framework marked as required in build settings."
+        },
+        {
+          "cause": "App bundle missing embedded framework",
+          "percent": 25,
+          "description": "Embedded framework accidentally excluded from app build."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS — many dyld errors from old iOS versions",
+        "Reinstall app from App Store",
+        "Report to developer with iOS version info"
+      ],
+      "test_procedure": [
+        "Note error: 'dyld: Library not loaded: /usr/lib/...'",
+        "Check iOS version of crashing device vs. app minimum requirement"
+      ],
+      "models_affected": [],
+      "related_patterns": []
+    },
+    {
+      "id": "exc_corpse_notify",
+      "keywords": [
+        "EXC_CORPSE_NOTIFY",
+        "corpse notify",
+        "abnormal exit",
+        "process corpse"
+      ],
+      "category": "appCrash",
+      "component": "process_management",
+      "severity": "software",
+      "confidence": 65,
+      "title": "EXC_CORPSE_NOTIFY — process exited abnormally",
+      "diagnosis": "Process exited via an abnormal path that doesn't produce a standard exception type. Corpse mechanism preserves crash state for analysis. Common with React Native / cross-platform frameworks.",
+      "probabilities": [
+        {
+          "cause": "App exited abnormally without standard exception",
+          "percent": 60,
+          "description": "EXC_CORPSE_NOTIFY is sent to crash reporters for diagnostic preservation when no specific exception fired."
+        },
+        {
+          "cause": "Memory corruption causing non-standard exit",
+          "percent": 30,
+          "description": "Memory corruption leading to abnormal exit path."
+        },
+        {
+          "cause": "Signal handled then self-terminated",
+          "percent": 10,
+          "description": "Process received signal, handled it, but still terminated."
+        }
+      ],
+      "repair_steps": [
+        "Analyze corpse backtrace — look for last meaningful stack frame",
+        "Update app to latest version",
+        "Report to developer"
+      ],
+      "test_procedure": [
+        "Examine thread backtraces for abnormal exit point",
+        "Check for third-party SDK version known issues"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "app_crash_sigabrt"
+      ]
+    },
+    {
+      "id": "nsexception_range",
+      "keywords": [
+        "NSRangeException",
+        "index out of bounds",
+        "index 0 beyond bounds",
+        "objectAtIndex"
+      ],
+      "category": "appCrash",
+      "component": "foundation",
+      "severity": "software",
+      "confidence": 90,
+      "title": "NSRangeException — collection index out of bounds",
+      "diagnosis": "Objective-C exception accessing array/collection with invalid index. Common data race: count changes between check and access on different threads.",
+      "probabilities": [
+        {
+          "cause": "Array accessed with invalid index",
+          "percent": 60,
+          "description": "objectAtIndex: called with index >= array.count, often from thread race."
+        },
+        {
+          "cause": "UITableView/CollectionView data source inconsistency",
+          "percent": 30,
+          "description": "numberOfRowsInSection disagrees with actual data — 'Invalid update' pattern."
+        },
+        {
+          "cause": "String range operation on short string",
+          "percent": 10,
+          "description": "substringWithRange: with range beyond string length."
+        }
+      ],
+      "repair_steps": [
+        "Update app to latest version",
+        "Report crash to developer"
+      ],
+      "test_procedure": [
+        "Reproduce specific action causing crash",
+        "Check for app update"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "app_crash_sigabrt"
+      ]
+    },
+    {
+      "id": "stack_overflow_app",
+      "keywords": [
+        "stack overflow",
+        "infinite recursion",
+        "call stack depth",
+        "recursive call"
+      ],
+      "category": "appCrash",
+      "component": "call_stack",
+      "severity": "software",
+      "confidence": 82,
+      "title": "Stack overflow — infinite recursion in app",
+      "diagnosis": "App method calling itself infinitely until stack (~8MB main thread) is exhausted. Backtrace shows same 2-5 frames repeated hundreds of times.",
+      "probabilities": [
+        {
+          "cause": "Infinite recursive method call",
+          "percent": 65,
+          "description": "Method A calls B which calls A, or self-recursive without base case."
+        },
+        {
+          "cause": "Deeply nested data structure parsing",
+          "percent": 20,
+          "description": "Recursive parser on deeply nested JSON/XML exceeding stack depth."
+        },
+        {
+          "cause": "KVO or notification cycle",
+          "percent": 15,
+          "description": "KVO observer triggering property change that fires same observer."
+        }
+      ],
+      "repair_steps": [
+        "Update app to latest version"
+      ],
+      "test_procedure": [
+        "Backtrace shows same frames repeated hundreds of times",
+        "EXC_BAD_ACCESS at very low stack address"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "app_crash_kern_invalid_address"
+      ]
+    },
+    {
+      "id": "mic4_missing",
+      "keywords": [
+        "Missing sensor(s): mic4",
+        "Missing sensor: mic4",
+        "mic4"
+      ],
+      "category": "kernelPanic",
+      "component": "microphone_array",
+      "severity": "hardware",
+      "confidence": 85,
+      "title": "mic4 thermal sensor failure — rear microphone NTC",
+      "diagnosis": "mic4 NTC thermal sensor on rear microphone flex is disconnected or damaged. Usually near rear camera module on iPhone 12+.",
+      "probabilities": [
+        {
+          "cause": "Rear microphone flex cable damaged",
+          "percent": 65,
+          "description": "mic4 on rear flex near camera module — flex replacement required."
+        },
+        {
+          "cause": "Damage during rear camera replacement",
+          "percent": 25,
+          "description": "mic4 connector not reseated or flex nicked during camera repair."
+        },
+        {
+          "cause": "Board-level mic4 NTC trace damage",
+          "percent": 10,
+          "description": "Trace from mic4 to thermal controller broken."
+        }
+      ],
+      "repair_steps": [
+        "Replace rear flex cable carrying mic4 sensor",
+        "Reseat rear camera assembly connectors",
+        "Test rear microphone in Voice Memos after repair"
+      ],
+      "test_procedure": [
+        "Panic string: 'Missing sensor(s): mic4'",
+        "Video recording with phone facing away — check audio clarity"
+      ],
+      "models_affected": [
+        "iPhone13,1",
+        "iPhone13,2",
+        "iPhone13,3",
+        "iPhone13,4",
+        "iPhone14,2",
+        "iPhone14,3",
+        "iPhone15,2",
+        "iPhone15,3"
+      ],
+      "related_patterns": [
+        "mic2_missing",
+        "thermalmonitord_watchdog"
+      ]
+    },
+    {
+      "id": "tg0h_missing",
+      "keywords": [
+        "Missing sensor(s): TG0H",
+        "Missing sensor: TG0H",
+        "housing temperature"
+      ],
+      "category": "kernelPanic",
+      "component": "thermal_sensor",
+      "severity": "hardware",
+      "confidence": 80,
+      "title": "TG0H thermal sensor missing — housing temperature sensor",
+      "diagnosis": "TG0H is the housing/enclosure temperature sensor, typically on battery assembly or dock flex. Its absence causes thermalmonitord to panic.",
+      "probabilities": [
+        {
+          "cause": "Battery connector not seated (TG0H on battery)",
+          "percent": 60,
+          "description": "TG0H often on battery assembly — reseat battery connector."
+        },
+        {
+          "cause": "Dock flex cable TG0H sensor damage",
+          "percent": 30,
+          "description": "Dock flex carries TG0H if not on battery assembly."
+        },
+        {
+          "cause": "Battery NTC thermistor failed",
+          "percent": 10,
+          "description": "Physical NTC thermistor on battery failed."
+        }
+      ],
+      "repair_steps": [
+        "Reseat battery connector",
+        "Check dock flex cable if battery reseat doesn't resolve",
+        "Replace battery if NTC thermistor failed"
+      ],
+      "test_procedure": [
+        "Panic string: 'Missing sensor(s): TG0H'",
+        "Check battery health and connector seating"
+      ],
+      "models_affected": [
+        "iPhone10,3",
+        "iPhone10,6",
+        "iPhone11,2",
+        "iPhone11,4",
+        "iPhone11,6",
+        "iPhone11,8",
+        "iPhone12,1",
+        "iPhone12,3",
+        "iPhone12,5"
+      ],
+      "related_patterns": [
+        "battery_temp_missing",
+        "thermalmonitord_watchdog"
+      ]
+    },
+    {
+      "id": "cpu_wakeup_rate_panic",
+      "keywords": [
+        "Too many wakeups",
+        "wakeup rate",
+        "interrupt storm",
+        "cpu wakeup panic"
+      ],
+      "category": "kernelPanic",
+      "component": "cpu",
+      "severity": "software",
+      "confidence": 65,
+      "title": "CPU wakeup rate panic — interrupt storm",
+      "diagnosis": "CPU being woken up too frequently. Either a failing hardware component generating spurious interrupts, or a software timer running at excessive frequency.",
+      "probabilities": [
+        {
+          "cause": "Interrupt storm from failing hardware",
+          "percent": 45,
+          "description": "Failing touch IC, WiFi chip, or sensor generating rapid spurious interrupts."
+        },
+        {
+          "cause": "Software timer at high frequency",
+          "percent": 35,
+          "description": "App or daemon using high-frequency timers causing excessive wakes."
+        },
+        {
+          "cause": "DMA engine thrashing",
+          "percent": 20,
+          "description": "DMA controller completing transfers too rapidly causing interrupt flood."
+        }
+      ],
+      "repair_steps": [
+        "DFU restore to rule out software cause",
+        "If hardware: identify interrupt source and replace component",
+        "Check for board-level short on interrupt lines"
+      ],
+      "test_procedure": [
+        "Panic string: 'Too many wakeups' or high wakeup count",
+        "DFU restore differentiates software vs hardware"
+      ],
+      "models_affected": [],
+      "related_patterns": []
+    },
+    {
+      "id": "gps_chip_failure",
+      "keywords": [
+        "GPS failure",
+        "GNSS failure",
+        "location not working",
+        "no GPS signal",
+        "Broadcom GPS"
+      ],
+      "category": "kernelPanic",
+      "component": "gps",
+      "severity": "hardware",
+      "confidence": 65,
+      "title": "GPS chip / GNSS failure",
+      "diagnosis": "GPS/GNSS receiver failure. Antenna cable is often disconnected during repair. If antenna is connected, the GPS receiver IC itself has failed.",
+      "probabilities": [
+        {
+          "cause": "GPS antenna cable disconnected",
+          "percent": 50,
+          "description": "GPS antenna coaxial cable disconnected during repair (back glass, battery)."
+        },
+        {
+          "cause": "GPS receiver IC failure",
+          "percent": 30,
+          "description": "GNSS IC failure — often shares silicon with WiFi/BT."
+        },
+        {
+          "cause": "Baseband handling GPS — software",
+          "percent": 20,
+          "description": "Baseband firmware issue affecting GPS — DFU restore may fix."
+        }
+      ],
+      "repair_steps": [
+        "Check GPS antenna coaxial connector (thin cable, near top of device)",
+        "Test Maps in open sky — does dot appear and track?",
+        "DFU restore if GPS partially works",
+        "Replace GNSS IC if antenna connected and still no GPS"
+      ],
+      "test_procedure": [
+        "Open sky Maps test: GPS lock within 30s?",
+        "Accuracy should be < 5m",
+        "Compass app heading accuracy"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "watchdog_locationd",
+        "baseband_crash"
+      ]
+    },
+    {
+      "id": "ota_failure_softwareupdate",
+      "keywords": [
+        "OTA failed",
+        "software update failed",
+        "update error",
+        "softwareupdate crash",
+        "preparation failed"
+      ],
+      "category": "otaUpdate",
+      "component": "software_update",
+      "severity": "software",
+      "confidence": 60,
+      "title": "OTA update failure — software update process crash",
+      "diagnosis": "Over-the-air update failed. Most commonly insufficient storage for OTA preparation, network interruption, or NAND degradation preventing writes.",
+      "probabilities": [
+        {
+          "cause": "Insufficient storage for OTA preparation",
+          "percent": 40,
+          "description": "OTA requires 1.5-3x update size in free space. Download succeeds but preparation fails."
+        },
+        {
+          "cause": "Network interruption during download",
+          "percent": 30,
+          "description": "Partial download or checksum mismatch."
+        },
+        {
+          "cause": "NAND integrity preventing write",
+          "percent": 20,
+          "description": "Degraded NAND unable to write update. Manifests as repeated OTA failures."
+        },
+        {
+          "cause": "Compatibility check failure",
+          "percent": 10,
+          "description": "Device-specific update entitlement check failed."
+        }
+      ],
+      "repair_steps": [
+        "Free up storage: target 4GB+ free before attempting",
+        "Use iTunes/Finder for full restore (more reliable on degraded storage)",
+        "Update over WiFi with device plugged in",
+        "If OTA always fails: attempt DFU restore"
+      ],
+      "test_procedure": [
+        "Check available storage before update",
+        "If iTunes restore also fails (Error 4013/4014): NAND hardware failure"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "restore_error_4013",
+        "restore_error_4014"
+      ]
+    },
+    {
+      "id": "apple_tristar2_panic",
+      "keywords": [
+        "Apple tristar2",
+        "Tristar2",
+        "CBTL1612A",
+        "USB controller panic",
+        "USB2 enumeration"
+      ],
+      "category": "kernelPanic",
+      "component": "usb_controller",
+      "severity": "hardware",
+      "confidence": 78,
+      "title": "Tristar2 USB controller panic — iPhone 7/7+ USB failure",
+      "diagnosis": "Tristar2 (updated Tristar USB controller IC on iPhone 7/8) BGA solder failure or corrosion. Causes USB communication failure, charge issues, and kernel panics.",
+      "probabilities": [
+        {
+          "cause": "Tristar2 IC BGA solder failure",
+          "percent": 55,
+          "description": "BGA solder joints cracked from thermal cycling or drop damage."
+        },
+        {
+          "cause": "Tristar2 IC water damage",
+          "percent": 30,
+          "description": "Corrosion on Tristar2 IC pads from liquid exposure."
+        },
+        {
+          "cause": "Tristar2 interconnect line damage",
+          "percent": 15,
+          "description": "Trace from Tristar2 to SoC or lightning port broken."
+        }
+      ],
+      "repair_steps": [
+        "Reball Tristar2 IC (remove, clean pads, add fresh solder balls, resolder)",
+        "If pads damaged: Tristar2 replacement with jumper wires",
+        "Inspect lightning port for corrosion"
+      ],
+      "test_procedure": [
+        "Plug into Mac — does Finder/iTunes recognize device?",
+        "Check charging with multiple cables"
+      ],
+      "models_affected": [
+        "iPhone9,1",
+        "iPhone9,2",
+        "iPhone9,3",
+        "iPhone9,4",
+        "iPhone10,4",
+        "iPhone10,5"
+      ],
+      "related_patterns": [
+        "tristar_failure"
+      ]
+    },
+    {
+      "id": "watchdog_appextension_timeout",
+      "keywords": [
+        "extension timeout",
+        "app extension",
+        "XPC timeout",
+        "NSExtensionPrincipalClass"
+      ],
+      "category": "watchdog",
+      "component": "app_extension",
+      "severity": "software",
+      "confidence": 70,
+      "title": "Watchdog: app extension timeout",
+      "diagnosis": "Share, Today widget, or notification extension took too long to initialize. Extension watchdog timeout is much shorter than main app (~5s for extensions vs. 20s for main app).",
+      "probabilities": [
+        {
+          "cause": "Extension blocking on main thread during init",
+          "percent": 60,
+          "description": "Heavy work in extension viewDidLoad — must be < 5s."
+        },
+        {
+          "cause": "Extension memory limit exceeded",
+          "percent": 25,
+          "description": "Extensions have stricter memory limits (60-120MB) than main app."
+        },
+        {
+          "cause": "XPC communication timeout with host app",
+          "percent": 15,
+          "description": "Extension↔host app communication blocked."
+        }
+      ],
+      "repair_steps": [
+        "Update app to latest version",
+        "Report to developer"
+      ],
+      "test_procedure": [
+        "Open Share Sheet or Notification Extension — does it load within 5s?",
+        "Check for app update"
+      ],
+      "models_affected": [],
+      "related_patterns": []
+    },
+    {
+      "id": "smc_i2c_pmu_error",
+      "keywords": [
+        "SMC i2Cm0",
+        "SMC i2Cm1",
+        "SMC i2C error",
+        "U3100",
+        "U3300",
+        "A12 PMU"
+      ],
+      "category": "kernelPanic",
+      "component": "pmu",
+      "severity": "hardware",
+      "confidence": 78,
+      "title": "SMC I2C PMU error — power management bus failure",
+      "diagnosis": "SMC I2C bus (i2Cm0/m1) error: communication failure between SoC and PMU IC. On A12+ models, i2Cm1 carries USB-PD IC communication.",
+      "probabilities": [
+        {
+          "cause": "PMU IC communication failure",
+          "percent": 60,
+          "description": "SMC i2Cm0 = USB IC and PMU communication bus. Failure indicates main PMU or USB controller IC."
+        },
+        {
+          "cause": "I2C lines to PMU corroded",
+          "percent": 25,
+          "description": "Liquid damage corroding SMC I2C communication lines between SoC and PMU."
+        },
+        {
+          "cause": "USB-PD IC failure (A12+)",
+          "percent": 15,
+          "description": "On iPhone XS/XR (A12): i2Cm1 carries USB Power Delivery IC. USBC IC or Tristar communication failed."
+        }
+      ],
+      "repair_steps": [
+        "Check PMU communication lines for corrosion",
+        "PMU component replacement via microsoldering",
+        "For A12+ models: USB-PD IC may need replacement"
+      ],
+      "test_procedure": [
+        "Test charging, power on/off, battery percentage accuracy",
+        "SMC i2Cm0/m1 error in panic log"
+      ],
+      "models_affected": [
+        "iPhone9,1",
+        "iPhone9,2",
+        "iPhone10,3",
+        "iPhone10,6",
+        "iPhone11,2",
+        "iPhone11,4",
+        "iPhone11,6",
+        "iPhone11,8",
+        "iPhone12,1",
+        "iPhone12,3"
+      ],
+      "related_patterns": [
+        "pmu_failure",
+        "tristar_failure",
+        "i2c_bus_failure"
+      ]
     }
   ]
 }
