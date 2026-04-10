@@ -5,6 +5,9 @@ struct DeviceInfo: Sendable {
     let name: String
     let productType: String
     let modelName: String?
+    let osVersion: String?
+    let buildVersion: String?
+    let serialNumber: String?
 }
 
 final class USBDeviceService: Sendable {
@@ -21,18 +24,30 @@ final class USBDeviceService: Sendable {
     }
 
     func deviceInfo(udid: String, knowledgeBase: KnowledgeBase) -> DeviceInfo? {
-        let nameResult = run(command: "ideviceinfo", arguments: ["-u", udid, "-k", "DeviceName"])
-        let typeResult = run(command: "ideviceinfo", arguments: ["-u", udid, "-k", "ProductType"])
-        guard nameResult.exitCode == 0, typeResult.exitCode == 0 else { return nil }
+        let nameResult    = run(command: "ideviceinfo", arguments: ["-u", udid, "-k", "DeviceName"])
+        let typeResult    = run(command: "ideviceinfo", arguments: ["-u", udid, "-k", "ProductType"])
+        let versionResult = run(command: "ideviceinfo", arguments: ["-u", udid, "-k", "ProductVersion"])
+        let buildResult   = run(command: "ideviceinfo", arguments: ["-u", udid, "-k", "BuildVersion"])
+        let serialResult  = run(command: "ideviceinfo", arguments: ["-u", udid, "-k", "SerialNumber"])
 
-        let name = nameResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
-        let productType = typeResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard nameResult.exitCode == 0, typeResult.exitCode == 0 else { return nil }
 
         return DeviceInfo(
             udid: udid,
-            name: name,
-            productType: productType,
-            modelName: knowledgeBase.modelName(for: productType)
+            name: nameResult.output.trimmingCharacters(in: .whitespacesAndNewlines),
+            productType: typeResult.output.trimmingCharacters(in: .whitespacesAndNewlines),
+            modelName: knowledgeBase.modelName(
+                for: typeResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
+            ),
+            osVersion: versionResult.exitCode == 0
+                ? versionResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
+                : nil,
+            buildVersion: buildResult.exitCode == 0
+                ? buildResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
+                : nil,
+            serialNumber: serialResult.exitCode == 0
+                ? serialResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
+                : nil
         )
     }
 

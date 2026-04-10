@@ -14,11 +14,7 @@ struct ContentView: View {
             } else if let report = viewModel.analysisReport {
                 OverviewView(report: report)
             } else {
-                ContentUnavailableView(
-                    "iCrashDiag",
-                    systemImage: "iphone.gen3.radiowaves.left.and.right",
-                    description: Text("Import crash logs to begin diagnosis")
-                )
+                WelcomeView()
             }
         }
         .navigationSplitViewStyle(.balanced)
