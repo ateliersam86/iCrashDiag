@@ -17,6 +17,93 @@
       "estimated_time_minutes": 15,
       "ifixit_difficulty": 2
     },
+    "earpiece_flex": {
+      "name": "Earpiece Speaker & Sensor Flex",
+      "aliases": ["ear speaker", "front sensor assembly", "proximity flex"],
+      "sensors_on_flex": ["prox", "als", "flood_illuminator"],
+      "parts_included": ["earpiece speaker", "proximity sensor", "ambient light sensor", "front microphone"],
+      "difficulty": "easy",
+      "estimated_time_minutes": 15,
+      "ifixit_difficulty": 3
+    },
+    "battery": {
+      "name": "Battery",
+      "aliases": ["cell", "power cell", "Li-ion battery"],
+      "difficulty": "easy",
+      "estimated_time_minutes": 15,
+      "ifixit_difficulty": 2,
+      "note": "Adhesive pull-tabs. Calibrate after replacement."
+    },
+    "audio_ic": {
+      "name": "Audio IC (Codec Chip)",
+      "aliases": ["audio codec", "338S00248", "Cirrus Logic"],
+      "difficulty": "expert_microsolder",
+      "estimated_time_minutes": 90,
+      "note": "BGA chip on logic board. Common failure on iPhone 7/7+ (loop disease). Requires microsoldering."
+    },
+    "baseband_modem": {
+      "name": "Baseband Modem (Cellular)",
+      "aliases": ["modem", "Qualcomm MDM", "Intel PMB", "cellular chip"],
+      "difficulty": "expert_microsolder",
+      "estimated_time_minutes": 120,
+      "note": "BGA modem IC. Failure causes 'No Service' or 'Searching'. Board-level repair."
+    },
+    "tristar_ic": {
+      "name": "Tristar / Hydra IC (USB Controller)",
+      "aliases": ["U2 IC", "CBTL1610", "USB charge controller"],
+      "difficulty": "expert_microsolder",
+      "estimated_time_minutes": 60,
+      "note": "Controls USB data/charging negotiation. Failure causes charging issues, false moisture warnings, or boot loops."
+    },
+    "truedepth_camera": {
+      "name": "TrueDepth Camera System (Face ID)",
+      "aliases": ["Face ID", "dot projector", "flood illuminator", "IR camera"],
+      "sensors_on_flex": ["dot_projector", "flood_illuminator", "ir_camera"],
+      "difficulty": "not_repairable",
+      "note": "Paired to logic board. Apple-only replacement restores Face ID. Third-party replacement loses Face ID."
+    },
+    "nfc_chip": {
+      "name": "NFC Controller",
+      "aliases": ["NFC", "Apple Pay chip", "NXP controller"],
+      "difficulty": "expert_microsolder",
+      "estimated_time_minutes": 90,
+      "note": "NXP NFC controller on logic board. Failure breaks Apple Pay and Express Transit."
+    },
+    "uwb_chip": {
+      "name": "Ultra Wideband (U1/U2) Chip",
+      "aliases": ["UWB", "U1 chip", "U2 chip", "spatial awareness"],
+      "difficulty": "not_repairable",
+      "note": "Apple-designed UWB chip. Board swap or Apple repair required."
+    },
+    "camera_system": {
+      "name": "Camera System (Rear/Front)",
+      "aliases": ["rear camera", "front camera", "ISP", "wide lens", "ultrawide"],
+      "difficulty": "moderate",
+      "estimated_time_minutes": 25,
+      "ifixit_difficulty": 4,
+      "note": "Camera modules are replaceable. ISP is part of SoC (not repairable)."
+    },
+    "pmu_ic": {
+      "name": "Power Management IC (PMIC)",
+      "aliases": ["PMU", "power IC", "Dialog PMIC", "338S00309"],
+      "difficulty": "expert_microsolder",
+      "estimated_time_minutes": 120,
+      "note": "Main power management chip. Failure causes no power, random shutdowns, or boot loops. Complex BGA rework."
+    },
+    "backlight_ic": {
+      "name": "Backlight Driver IC",
+      "aliases": ["backlight IC", "backlight filter", "diode filter"],
+      "difficulty": "expert_microsolder",
+      "estimated_time_minutes": 60,
+      "note": "Controls display backlight. Common failure on iPhone 8/X+ after screen replacement without disconnecting battery. Filter/IC replacement."
+    },
+    "gps_antenna": {
+      "name": "GPS Antenna & Module",
+      "aliases": ["GPS", "GNSS", "location antenna"],
+      "difficulty": "moderate",
+      "estimated_time_minutes": 30,
+      "note": "GPS antenna is usually on a flex cable. Connector or antenna damage causes location drift."
+    },
     "soc_gpu": {
       "name": "System on Chip (GPU)",
       "aliases": ["A-series chip", "processor"],
@@ -53,6 +140,13 @@
       "name": "System Memory (RAM)",
       "difficulty": "not_repairable",
       "note": "Part of SoC package."
+    },
+    "logic_board": {
+      "name": "Logic Board (Motherboard)",
+      "aliases": ["mainboard", "motherboard", "MLB"],
+      "difficulty": "expert_microsolder",
+      "estimated_time_minutes": null,
+      "note": "Full board replacement. Last resort when specific IC cannot be identified or multiple failures present."
     }
   }
 }
