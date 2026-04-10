@@ -7727,6 +7727,4567 @@
         "tristar_failure",
         "i2c_bus_failure"
       ]
+    },
+    {
+      "id": "app_crash_watchdog_0x8badf00d",
+      "keywords": [
+        "0x8badf00d",
+        "Termination Reason: Namespace SPRINGBOARD, Code 0x8badf00d",
+        "ate bad food",
+        "watchdog timeout"
+      ],
+      "category": "watchdog",
+      "component": "springboard_watchdog",
+      "severity": "software",
+      "confidence": 95,
+      "title": "App killed by watchdog — launch/resume timeout (0x8badf00d)",
+      "diagnosis": "SpringBoard's watchdog killed the app because it failed to respond within the allowed time (20s launch, 10s resume, 10s quit). The hex 0x8badf00d means 'ate bad food'.",
+      "probabilities": [
+        {
+          "cause": "Synchronous networking or I/O on main thread",
+          "percent": 55,
+          "description": "URLSession on main thread blocks UI thread past watchdog limit."
+        },
+        {
+          "cause": "Heavy CoreData migration on launch",
+          "percent": 25,
+          "description": "Schema migration runs synchronously at startup."
+        },
+        {
+          "cause": "Deadlock in main thread initialisation",
+          "percent": 20,
+          "description": "Class +initialize or viewDidLoad deadlocks."
+        }
+      ],
+      "repair_steps": [
+        "Force quit app and relaunch",
+        "Update app to latest version",
+        "If recurring: offload launch work to background queues"
+      ],
+      "test_procedure": [
+        "Check Termination Description field for 'SpringBoard' and time elapsed",
+        "Confirm 0x8badf00d hex code in crash report"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "watchdog_backboardd",
+        "watchdog_springboard"
+      ]
+    },
+    {
+      "id": "app_crash_swift_fatal_error",
+      "keywords": [
+        "Fatal error:",
+        "_swift_stdlib_reportFatalError",
+        "Swift/OptionalStorage.swift",
+        "unexpectedly found nil"
+      ],
+      "category": "appCrash",
+      "component": "swift_runtime",
+      "severity": "software",
+      "confidence": 90,
+      "title": "Swift fatal error — nil unwrap or precondition failure",
+      "diagnosis": "Swift runtime raised a fatal error, most commonly from force-unwrapping a nil Optional (!) or a precondition()/fatalError() call.",
+      "probabilities": [
+        {
+          "cause": "Force-unwrap of nil optional (!)",
+          "percent": 65,
+          "description": "Value expected to be non-nil was nil at runtime."
+        },
+        {
+          "cause": "Array/dictionary out-of-bounds subscript",
+          "percent": 20,
+          "description": "Index exceeds collection bounds; Swift traps."
+        },
+        {
+          "cause": "Explicit fatalError() in code path",
+          "percent": 15,
+          "description": "Developer marked a code path as unreachable, but it was reached."
+        }
+      ],
+      "repair_steps": [
+        "Update app to latest version",
+        "Developer: replace ! with guard let / if let",
+        "Report crash log to developer"
+      ],
+      "test_procedure": [
+        "Identify the thread with Fatal error: in backtrace",
+        "Note the Swift source file referenced in crash log"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "app_crash_exc_breakpoint"
+      ]
+    },
+    {
+      "id": "app_crash_abort_called",
+      "keywords": [
+        "abort() called",
+        "SIGABRT",
+        "objc_exception_throw",
+        "NSException"
+      ],
+      "category": "appCrash",
+      "component": "objc_runtime",
+      "severity": "software",
+      "confidence": 87,
+      "title": "ObjC exception / abort() — unhandled NSException",
+      "diagnosis": "An unhandled Objective-C exception (NSException) caused abort() to be called, typically due to an invalid selector, out-of-bounds NSArray access, or custom exception.",
+      "probabilities": [
+        {
+          "cause": "Unrecognised selector sent to object",
+          "percent": 45,
+          "description": "Method not found on target object; ObjC runtime throws."
+        },
+        {
+          "cause": "NSArray/NSDictionary out-of-bounds",
+          "percent": 35,
+          "description": "Index beyond array count raises NSRangeException."
+        },
+        {
+          "cause": "Custom exception not caught",
+          "percent": 20,
+          "description": "Third-party framework throws custom NSException."
+        }
+      ],
+      "repair_steps": [
+        "Update app to latest version",
+        "Check crash log Last Exception Backtrace section",
+        "Developer: wrap risky calls in @try/@catch or use Swift-native APIs"
+      ],
+      "test_procedure": [
+        "Look for 'Last Exception Backtrace' section in crash log",
+        "Identify triggering method from ObjC frame"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "app_crash_sigabrt"
+      ]
+    },
+    {
+      "id": "app_crash_kern_protection_failure",
+      "keywords": [
+        "KERN_PROTECTION_FAILURE",
+        "EXC_BAD_ACCESS (SIGBUS)",
+        "write to read-only memory",
+        "vm_protect"
+      ],
+      "category": "appCrash",
+      "component": "app_runtime",
+      "severity": "software",
+      "confidence": 85,
+      "title": "Memory protection violation — write to read-only region",
+      "diagnosis": "The app attempted to write to a read-only memory region (e.g., the __TEXT segment or a mmap'd read-only file), triggering KERN_PROTECTION_FAILURE.",
+      "probabilities": [
+        {
+          "cause": "Write to __TEXT / code segment",
+          "percent": 50,
+          "description": "JIT or dynamic code patching attempt blocked by W^X policy."
+        },
+        {
+          "cause": "Write to mmap read-only file",
+          "percent": 30,
+          "description": "Memory-mapped file opened without PROT_WRITE."
+        },
+        {
+          "cause": "Stack buffer overflow into guard page",
+          "percent": 20,
+          "description": "Local array overflow hits the stack guard page."
+        }
+      ],
+      "repair_steps": [
+        "Update app — likely requires code fix from developer",
+        "Verify app uses standard iOS memory APIs",
+        "Report crash log to developer"
+      ],
+      "test_procedure": [
+        "Check faulting address vs process memory map in crash log",
+        "Identify if address falls in __TEXT segment"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "app_crash_exc_bad_access",
+        "kernel_stack_overflow"
+      ]
+    },
+    {
+      "id": "ota_error_4013",
+      "keywords": [
+        "4013",
+        "error 4013",
+        "restore error 4013",
+        "iTunes error 4013"
+      ],
+      "category": "otaUpdate",
+      "component": "restore_usb",
+      "severity": "hardware",
+      "confidence": 85,
+      "title": "Restore error 4013 — USB communication failure during restore",
+      "diagnosis": "iTunes/Finder restore error 4013 indicates the device lost USB connection during firmware restoration, preventing successful restore. Common with hardware-level connectivity issues.",
+      "probabilities": [
+        {
+          "cause": "Lightning/USB-C port hardware fault",
+          "percent": 45,
+          "description": "Damaged charging port causing intermittent USB data connection."
+        },
+        {
+          "cause": "USB cable/hub fault",
+          "percent": 30,
+          "description": "Faulty USB cable or hub causing dropped connection during restore."
+        },
+        {
+          "cause": "Tristar/Hydra chip fault",
+          "percent": 25,
+          "description": "USB multiplexer IC failing during high-bandwidth restore transfer."
+        }
+      ],
+      "repair_steps": [
+        "Try different Apple Lightning/USB-C to USB-A cable",
+        "Connect directly to Mac USB-A port (no hub)",
+        "Try different Mac/PC",
+        "If persists: port or Tristar IC replacement"
+      ],
+      "test_procedure": [
+        "Use Apple-original cable directly in Mac USB-A port",
+        "Check if iPhone recognised in Finder before starting restore"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "tristar_failure",
+        "ota_failure_hardware"
+      ]
+    },
+    {
+      "id": "ota_error_4014",
+      "keywords": [
+        "4014",
+        "error 4014",
+        "restore error 4014",
+        "baseband not responding 4014"
+      ],
+      "category": "otaUpdate",
+      "component": "baseband_restore",
+      "severity": "hardware",
+      "confidence": 85,
+      "title": "Restore error 4014 — baseband not responding during restore",
+      "diagnosis": "Error 4014 indicates the baseband modem did not respond during firmware restore. The baseband firmware could not be flashed, leaving the device in an incomplete restore state.",
+      "probabilities": [
+        {
+          "cause": "Baseband hardware fault (modem IC)",
+          "percent": 50,
+          "description": "Baseband IC physically damaged or failed, cannot be programmed."
+        },
+        {
+          "cause": "Baseband NAND flash fault",
+          "percent": 30,
+          "description": "Baseband NVM/NAND cannot accept new firmware writes."
+        },
+        {
+          "cause": "Baseband power delivery issue during restore",
+          "percent": 20,
+          "description": "Unstable power during restore prevents baseband flash completion."
+        }
+      ],
+      "repair_steps": [
+        "Retry DFU restore multiple times",
+        "Try restore on different Mac/PC",
+        "If persists: baseband IC hardware replacement required"
+      ],
+      "test_procedure": [
+        "Verify modem firmware version in Settings > General > About after restore",
+        "If version shows blank: baseband failed to flash"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "baseband_crash",
+        "ota_failure_hardware",
+        "ota_error_4013"
+      ]
+    },
+    {
+      "id": "ota_error_4015",
+      "keywords": [
+        "4015",
+        "error 4015",
+        "restore error 4015",
+        "update server unavailable 4015"
+      ],
+      "category": "otaUpdate",
+      "component": "apple_servers",
+      "severity": "software",
+      "confidence": 78,
+      "title": "Restore error 4015 — Apple server communication failure",
+      "diagnosis": "Error 4015 occurs when iTunes/Finder cannot communicate with Apple's activation/restore servers during the restore process, often a network or firewall issue.",
+      "probabilities": [
+        {
+          "cause": "Firewall or security software blocking Apple servers",
+          "percent": 45,
+          "description": "Corporate firewall or security software blocking access to apple.com restore endpoints."
+        },
+        {
+          "cause": "Apple server temporary outage",
+          "percent": 30,
+          "description": "Apple restore servers temporarily unavailable — check status.apple.com."
+        },
+        {
+          "cause": "Network DNS/proxy configuration issue",
+          "percent": 25,
+          "description": "DNS or proxy not allowing connection to gs.apple.com."
+        }
+      ],
+      "repair_steps": [
+        "Check status.apple.com for server issues",
+        "Disable VPN, firewall, or antivirus during restore",
+        "Try a different network (mobile hotspot)",
+        "Add gs.apple.com to firewall allowlist"
+      ],
+      "test_procedure": [
+        "Visit apple.com in browser on restore Mac to verify connectivity",
+        "Check status.apple.com for iOS restore service status"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "ota_failure_hardware"
+      ]
+    },
+    {
+      "id": "ota_error_9",
+      "keywords": [
+        "error 9",
+        "restore error 9",
+        "iTunes error 9",
+        "device timeout error 9"
+      ],
+      "category": "otaUpdate",
+      "component": "restore_dfu",
+      "severity": "hardware",
+      "confidence": 83,
+      "title": "Restore error 9 — device timeout during DFU restore",
+      "diagnosis": "Error 9 indicates the device timed out or the USB connection was interrupted during the critical DFU firmware flash phase, failing the restore.",
+      "probabilities": [
+        {
+          "cause": "USB connection instability during restore",
+          "percent": 50,
+          "description": "Device lost USB connection during firmware transfer."
+        },
+        {
+          "cause": "Logic board hardware fault causing reset during flash",
+          "percent": 30,
+          "description": "Device hardware fault causing it to reset mid-restore."
+        },
+        {
+          "cause": "Security software interrupting restore",
+          "percent": 20,
+          "description": "Antivirus or MDM software interrupted USB communication."
+        }
+      ],
+      "repair_steps": [
+        "Use Apple-original cable, connect directly to Mac USB-A port",
+        "Disable antivirus during restore",
+        "Try DFU mode instead of normal recovery mode",
+        "If hardware fault: board-level diagnosis"
+      ],
+      "test_procedure": [
+        "Enter DFU mode (not recovery mode) for restore attempt",
+        "Verify cable firmly connected throughout entire restore"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "ota_failure_hardware",
+        "ota_error_4013"
+      ]
+    },
+    {
+      "id": "ota_error_14",
+      "keywords": [
+        "error 14",
+        "restore error 14",
+        "update failed error 14",
+        "IPSW verification error 14"
+      ],
+      "category": "otaUpdate",
+      "component": "ipsw_verification",
+      "severity": "software",
+      "confidence": 80,
+      "title": "Restore error 14 — IPSW download or verification failure",
+      "diagnosis": "Error 14 indicates the iOS firmware file (IPSW) failed verification, either because the download was incomplete, the IPSW is corrupt, or the IPSW is not signed by Apple for this device.",
+      "probabilities": [
+        {
+          "cause": "Partially downloaded / corrupt IPSW file",
+          "percent": 50,
+          "description": "IPSW download was interrupted, checksum fails verification."
+        },
+        {
+          "cause": "IPSW not compatible with this specific device model",
+          "percent": 30,
+          "description": "Wrong IPSW variant used for this device's regional model."
+        },
+        {
+          "cause": "Apple not signing this iOS version anymore",
+          "percent": 20,
+          "description": "IPSW version is no longer signed (Apple stopped accepting it)."
+        }
+      ],
+      "repair_steps": [
+        "Delete the IPSW file and re-download via iTunes/Finder",
+        "Verify IPSW SHA-1 hash against IPSW.me listing",
+        "Use Finder/iTunes automatic IPSW selection rather than manual"
+      ],
+      "test_procedure": [
+        "Check IPSW file size matches expected — partial downloads are smaller",
+        "Verify signing status at ipsw.me or SHSH.host"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "ota_failure_hardware"
+      ]
+    },
+    {
+      "id": "ota_error_21",
+      "keywords": [
+        "error 21",
+        "restore error 21",
+        "custom IPSW error 21",
+        "SHSH blob mismatch"
+      ],
+      "category": "otaUpdate",
+      "component": "ipsw_signing",
+      "severity": "software",
+      "confidence": 82,
+      "title": "Restore error 21 — custom IPSW / SHSH signing mismatch",
+      "diagnosis": "Error 21 occurs when the IPSW's signing blobs (SHSH) do not match Apple's current signing server, or a modified/custom IPSW was used. Also seen when restoring to an unsigned iOS version.",
+      "probabilities": [
+        {
+          "cause": "Attempting to restore to unsigned iOS version",
+          "percent": 50,
+          "description": "Apple no longer signs the target iOS version, restore rejected."
+        },
+        {
+          "cause": "Custom/modified IPSW (jailbreak)",
+          "percent": 30,
+          "description": "Modified IPSW signature does not pass Apple's verification."
+        },
+        {
+          "cause": "hosts file redirecting gs.apple.com (jailbreak tool)",
+          "percent": 20,
+          "description": "Jailbreak tool modified /etc/hosts; restoring Mac's hosts file fixes this."
+        }
+      ],
+      "repair_steps": [
+        "Check /etc/hosts on Mac for gs.apple.com entry (jailbreak tools modify it)",
+        "Restore hosts file to default, retry restore",
+        "Restore to current signed iOS only via iTunes/Finder"
+      ],
+      "test_procedure": [
+        "Open Terminal, run: cat /etc/hosts | grep apple",
+        "Remove any 127.0.0.1 gs.apple.com line if present"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "ota_failure_hardware"
+      ]
+    },
+    {
+      "id": "ota_error_4005",
+      "keywords": [
+        "4005",
+        "error 4005",
+        "restore error 4005",
+        "device in use 4005"
+      ],
+      "category": "otaUpdate",
+      "component": "restore_dfu",
+      "severity": "software",
+      "confidence": 75,
+      "title": "Restore error 4005 — device busy or MDM restriction",
+      "diagnosis": "Error 4005 typically means iTunes/Finder could not restore because the device is locked by MDM supervision, the USB port is in use, or a driver conflict exists.",
+      "probabilities": [
+        {
+          "cause": "MDM/DEP supervision preventing restore",
+          "percent": 45,
+          "description": "Corporate MDM policy prevents user from restoring supervised device."
+        },
+        {
+          "cause": "USB port conflict or driver issue on Windows",
+          "percent": 30,
+          "description": "Apple Mobile Device USB driver not loaded or conflicting."
+        },
+        {
+          "cause": "Device in active call or media playback during restore attempt",
+          "percent": 25,
+          "description": "Device not in idle state when restore initiated."
+        }
+      ],
+      "repair_steps": [
+        "Check with IT admin if device is MDM-supervised",
+        "On Windows: uninstall/reinstall Apple Mobile Device Support",
+        "Put device in DFU mode before restore to bypass software locks",
+        "Try restore on Mac instead of Windows"
+      ],
+      "test_procedure": [
+        "Check Settings > General > Device Management for MDM profile",
+        "Try DFU mode restore on a Mac"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "ota_failure_hardware"
+      ]
+    },
+    {
+      "id": "ota_sep_firmware_update",
+      "keywords": [
+        "SEP firmware update",
+        "Secure Enclave firmware update failed",
+        "sep_update",
+        "SEP personalization"
+      ],
+      "category": "otaUpdate",
+      "component": "sep_update",
+      "severity": "critical",
+      "confidence": 85,
+      "title": "SEP firmware update failure during OTA/restore",
+      "diagnosis": "The Secure Enclave Processor firmware failed to update during an iOS OTA update or restore, leaving the device in a state where cryptographic operations may be unavailable.",
+      "probabilities": [
+        {
+          "cause": "SEP firmware flash error (NAND write fault)",
+          "percent": 45,
+          "description": "NAND error prevented new SEP firmware from being written."
+        },
+        {
+          "cause": "Power interruption during SEP update",
+          "percent": 35,
+          "description": "Battery died or device powered off during SEP firmware write."
+        },
+        {
+          "cause": "SEP hardware fault blocking firmware acceptance",
+          "percent": 20,
+          "description": "SEP hardware fault preventing firmware acceptance."
+        }
+      ],
+      "repair_steps": [
+        "DFU restore — forces complete SEP firmware reflash",
+        "Ensure >50% battery before any OTA update",
+        "If DFU restore fails: Apple service required"
+      ],
+      "test_procedure": [
+        "After restore, test Face ID / Touch ID enrollment",
+        "Test Apple Pay — requires SEP to function"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "sep_panic",
+        "sep_secure_boot_failure",
+        "ota_failure_hardware"
+      ]
+    },
+    {
+      "id": "thermal_cpu_throttle",
+      "keywords": [
+        "thermal throttle",
+        "CPU throttling",
+        "CLPC",
+        "processor speed reduced",
+        "CLPC: reducing performance"
+      ],
+      "category": "thermal",
+      "component": "clpc_thermal",
+      "severity": "informational",
+      "confidence": 78,
+      "title": "CPU thermal throttling event (CLPC)",
+      "diagnosis": "The Closed-Loop Performance Controller (CLPC) reduced CPU/GPU frequency due to thermal limits being approached. This is normal protective behaviour but can cause app slowdowns.",
+      "probabilities": [
+        {
+          "cause": "Heavy sustained CPU/GPU workload",
+          "percent": 60,
+          "description": "Gaming, video encoding, or ML inference running sustained at full load."
+        },
+        {
+          "cause": "Poor thermal dissipation (case blocking heat)",
+          "percent": 25,
+          "description": "Thick or insulating case trapping heat; remove case to cool faster."
+        },
+        {
+          "cause": "Degraded battery causing higher SoC resistance/heat",
+          "percent": 15,
+          "description": "Old battery with high internal resistance generates extra heat."
+        }
+      ],
+      "repair_steps": [
+        "Remove case during extended heavy workloads",
+        "Update iOS — thermal management improvements common in updates",
+        "Replace battery if Battery Health below 80%"
+      ],
+      "test_procedure": [
+        "Check Settings > Battery > Battery Health",
+        "Note if throttling correlates with specific app or ambient temperature"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "thermal_event_informational",
+        "thermal_shutdown"
+      ]
+    },
+    {
+      "id": "thermal_sensor_missing",
+      "keywords": [
+        "Missing sensor",
+        "thermal sensor missing",
+        "skin temperature sensor",
+        "PCB temperature sensor missing"
+      ],
+      "category": "thermal",
+      "component": "thermal_sensors",
+      "severity": "hardware",
+      "confidence": 85,
+      "title": "Thermal sensor missing from system sensor report",
+      "diagnosis": "One or more thermal sensors (NTC thermistors on PCB, battery, or flex cables) are absent from the sensor enumeration, preventing accurate thermal monitoring.",
+      "probabilities": [
+        {
+          "cause": "Flex cable with embedded NTC sensor disconnected",
+          "percent": 55,
+          "description": "Charging flex, display flex, or battery flex carrying NTC sensor is disconnected."
+        },
+        {
+          "cause": "NTC sensor pads lifted/damaged (repair damage)",
+          "percent": 30,
+          "description": "Micro-soldering repair lifted NTC sensor pad or broke trace."
+        },
+        {
+          "cause": "Battery with missing/damaged thermistor",
+          "percent": 15,
+          "description": "Replacement battery missing the NTC thermistor or with damaged flex."
+        }
+      ],
+      "repair_steps": [
+        "Identify which sensor is missing from log (mic1/mic2/baro/als)",
+        "Reconnect relevant flex cable",
+        "Replace flex cable with embedded sensor"
+      ],
+      "test_procedure": [
+        "Check Analytics logs for 'Missing sensor' entries",
+        "Cross-reference sensor ID with component location chart"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "mic1_missing",
+        "mic2_missing",
+        "baro_missing",
+        "thermalmonitord_watchdog"
+      ]
+    },
+    {
+      "id": "disk_storage_full",
+      "keywords": [
+        "disk full",
+        "no space left on device",
+        "ENOSPC",
+        "storage full",
+        "APFS out of space"
+      ],
+      "category": "diskResource",
+      "component": "apfs_storage",
+      "severity": "software",
+      "confidence": 88,
+      "title": "Storage full — ENOSPC causing app crashes",
+      "diagnosis": "The iPhone storage is full or critically low (< 1 GB free). Apps requiring temporary file space fail with ENOSPC errors, causing crashes or data loss.",
+      "probabilities": [
+        {
+          "cause": "Storage genuinely full from user data",
+          "percent": 55,
+          "description": "Photos, apps, or downloads have filled available NAND."
+        },
+        {
+          "cause": "Runaway log or cache accumulation",
+          "percent": 25,
+          "description": "A malfunctioning app wrote large amounts of log/cache data."
+        },
+        {
+          "cause": "Pending OTA update consuming space",
+          "percent": 20,
+          "description": "Downloaded OTA update consuming reserved space."
+        }
+      ],
+      "repair_steps": [
+        "Settings > General > iPhone Storage — review and delete large items",
+        "Delete unused apps",
+        "Offload photos to iCloud or Mac",
+        "Clear app caches via Settings > [App] > Clear Cache"
+      ],
+      "test_procedure": [
+        "Settings > General > iPhone Storage — check available space",
+        "If < 1 GB free: this is likely contributing to crashes"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "kernel_apfs_panic"
+      ]
+    },
+    {
+      "id": "disk_sqlite_corruption",
+      "keywords": [
+        "SQLite",
+        "database disk image is malformed",
+        "SQLITE_CORRUPT",
+        "CoreData",
+        "database corruption"
+      ],
+      "category": "diskResource",
+      "component": "sqlite_database",
+      "severity": "software",
+      "confidence": 83,
+      "title": "SQLite / CoreData database corruption",
+      "diagnosis": "An app's SQLite database (often managed via CoreData) is corrupted, causing the app to crash on launch or when accessing the database.",
+      "probabilities": [
+        {
+          "cause": "Interrupted write (power loss / crash) left DB inconsistent",
+          "percent": 50,
+          "description": "Previous app crash during DB write left SQLite in corrupt state."
+        },
+        {
+          "cause": "Multiple processes writing to same DB without WAL mode",
+          "percent": 30,
+          "description": "Concurrent writes without proper SQLite locking caused corruption."
+        },
+        {
+          "cause": "NAND storage error during DB write",
+          "percent": 20,
+          "description": "Flash storage error corrupted DB page."
+        }
+      ],
+      "repair_steps": [
+        "Delete and reinstall the app (fresh database)",
+        "Restore from iCloud/iTunes backup",
+        "Developer: enable SQLite WAL mode and use CoreData NSPersistentContainer"
+      ],
+      "test_procedure": [
+        "Delete app and reinstall — check if crash resolves",
+        "Check if crash happens immediately on launch (database accessed at startup)"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "kernel_apfs_panic",
+        "app_crash_exc_guard"
+      ]
+    },
+    {
+      "id": "display_oled_burn",
+      "keywords": [
+        "OLED burn",
+        "display retention",
+        "pixel degradation",
+        "OLED uniformity",
+        "burn-in"
+      ],
+      "category": "gpuEvent",
+      "component": "oled_display",
+      "severity": "hardware",
+      "confidence": 75,
+      "title": "OLED display burn-in / pixel retention",
+      "diagnosis": "The OLED display shows permanent image retention (burn-in), where ghost images of previously displayed content are visible as permanent faint overlays.",
+      "probabilities": [
+        {
+          "cause": "Prolonged display of static content at high brightness",
+          "percent": 60,
+          "description": "Navigation bar, keyboard, or static UI elements burned in over time."
+        },
+        {
+          "cause": "Extended use at maximum brightness",
+          "percent": 25,
+          "description": "Using at 100% brightness accelerates OLED organic compound degradation."
+        },
+        {
+          "cause": "OLED panel manufacturing variance",
+          "percent": 15,
+          "description": "Some panels more susceptible to retention; quality variance."
+        }
+      ],
+      "repair_steps": [
+        "Enable 'Auto-Lock' to turn off display after 30s",
+        "Reduce display brightness below 80%",
+        "Enable 'Reduce White Point' in Accessibility",
+        "Display replacement if burn-in is severe and unacceptable"
+      ],
+      "test_procedure": [
+        "Display a solid grey or white screen — burn-in visible as ghost image",
+        "Use Apple's OLED screen burn-in test (grey background)"
+      ],
+      "models_affected": [
+        "iPhone10,3",
+        "iPhone10,6",
+        "iPhone11,2",
+        "iPhone11,4",
+        "iPhone11,6",
+        "iPhone12,3",
+        "iPhone12,5",
+        "iPhone13,2",
+        "iPhone13,3",
+        "iPhone13,4",
+        "iPhone14,2",
+        "iPhone14,3"
+      ],
+      "related_patterns": [
+        "display_backlight_failure"
+      ]
+    },
+    {
+      "id": "display_green_line",
+      "keywords": [
+        "green line",
+        "vertical line display",
+        "display green stripe",
+        "DDIC fault",
+        "display artifact"
+      ],
+      "category": "gpuEvent",
+      "component": "display_ddic",
+      "severity": "hardware",
+      "confidence": 85,
+      "title": "Green vertical line — OLED DDIC / display hardware fault",
+      "diagnosis": "A permanent green vertical line on the display indicates a faulty OLED display driver IC (DDIC) or a damaged row/column driver within the OLED panel itself.",
+      "probabilities": [
+        {
+          "cause": "Display panel DDIC chip fault (often after drop)",
+          "percent": 60,
+          "description": "Impact to OLED stack damaged display driver IC."
+        },
+        {
+          "cause": "Flex cable between DDIC and panel damaged",
+          "percent": 25,
+          "description": "Internal flex cable carries column/row drive signals; damage causes line."
+        },
+        {
+          "cause": "Apple OLED silicon defect (warranty recall)",
+          "percent": 15,
+          "description": "Some iPhone X models exhibited green line from DDIC defect — Apple extended warranty."
+        }
+      ],
+      "repair_steps": [
+        "Screen replacement (OLED panel with DDIC) required",
+        "Check if device is under Apple extended warranty program for this issue",
+        "Apple service for iPhone X green line (extended warranty program)"
+      ],
+      "test_procedure": [
+        "Display white or grey background — vertical green line will be clearly visible",
+        "Line present at all brightness levels = hardware fault"
+      ],
+      "models_affected": [
+        "iPhone10,3",
+        "iPhone10,6",
+        "iPhone11,2"
+      ],
+      "related_patterns": [
+        "display_backlight_failure",
+        "gpu_iomobileframebuffer"
+      ]
+    },
+    {
+      "id": "network_wifi_crash",
+      "keywords": [
+        "WiFiKit",
+        "wifid crash",
+        "WiFiAgent",
+        "wlan crash",
+        "IO80211Family panic"
+      ],
+      "category": "kernelPanic",
+      "component": "wifi_driver",
+      "severity": "software",
+      "confidence": 82,
+      "title": "Wi-Fi driver / IO80211 kernel panic",
+      "diagnosis": "The Wi-Fi kernel extension (IO80211Family) encountered a fatal assertion or null pointer, causing a kernel panic. Often related to specific network configurations or driver bugs.",
+      "probabilities": [
+        {
+          "cause": "Wi-Fi driver bug triggered by specific AP beacon",
+          "percent": 45,
+          "description": "Malformed or unusual Wi-Fi beacon/frame triggers driver assertion."
+        },
+        {
+          "cause": "Wi-Fi chip firmware crash escalated to kernel",
+          "percent": 35,
+          "description": "WLAN firmware panic causes IO80211 kernel driver to panic."
+        },
+        {
+          "cause": "Wi-Fi + Bluetooth coexistence deadlock",
+          "percent": 20,
+          "description": "BT/Wi-Fi coex shared resources cause concurrent access deadlock."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS (Wi-Fi driver fixes common in updates)",
+        "Forget Wi-Fi network and rejoin",
+        "Settings > General > Transfer or Reset > Reset Network Settings"
+      ],
+      "test_procedure": [
+        "Test on different Wi-Fi networks to isolate AP-specific trigger",
+        "Toggle Wi-Fi off/on after reset to test stability"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "watchdog_wifid"
+      ]
+    },
+    {
+      "id": "audio_codec_panic",
+      "keywords": [
+        "AppleAudio",
+        "audio_ic",
+        "audio codec",
+        "338S00509",
+        "338S00513",
+        "CS42L83"
+      ],
+      "category": "kernelPanic",
+      "component": "audio_codec_ic",
+      "severity": "hardware",
+      "confidence": 83,
+      "title": "Audio codec IC failure / driver panic",
+      "diagnosis": "The audio codec IC (Cirrus Logic CS42L83 / 338S00509 etc.) failed to respond or triggered a driver panic, causing audio to stop working entirely.",
+      "probabilities": [
+        {
+          "cause": "Audio codec IC hardware fault (liquid damage common)",
+          "percent": 55,
+          "description": "Codec IC corroded or damaged — audio in/out all fail simultaneously."
+        },
+        {
+          "cause": "I2C/SPI bus fault to codec",
+          "percent": 25,
+          "description": "Communication bus to codec chip damaged."
+        },
+        {
+          "cause": "Codec firmware hang requiring reset",
+          "percent": 20,
+          "description": "Codec firmware deadlocked; driver panic ensures clean recovery."
+        }
+      ],
+      "repair_steps": [
+        "Test microphone (Voice Memos), speaker (Music), headphone (wired)",
+        "If all audio paths fail: codec IC replacement",
+        "Check for liquid damage on logic board around codec IC area"
+      ],
+      "test_procedure": [
+        "Record voice memo — test microphone input",
+        "Play music through speaker — test speaker output",
+        "Test with wired headphones — test headphone jack path"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "audio_ic_failure",
+        "i2c_bus_failure"
+      ]
+    },
+    {
+      "id": "kernel_sleep_wake_timeout",
+      "keywords": [
+        "Sleep/Wake Failure",
+        "powerd sleep timeout",
+        "sleep transition timed out",
+        "PMAssertion"
+      ],
+      "category": "kernelPanic",
+      "component": "sleep_wake",
+      "severity": "software",
+      "confidence": 83,
+      "title": "Sleep/Wake transition timeout — device stuck in power state",
+      "diagnosis": "The device failed to complete a sleep or wake transition within the timeout window, causing either a hang or a panic to recover from the stuck power state.",
+      "probabilities": [
+        {
+          "cause": "Process holding power assertion preventing sleep",
+          "percent": 50,
+          "description": "App holding UIApplication backgroundTaskIdentifier blocking sleep."
+        },
+        {
+          "cause": "Driver failing to acknowledge sleep request",
+          "percent": 30,
+          "description": "Peripheral driver not responding to sleep power state transition."
+        },
+        {
+          "cause": "Thermal event preventing normal sleep",
+          "percent": 20,
+          "description": "Overheat condition preventing device from entering low-power sleep state."
+        }
+      ],
+      "repair_steps": [
+        "Force restart iPhone (hold Side + Volume Down)",
+        "Update iOS and all apps",
+        "Identify power-assertion-holding app via Analytics logs"
+      ],
+      "test_procedure": [
+        "Check if sleep button reliably locks device",
+        "Verify screen turns off after Auto-Lock period"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "sleep_wake_hang",
+        "watchdog_powerd"
+      ]
+    },
+    {
+      "id": "ota_error_4002",
+      "keywords": [
+        "4002",
+        "error 4002",
+        "restore error 4002",
+        "firmware verification error 4002"
+      ],
+      "category": "otaUpdate",
+      "component": "restore_activation",
+      "severity": "software",
+      "confidence": 78,
+      "title": "Restore error 4002 — firmware personalisation / activation failure",
+      "diagnosis": "Error 4002 indicates Apple's personalisation server (Tatsu/TSS) could not personalise the firmware IPSW for this specific device ECID, blocking restore.",
+      "probabilities": [
+        {
+          "cause": "Temporary Apple TSS server issue",
+          "percent": 45,
+          "description": "Apple's firmware signing/personalisation server temporarily unavailable."
+        },
+        {
+          "cause": "Network blocking TSS server access",
+          "percent": 35,
+          "description": "Firewall or proxy blocking connections to gs.apple.com TSS endpoint."
+        },
+        {
+          "cause": "iOS version no longer signed by Apple",
+          "percent": 20,
+          "description": "Target iOS version no longer accepted by TSS; only latest iOS signed."
+        }
+      ],
+      "repair_steps": [
+        "Check status.apple.com for TSS service status",
+        "Disable VPN/proxy, try restore again",
+        "Let iTunes/Finder choose iOS version automatically",
+        "Try from different network"
+      ],
+      "test_procedure": [
+        "Check status.apple.com — iOS Software Restore section",
+        "Verify gs.apple.com accessible: ping gs.apple.com from Terminal"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "ota_failure_hardware",
+        "ota_error_4015"
+      ]
+    },
+    {
+      "id": "camera_front_failure",
+      "keywords": [
+        "front camera",
+        "selfie camera",
+        "FaceTime camera",
+        "AppleH12ISP",
+        "FaceTimeHD camera not available"
+      ],
+      "category": "kernelPanic",
+      "component": "front_camera",
+      "severity": "hardware",
+      "confidence": 82,
+      "title": "Front (FaceTime) camera hardware failure",
+      "diagnosis": "The front-facing FaceTime camera module is not responding or producing invalid image data. Affects video calls, selfies, and Face ID on non-TrueDepth models.",
+      "probabilities": [
+        {
+          "cause": "Front camera flex cable damaged",
+          "percent": 50,
+          "description": "Flex cable connecting front camera to logic board broken or pinched."
+        },
+        {
+          "cause": "Front camera module failure",
+          "percent": 30,
+          "description": "CMOS sensor or lens assembly in front camera failed."
+        },
+        {
+          "cause": "ISP crash for front camera pipeline",
+          "percent": 20,
+          "description": "Image Signal Processor crashed during front camera initialisation."
+        }
+      ],
+      "repair_steps": [
+        "Test in Camera app — tap flip icon to switch to front camera",
+        "Check for 'camera unavailable' error in Camera app",
+        "Front camera module or screen assembly replacement"
+      ],
+      "test_procedure": [
+        "Open Camera app, switch to front-facing — should show preview",
+        "Test FaceTime video call — front camera required"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "camera_isp_panic",
+        "sep_biometric_hardware"
+      ]
+    },
+    {
+      "id": "camera_rear_failure",
+      "keywords": [
+        "rear camera",
+        "main camera",
+        "ultra wide camera",
+        "telephoto camera",
+        "AppleSMC camera",
+        "camera not available"
+      ],
+      "category": "kernelPanic",
+      "component": "rear_camera",
+      "severity": "hardware",
+      "confidence": 82,
+      "title": "Rear camera hardware failure (main / ultra-wide / telephoto)",
+      "diagnosis": "One or more rear camera modules (main, ultra-wide, or telephoto) failed or are producing errors. The Camera app may show 'Camera Unavailable' or a black preview.",
+      "probabilities": [
+        {
+          "cause": "Rear camera flex or connector damage",
+          "percent": 45,
+          "description": "Camera module flex cable or ZIF connector broken from impact."
+        },
+        {
+          "cause": "Camera OIS actuator stuck / damaged",
+          "percent": 30,
+          "description": "Optical Image Stabilisation magnet/coil assembly damaged causing vibration/failure."
+        },
+        {
+          "cause": "Camera module CMOS sensor failure",
+          "percent": 25,
+          "description": "Image sensor physically damaged — commonly from impact to rear glass."
+        }
+      ],
+      "repair_steps": [
+        "Test each camera: main, ultra-wide, and telephoto in Camera app",
+        "Check for physical impact damage to rear camera housing",
+        "Rear camera module replacement (main or telephoto/ultra-wide assembly)"
+      ],
+      "test_procedure": [
+        "Open Camera app — try 0.5x (ultra-wide), 1x (main), 2x/3x (telephoto)",
+        "Check if OIS stabilisation works — should smooth out hand shake in preview"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "camera_isp_panic"
+      ]
+    },
+    {
+      "id": "kernel_bus_error_alignment",
+      "keywords": [
+        "BUS_ADRALN",
+        "EXC_BAD_ACCESS (SIGBUS)",
+        "unaligned memory access",
+        "alignment fault"
+      ],
+      "category": "kernelPanic",
+      "component": "kernel_memory",
+      "severity": "software",
+      "confidence": 82,
+      "title": "Unaligned memory access (BUS_ADRALN)",
+      "diagnosis": "A kernel or app-level access occurred at a misaligned address. ARM strictly requires aligned loads/stores for certain instruction types; misaligned access triggers a SIGBUS.",
+      "probabilities": [
+        {
+          "cause": "C struct packed without proper alignment",
+          "percent": 50,
+          "description": "__attribute__((packed)) struct member accessed directly."
+        },
+        {
+          "cause": "Misaligned DMA buffer",
+          "percent": 30,
+          "description": "Driver sets up DMA to a non-aligned memory region."
+        },
+        {
+          "cause": "Inter-operability with unaligned C data",
+          "percent": 20,
+          "description": "Deserialised binary data at odd address cast to pointer."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS and affected app",
+        "Developer: use memcpy() for unaligned reads",
+        "Report crash to developer with full log"
+      ],
+      "test_procedure": [
+        "Check faulting address for alignment (odd address for 16/32-bit type)",
+        "Note SIGBUS code BUS_ADRALN in crash header"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "kernel_data_abort"
+      ]
+    },
+    {
+      "id": "kernel_synchronous_external_abort",
+      "keywords": [
+        "synchronous external abort",
+        "SEA",
+        "serror",
+        "system error abort",
+        "external abort"
+      ],
+      "category": "kernelPanic",
+      "component": "kernel_bus",
+      "severity": "hardware",
+      "confidence": 80,
+      "title": "Synchronous External Abort (hardware bus fault)",
+      "diagnosis": "An ARM Synchronous External Abort (SEA) was raised, indicating a hardware-level error on the system bus — often memory controller, fabric interconnect, or cache error.",
+      "probabilities": [
+        {
+          "cause": "DRAM / LPDDR integrity error",
+          "percent": 45,
+          "description": "Memory subsystem returned an uncorrectable error."
+        },
+        {
+          "cause": "MMIO access to unpowered peripheral",
+          "percent": 35,
+          "description": "Driver accessed a memory-mapped register while peripheral was powered off."
+        },
+        {
+          "cause": "PCIe / fabric interconnect transient",
+          "percent": 20,
+          "description": "Transient error on Apple internal high-speed bus fabric."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS",
+        "If hardware error: check for physical damage",
+        "Apple service / component-level repair if recurring"
+      ],
+      "test_procedure": [
+        "Look for 'synchronous external abort' or 'SEA' in panic text",
+        "Check if panic correlates with specific app or thermal condition"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "kernel_data_abort",
+        "smc_panic_assertion"
+      ]
+    },
+    {
+      "id": "kernel_vm_fault_panic",
+      "keywords": [
+        "vm_fault",
+        "pmap_enter failed",
+        "vm_fault_internal",
+        "kernel vm fault"
+      ],
+      "category": "kernelPanic",
+      "component": "vm_subsystem",
+      "severity": "software",
+      "confidence": 80,
+      "title": "Kernel VM fault — virtual memory mapping failure",
+      "diagnosis": "The kernel's virtual memory fault handler encountered an unresolvable page fault — the page could not be faulted in from the backing store or swap.",
+      "probabilities": [
+        {
+          "cause": "NAND storage error preventing page-in",
+          "percent": 40,
+          "description": "Page backed by flash storage cannot be read due to NAND error."
+        },
+        {
+          "cause": "VM map corruption",
+          "percent": 35,
+          "description": "Internal vm_map data structure corrupted, leading to un-resolvable fault."
+        },
+        {
+          "cause": "Out-of-memory during page-in",
+          "percent": 25,
+          "description": "No physical memory available to satisfy page-in request."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS",
+        "Free storage space (< 10% free triggers aggressive compression)",
+        "DFU restore if recurring"
+      ],
+      "test_procedure": [
+        "Confirm 'vm_fault' in kernel panic backtrace",
+        "Check available storage space"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "kernel_nand_panic",
+        "jetsam_compressor_exhaustion"
+      ]
+    },
+    {
+      "id": "kernel_bus_adrerr",
+      "keywords": [
+        "BUS_ADRERR",
+        "bus error",
+        "physical memory error",
+        "machine check"
+      ],
+      "category": "kernelPanic",
+      "component": "memory_hardware",
+      "severity": "hardware",
+      "confidence": 78,
+      "title": "Physical memory bus error (BUS_ADRERR)",
+      "diagnosis": "A physical bus error occurred when accessing a real hardware address — distinct from alignment (BUS_ADRALN), this indicates a hardware-level memory access fault.",
+      "probabilities": [
+        {
+          "cause": "Physical LPDDR memory defect",
+          "percent": 50,
+          "description": "DRAM cell failure causing uncorrectable read errors."
+        },
+        {
+          "cause": "MMIO access to offline peripheral",
+          "percent": 30,
+          "description": "Driver reads memory-mapped register of unpowered peripheral."
+        },
+        {
+          "cause": "PoP solder joint defect",
+          "percent": 20,
+          "description": "Package-on-package LPDDR solder issue on logic board."
+        }
+      ],
+      "repair_steps": [
+        "Run Apple Diagnostics via support.apple.com",
+        "Apple service center — board-level RAM replacement",
+        "Data backup immediately — hardware failure is progressive"
+      ],
+      "test_procedure": [
+        "Confirm BUS_ADRERR code in crash report exception header",
+        "Check if crash correlates with thermal throttling or heavy RAM usage"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "kernel_synchronous_external_abort",
+        "smc_panic_assertion"
+      ]
+    },
+    {
+      "id": "kernel_msr_panic",
+      "keywords": [
+        "MSR",
+        "CPACR_EL1",
+        "FPSIMD exception",
+        "FP/SIMD trap",
+        "fp exception"
+      ],
+      "category": "kernelPanic",
+      "component": "kernel_cpu",
+      "severity": "software",
+      "confidence": 75,
+      "title": "Floating-point / SIMD trap in kernel (MSR/FPSIMD)",
+      "diagnosis": "An FP/SIMD instruction was executed in a context where it is not permitted (e.g., interrupt handler), or an illegal system register access caused a CPU exception.",
+      "probabilities": [
+        {
+          "cause": "FP/SIMD in interrupt context (kernel bug)",
+          "percent": 55,
+          "description": "NEON/SIMD instruction used in IRQ handler without saving SIMD state."
+        },
+        {
+          "cause": "Illegal system register (MSR/MRS) access",
+          "percent": 30,
+          "description": "Driver reads/writes an EL2/EL3 register from EL1."
+        },
+        {
+          "cause": "Software update resolving CPU state bug",
+          "percent": 15,
+          "description": "Known microarchitecture errata."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS",
+        "Report panic log to Apple Feedback Assistant",
+        "DFU restore if recurring"
+      ],
+      "test_procedure": [
+        "Look for 'FPSIMD', 'MSR', or 'CPACR' in panic string",
+        "Note which process triggered the fault"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "kernel_undefined_instruction"
+      ]
+    },
+    {
+      "id": "kernel_apfs_panic",
+      "keywords": [
+        "AppleAPFSMedia",
+        "apfs_panic",
+        "APFS assertion",
+        "APFS: Corruption detected",
+        "apfs_container"
+      ],
+      "category": "kernelPanic",
+      "component": "apfs_filesystem",
+      "severity": "critical",
+      "confidence": 88,
+      "title": "APFS filesystem panic — volume corruption detected",
+      "diagnosis": "The APFS filesystem driver detected internal inconsistency or corruption and triggered a kernel panic to prevent further data corruption.",
+      "probabilities": [
+        {
+          "cause": "NAND write failure causing APFS inconsistency",
+          "percent": 45,
+          "description": "Partial write left APFS B-tree in inconsistent state."
+        },
+        {
+          "cause": "Unexpected power loss during write transaction",
+          "percent": 30,
+          "description": "Battery death mid-write left APFS journal in bad state."
+        },
+        {
+          "cause": "APFS software bug in iOS version",
+          "percent": 25,
+          "description": "Edge-case APFS path triggers assertion, fixed in later iOS."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS",
+        "Connect to Mac and run 'idevicediagnostics' — NAND check",
+        "DFU restore to repartition and reformat APFS volume"
+      ],
+      "test_procedure": [
+        "Search for 'APFS' and 'Corruption' or 'assertion' in panic string",
+        "Check storage capacity — very full storage increases APFS stress"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "kernel_nand_panic",
+        "ans2_panic"
+      ]
+    },
+    {
+      "id": "kernel_iokit_assert",
+      "keywords": [
+        "IOKit: kernel panic",
+        "IOService assert",
+        "requires locking",
+        "iokit_vendor_specific_msg"
+      ],
+      "category": "kernelPanic",
+      "component": "iokit_framework",
+      "severity": "software",
+      "confidence": 78,
+      "title": "IOKit assertion failure — driver locking violation",
+      "diagnosis": "An IOKit driver assertion failed, often due to a locking violation — accessing an IOService without the required gate/lock held, or a driver lifecycle assertion.",
+      "probabilities": [
+        {
+          "cause": "IOService method called from wrong context",
+          "percent": 55,
+          "description": "Driver method invoked without workloop lock; assertion fires."
+        },
+        {
+          "cause": "Driver termination race condition",
+          "percent": 30,
+          "description": "Client attached to service being terminated simultaneously."
+        },
+        {
+          "cause": "Third-party kext assertion",
+          "percent": 15,
+          "description": "Accessory-related kext violates IOKit contract."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS",
+        "Disconnect external accessories and retest",
+        "DFU restore if panic continues"
+      ],
+      "test_procedure": [
+        "Look for 'IOKit' and 'assert' or 'locking' in panic string",
+        "Note IOService subclass name in backtrace"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "kernel_data_abort"
+      ]
+    },
+    {
+      "id": "kernel_cpu_watchdog_timeout",
+      "keywords": [
+        "CPU watchdog timeout",
+        "watchdog timer expired",
+        "CPUWatchdog",
+        "stuck CPU"
+      ],
+      "category": "kernelPanic",
+      "component": "kernel_watchdog",
+      "severity": "critical",
+      "confidence": 85,
+      "title": "CPU watchdog timeout — kernel deadlock detected",
+      "diagnosis": "The hardware CPU watchdog timer expired because a CPU core was stuck for too long without servicing the watchdog, indicating a kernel deadlock or severe livelock.",
+      "probabilities": [
+        {
+          "cause": "Kernel spinlock deadlock",
+          "percent": 50,
+          "description": "Two kernel threads each hold a lock the other needs."
+        },
+        {
+          "cause": "Interrupt storm blocking preemption",
+          "percent": 30,
+          "description": "High-frequency interrupts prevent watchdog pet."
+        },
+        {
+          "cause": "Hardware freeze (thermal / power)",
+          "percent": 20,
+          "description": "Extreme thermal throttling or power instability causes CPU stall."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS",
+        "Check for apps causing extreme CPU load",
+        "Apple service center if panic correlates with temperature"
+      ],
+      "test_procedure": [
+        "Search for 'CPUWatchdog' or 'watchdog timer expired' in panic",
+        "Check if device was under heavy load or thermal stress"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "sleep_wake_hang",
+        "kernel_stack_overflow"
+      ]
+    },
+    {
+      "id": "kernel_iommu_fault",
+      "keywords": [
+        "DART",
+        "dart_fault",
+        "IOMMU fault",
+        "DMA remapping fault",
+        "dart_handle_fault"
+      ],
+      "category": "kernelPanic",
+      "component": "dart_iommu",
+      "severity": "hardware",
+      "confidence": 80,
+      "title": "DART / IOMMU DMA translation fault",
+      "diagnosis": "Apple's DART (Device Address Resolution Table / IOMMU) blocked an illegal DMA transaction from a peripheral, triggering a kernel panic.",
+      "probabilities": [
+        {
+          "cause": "Peripheral DMA to unmapped physical address",
+          "percent": 55,
+          "description": "Hardware component attempted DMA to address not in its DART table."
+        },
+        {
+          "cause": "DART table corruption",
+          "percent": 25,
+          "description": "DART mapping table corrupted leading to false fault."
+        },
+        {
+          "cause": "Driver fails to map DMA buffer before use",
+          "percent": 20,
+          "description": "Driver starts DMA transfer before calling IODMACommand::prepare()."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS",
+        "Check for accessory causing fault (note peripheral in panic)",
+        "Apple service if hardware DMA component fails"
+      ],
+      "test_procedure": [
+        "Search for 'DART' or 'dart_fault' in panic string",
+        "Note which peripheral/driver is named at top of backtrace"
+      ],
+      "models_affected": [
+        "iPhone12,1",
+        "iPhone13,2",
+        "iPhone14,2",
+        "iPhone15,2",
+        "iPhone16,1"
+      ],
+      "related_patterns": [
+        "kernel_synchronous_external_abort",
+        "kernel_amcc_panic"
+      ]
+    },
+    {
+      "id": "jetsam_idle_kill",
+      "keywords": [
+        "reason: idle",
+        "idle-exit",
+        "jettisoned idle",
+        "memorystatus_kill_idle"
+      ],
+      "category": "jetsam",
+      "component": "jetsam_lifecycle",
+      "severity": "informational",
+      "confidence": 75,
+      "title": "Jetsam idle process kill (normal lifecycle)",
+      "diagnosis": "Jetsam killed a process marked as idle-exit because memory pressure required freeing resources. This is normal iOS behaviour for apps that registered for idle-exit.",
+      "probabilities": [
+        {
+          "cause": "Normal system memory reclamation",
+          "percent": 75,
+          "description": "iOS killed idle background process to free RAM — expected behaviour."
+        },
+        {
+          "cause": "Memory pressure from foreground app",
+          "percent": 20,
+          "description": "Foreground app spike caused cascade of idle-exit kills."
+        },
+        {
+          "cause": "Daemon unintentionally qualifying as idle",
+          "percent": 5,
+          "description": "Background daemon incorrectly registered as idle-exit eligible."
+        }
+      ],
+      "repair_steps": [
+        "No action required — this is normal iOS memory management",
+        "If app loses state unexpectedly: developer should save state before idle-exit"
+      ],
+      "test_procedure": [
+        "Confirm 'reason: idle' in JetsamEvent",
+        "Verify this is not occurring excessively for critical daemons"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "jetsam_memory_pressure"
+      ]
+    },
+    {
+      "id": "jetsam_memory_limit_exceeded",
+      "keywords": [
+        "reason: memory-limit",
+        "soft memory limit",
+        "exceeded phys_footprint",
+        "memory limit exceeded"
+      ],
+      "category": "jetsam",
+      "component": "jetsam_memory",
+      "severity": "software",
+      "confidence": 88,
+      "title": "Jetsam physical memory footprint limit exceeded",
+      "diagnosis": "The process exceeded the physical memory footprint limit (phys_footprint) tracked by the kernel, triggering a jetsam memory-limit kill.",
+      "probabilities": [
+        {
+          "cause": "App's physical footprint grew beyond entitlement",
+          "percent": 60,
+          "description": "Physical footprint (dirty + compressed pages) exceeded allowed limit."
+        },
+        {
+          "cause": "IOKit metal/GPU buffers counted in footprint",
+          "percent": 25,
+          "description": "GPU/Metal resource allocations counted toward process footprint."
+        },
+        {
+          "cause": "Memory-mapped files contributing to footprint",
+          "percent": 15,
+          "description": "Large mmap'd regions inflating reported footprint."
+        }
+      ],
+      "repair_steps": [
+        "Update app",
+        "Developer: use Metal resource options to reduce GPU memory impact",
+        "Developer: call trim() on SQLite DBs to reduce dirty pages"
+      ],
+      "test_procedure": [
+        "Check JetsamEvent for 'reason: memory-limit' and phys_footprint value",
+        "Compare footprint against per-process limit in log"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "jetsam_per_process_limit",
+        "app_crash_exc_resource_memory"
+      ]
+    },
+    {
+      "id": "jetsam_compressor_exhaustion",
+      "keywords": [
+        "compressor_space_shortage",
+        "compressor fill level",
+        "vm compressor full",
+        "swap exhausted"
+      ],
+      "category": "jetsam",
+      "component": "vm_compressor",
+      "severity": "critical",
+      "confidence": 85,
+      "title": "VM compressor space exhausted — swap-like memory full",
+      "diagnosis": "The iOS VM compressor (which replaces swap on flash-constrained devices) ran out of capacity. Jetsam must aggressively kill processes to reduce memory pressure.",
+      "probabilities": [
+        {
+          "cause": "Extreme number of background apps",
+          "percent": 45,
+          "description": "Too many suspended apps compressed the compressor to capacity."
+        },
+        {
+          "cause": "Single app with massive memory balloon",
+          "percent": 35,
+          "description": "Game or media app expanded memory far beyond what compressor can handle."
+        },
+        {
+          "cause": "Low storage space limiting compressor backing",
+          "percent": 20,
+          "description": "Compressor's backing store on NAND is near capacity."
+        }
+      ],
+      "repair_steps": [
+        "Restart iPhone to clear compressor state",
+        "Free at least 2 GB of storage",
+        "Close all background apps before launching memory-intensive apps"
+      ],
+      "test_procedure": [
+        "Search for 'compressor_space_shortage' in JetsamEvent log",
+        "Check available storage space (Settings > General > iPhone Storage)"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "jetsam_vm_pageshortage",
+        "jetsam_memory_pressure"
+      ]
+    },
+    {
+      "id": "jetsam_zone_map_exhaustion",
+      "keywords": [
+        "zone_map_exhaustion",
+        "zone_gc",
+        "zone map exhausted",
+        "kalloc zone"
+      ],
+      "category": "jetsam",
+      "component": "kernel_zone_allocator",
+      "severity": "critical",
+      "confidence": 83,
+      "title": "Kernel zone map exhaustion",
+      "diagnosis": "The kernel's zone allocator ran out of virtual address space in the zone map, causing the kernel to panic or aggressively kill processes to reclaim zone memory.",
+      "probabilities": [
+        {
+          "cause": "Kernel memory leak from driver or app",
+          "percent": 50,
+          "description": "A driver or system call allocates zone memory and never frees it."
+        },
+        {
+          "cause": "Very large number of threads or sockets",
+          "percent": 30,
+          "description": "Thousands of threads/sockets exhaust thread or socket zone."
+        },
+        {
+          "cause": "IPC port / mach message accumulation",
+          "percent": 20,
+          "description": "Mach IPC ports or messages accumulating without being consumed."
+        }
+      ],
+      "repair_steps": [
+        "Restart iPhone",
+        "Update iOS",
+        "Identify misbehaving app via crash log process name"
+      ],
+      "test_procedure": [
+        "Search for 'zone_map_exhaustion' or 'zone_gc' in panic/jetsam log",
+        "Note which zone was exhausted (zone name in log)"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "jetsam_compressor_exhaustion"
+      ]
+    },
+    {
+      "id": "jetsam_jetsamEvent_log",
+      "keywords": [
+        "JetsamEvent",
+        "jetsamEvent",
+        "jetsam_reason",
+        "largestProcess"
+      ],
+      "category": "jetsam",
+      "component": "jetsam_logger",
+      "severity": "informational",
+      "confidence": 70,
+      "title": "JetsamEvent diagnostic log — memory pressure episode",
+      "diagnosis": "A JetsamEvent log was recorded, documenting a memory pressure episode where one or more processes were killed. The log contains per-process memory snapshots at time of event.",
+      "probabilities": [
+        {
+          "cause": "Normal memory management (low severity)",
+          "percent": 50,
+          "description": "JetsamEvent logs are common and often benign."
+        },
+        {
+          "cause": "Memory pressure from foreground app",
+          "percent": 35,
+          "description": "Heavy app pushed system into jetsam territory."
+        },
+        {
+          "cause": "Background app memory leak",
+          "percent": 15,
+          "description": "Background process memory growing until jetsam triggered."
+        }
+      ],
+      "repair_steps": [
+        "Review largestProcess field to identify memory consumer",
+        "Update apps consuming most memory",
+        "Restart iPhone if events are frequent"
+      ],
+      "test_procedure": [
+        "Open JetsamEvent in Settings > Privacy > Analytics",
+        "Note largestProcess and its rpages value"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "jetsam_memory_pressure"
+      ]
+    },
+    {
+      "id": "jetsam_excess_wakeups",
+      "keywords": [
+        "EXC_RESOURCE",
+        "RESOURCE_TYPE_WAKEUPS",
+        "wakeup rate",
+        "150 wakeups per second"
+      ],
+      "category": "jetsam",
+      "component": "power_management",
+      "severity": "software",
+      "confidence": 82,
+      "title": "App killed for excessive CPU wakeups (EXC_RESOURCE WAKEUPS)",
+      "diagnosis": "The kernel terminated the app because it was waking the CPU too frequently (typically > 150 wakeups/second sustained for 300 seconds), draining battery excessively.",
+      "probabilities": [
+        {
+          "cause": "Polling loop / busy-wait in background",
+          "percent": 60,
+          "description": "Background task using Timer or dispatch_after polling at high frequency."
+        },
+        {
+          "cause": "Excessive network keep-alive messages",
+          "percent": 25,
+          "description": "App sending network pings more frequently than allowed."
+        },
+        {
+          "cause": "Buggy runloop source firing continuously",
+          "percent": 15,
+          "description": "CFRunLoop source or NSRunLoop observer firing without yield."
+        }
+      ],
+      "repair_steps": [
+        "Update app",
+        "Developer: use NSURLSession background sessions and push notifications",
+        "Developer: replace polling timers with event-driven callbacks"
+      ],
+      "test_procedure": [
+        "Confirm RESOURCE_TYPE_WAKEUPS and wakeup count in crash header",
+        "Check battery usage in Settings > Battery for excessive drain from this app"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "app_crash_exc_resource_cpu"
+      ]
+    },
+    {
+      "id": "watchdog_thermalmonitord_v2",
+      "keywords": [
+        "thermalmonitord",
+        "com.apple.thermalmonitord",
+        "thermal monitor daemon timeout",
+        "ThermalMonitor watchdog"
+      ],
+      "category": "watchdog",
+      "component": "thermal_monitor_daemon",
+      "severity": "critical",
+      "confidence": 85,
+      "title": "thermalmonitord watchdog timeout (thermal monitor hung)",
+      "diagnosis": "The thermal monitor daemon (thermalmonitord) timed out. This is distinct from a thermal shutdown — the monitoring process itself hung, leaving thermal management blind.",
+      "probabilities": [
+        {
+          "cause": "Thermal sensor hardware failure",
+          "percent": 40,
+          "description": "One or more thermal sensors stopped responding, hanging the monitor."
+        },
+        {
+          "cause": "thermalmonitord deadlock on sensor poll",
+          "percent": 35,
+          "description": "I2C/SPI thermal sensor bus timeout causes daemon to block indefinitely."
+        },
+        {
+          "cause": "SMC communication failure",
+          "percent": 25,
+          "description": "SMC unresponsive to thermal data requests from thermalmonitord."
+        }
+      ],
+      "repair_steps": [
+        "Restart iPhone",
+        "Check for missing sensor messages in logs (mic1, mic2, baro, als)",
+        "Apple service if thermal sensors persistently fail"
+      ],
+      "test_procedure": [
+        "Check Analytics logs for 'Missing sensor' entries alongside thermalmonitord crash",
+        "Monitor device temperature during heavy use"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "thermalmonitord_watchdog",
+        "thermal_shutdown",
+        "watchdog_daemon_generic"
+      ]
+    },
+    {
+      "id": "watchdog_asd",
+      "keywords": [
+        "asd",
+        "com.apple.asd",
+        "Apple System Diagnostics daemon",
+        "asd watchdog timeout"
+      ],
+      "category": "watchdog",
+      "component": "diagnostics_daemon",
+      "severity": "informational",
+      "confidence": 70,
+      "title": "asd (Apple System Diagnostics) daemon timeout",
+      "diagnosis": "The Apple System Diagnostics daemon (asd) timed out during a diagnostic routine. This is often seen when diagnostics are running in the background during a repair workflow.",
+      "probabilities": [
+        {
+          "cause": "Hardware component not responding during diagnostic",
+          "percent": 55,
+          "description": "ASD test queried a hardware component that did not respond."
+        },
+        {
+          "cause": "asd invoked at wrong time (insufficient power)",
+          "percent": 25,
+          "description": "Diagnostics launched with low battery — insufficient power for all tests."
+        },
+        {
+          "cause": "asd software issue in iOS version",
+          "percent": 20,
+          "description": "Known diagnostic tool bug fixed in later iOS."
+        }
+      ],
+      "repair_steps": [
+        "Do not use device during ASD diagnostic run",
+        "Ensure >50% battery before running diagnostics",
+        "Update iOS"
+      ],
+      "test_procedure": [
+        "Run Apple's official diagnostic via support.apple.com/diagnostics",
+        "Note which component caused the timeout"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "watchdog_daemon_generic"
+      ]
+    },
+    {
+      "id": "watchdog_springboard_v2",
+      "keywords": [
+        "SpringBoard",
+        "com.apple.springboard",
+        "SpringBoard watchdog",
+        "SpringBoard Termination Reason"
+      ],
+      "category": "watchdog",
+      "component": "springboard",
+      "severity": "critical",
+      "confidence": 90,
+      "title": "SpringBoard crash / watchdog termination (UI unresponsive)",
+      "diagnosis": "SpringBoard (the iOS home screen process) was killed by its watchdog or crashed, causing the device to respring or reboot. Indicates serious UI framework or memory issue.",
+      "probabilities": [
+        {
+          "cause": "SpringBoard out-of-memory",
+          "percent": 40,
+          "description": "SpringBoard itself ran out of memory due to widget/notification accumulation."
+        },
+        {
+          "cause": "SpringBoard deadlock on UI operation",
+          "percent": 35,
+          "description": "UIKit operation on main thread deadlocked, watchdog killed it."
+        },
+        {
+          "cause": "Bad SpringBoard plugin / tweak (jailbreak)",
+          "percent": 25,
+          "description": "Third-party SpringBoard plugin caused crash."
+        }
+      ],
+      "repair_steps": [
+        "Restart iPhone",
+        "Remove recently installed apps (especially those with widgets)",
+        "Update iOS",
+        "If jailbroken: remove recently added tweaks"
+      ],
+      "test_procedure": [
+        "Check if respring happens at consistent Home Screen action",
+        "Note if it correlates with a specific widget or notification"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "watchdog_springboard",
+        "app_crash_watchdog_0x8badf00d"
+      ]
+    },
+    {
+      "id": "gpu_agx_firmware_hang",
+      "keywords": [
+        "AGXFirmware",
+        "AGX firmware hang",
+        "GPU Firmware timeout",
+        "agx_fw_assert"
+      ],
+      "category": "gpuEvent",
+      "component": "agx_gpu_firmware",
+      "severity": "critical",
+      "confidence": 88,
+      "title": "AGX GPU firmware hang",
+      "diagnosis": "The Apple AGX GPU firmware became unresponsive, causing the kernel to detect a GPU hang and recover or panic. Often seen with graphically intensive apps or Metal workloads.",
+      "probabilities": [
+        {
+          "cause": "Metal shader infinite loop",
+          "percent": 45,
+          "description": "App's Metal compute or vertex shader ran indefinitely, hanging GPU."
+        },
+        {
+          "cause": "GPU firmware bug in iOS version",
+          "percent": 35,
+          "description": "Known AGX firmware issue triggering hang under specific workload."
+        },
+        {
+          "cause": "GPU thermal throttle causing timeout",
+          "percent": 20,
+          "description": "Extreme throttling slows GPU below firmware timeout threshold."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS (AGX firmware updates included)",
+        "Force quit the app causing the hang",
+        "If recurring in all apps: DFU restore"
+      ],
+      "test_procedure": [
+        "Note which app was running when panic occurred",
+        "Check if lower graphics settings in app prevent recurrence"
+      ],
+      "models_affected": [
+        "iPhone14,2",
+        "iPhone14,3",
+        "iPhone15,2",
+        "iPhone15,3",
+        "iPhone16,1",
+        "iPhone16,2"
+      ],
+      "related_patterns": [
+        "gpu_hang",
+        "gpu_hang_repeated"
+      ]
+    },
+    {
+      "id": "gpu_iosurface_fault",
+      "keywords": [
+        "IOSurface",
+        "IOSurfaceRoot",
+        "IOSurface mach port",
+        "IOSurfaceAccelerator",
+        "surface alloc failed"
+      ],
+      "category": "gpuEvent",
+      "component": "iosurface",
+      "severity": "software",
+      "confidence": 80,
+      "title": "IOSurface GPU memory allocation fault",
+      "diagnosis": "IOSurface (the shared GPU/CPU memory buffer system) encountered an allocation failure or memory fault, impacting rendering pipeline and causing crash.",
+      "probabilities": [
+        {
+          "cause": "GPU memory exhausted — IOSurface alloc failed",
+          "percent": 55,
+          "description": "Too many large IOSurface buffers allocated simultaneously."
+        },
+        {
+          "cause": "IOSurface port leaked — Mach port exhaustion",
+          "percent": 25,
+          "description": "IOSurface Mach ports leaked until task port limit reached."
+        },
+        {
+          "cause": "IOSurface cross-process access violation",
+          "percent": 20,
+          "description": "App attempted to access another process's IOSurface without permission."
+        }
+      ],
+      "repair_steps": [
+        "Update app and iOS",
+        "Force quit memory-heavy apps",
+        "Restart iPhone to clear GPU memory state"
+      ],
+      "test_procedure": [
+        "Check crash log for 'IOSurface' in faulting thread",
+        "Test with fewer simultaneous apps using GPU"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "gpu_hang",
+        "gpu_agx_firmware_hang"
+      ]
+    },
+    {
+      "id": "gpu_metal_shader_compile",
+      "keywords": [
+        "MTLCompileShader",
+        "Metal shader compilation",
+        "MTLLibrary compilation failed",
+        "shader compile panic"
+      ],
+      "category": "gpuEvent",
+      "component": "metal_compiler",
+      "severity": "software",
+      "confidence": 78,
+      "title": "Metal shader compilation failure",
+      "diagnosis": "A Metal shader failed to compile at runtime, causing the rendering pipeline to fail. Can be triggered by a corrupt Metal binary cache or incompatible shader code.",
+      "probabilities": [
+        {
+          "cause": "Corrupt Metal shader binary cache",
+          "percent": 50,
+          "description": "Pre-compiled Metal shader cache corrupted; fallback compile fails."
+        },
+        {
+          "cause": "Shader targeting wrong GPU feature set",
+          "percent": 30,
+          "description": "Shader uses MTLGPUFamily not supported by this device's AGX version."
+        },
+        {
+          "cause": "Metal compiler bug in iOS version",
+          "percent": 20,
+          "description": "iOS Metal compiler regression causing valid shader to fail."
+        }
+      ],
+      "repair_steps": [
+        "Delete and reinstall the app (clears Metal cache)",
+        "Update iOS and the app",
+        "Developer: validate shaders on all target GPU families"
+      ],
+      "test_procedure": [
+        "Delete app, reinstall, check if crash recurs",
+        "Note app and iOS version where issue occurs"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "gpu_agx_firmware_hang"
+      ]
+    },
+    {
+      "id": "gpu_iomobileframebuffer",
+      "keywords": [
+        "IOMobileFramebuffer",
+        "framebuffer panic",
+        "display pipe hang",
+        "IOMFBSwapchainMap"
+      ],
+      "category": "gpuEvent",
+      "component": "display_framebuffer",
+      "severity": "critical",
+      "confidence": 85,
+      "title": "IOMobileFramebuffer / display pipe panic",
+      "diagnosis": "The display framebuffer driver (IOMobileFramebuffer) panicked, causing the display pipeline to hang. Results in a full kernel panic or forced reboot.",
+      "probabilities": [
+        {
+          "cause": "Display pipe underrun under extreme GPU load",
+          "percent": 45,
+          "description": "GPU could not push frames fast enough, display pipe underran."
+        },
+        {
+          "cause": "Display driver / DPPF firmware bug",
+          "percent": 35,
+          "description": "IOMobileFramebuffer driver hit an assertion or timeout."
+        },
+        {
+          "cause": "Display hardware fault",
+          "percent": 20,
+          "description": "Display panel or DDIC chip fault causing framebuffer error."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS",
+        "If display shows artifacts before panic: display hardware inspection",
+        "DFU restore to rule out software cause"
+      ],
+      "test_procedure": [
+        "Note if visual glitches appear before panic",
+        "Check panic backtrace for IOMobileFramebuffer frames"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "display_backlight_failure",
+        "gpu_hang"
+      ]
+    },
+    {
+      "id": "gpu_hdcp_violation",
+      "keywords": [
+        "HDCP",
+        "HDCP authentication failed",
+        "HDCPKitAgent",
+        "content protection violation"
+      ],
+      "category": "gpuEvent",
+      "component": "hdcp_drm",
+      "severity": "software",
+      "confidence": 75,
+      "title": "HDCP content protection authentication failure",
+      "diagnosis": "HDCP (High-bandwidth Digital Content Protection) authentication failed during external display or AirPlay session, preventing DRM-protected content from displaying.",
+      "probabilities": [
+        {
+          "cause": "Non-HDCP-compliant display or HDMI adapter",
+          "percent": 60,
+          "description": "Connected display or adapter does not support HDCP 2.2 required by content."
+        },
+        {
+          "cause": "HDCP handshake timeout over wireless (AirPlay)",
+          "percent": 25,
+          "description": "Network latency caused HDCP handshake to time out."
+        },
+        {
+          "cause": "iOS HDCP software bug",
+          "percent": 15,
+          "description": "iOS HDCP stack regression in specific version."
+        }
+      ],
+      "repair_steps": [
+        "Use Apple-certified HDMI adapter",
+        "Ensure display supports HDCP 2.2",
+        "Update iOS and Apple TV / AirPlay receiver firmware"
+      ],
+      "test_procedure": [
+        "Test with Apple Lightning/USB-C Digital AV Adapter",
+        "Try non-DRM content to confirm adapter/display works otherwise"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "gpu_iomobileframebuffer"
+      ]
+    },
+    {
+      "id": "gpu_gpuc_crash",
+      "keywords": [
+        "GPUC",
+        "GPUCommandBuffer",
+        "GPUSupervisor",
+        "Metal command encoder fault",
+        "command buffer timeout"
+      ],
+      "category": "gpuEvent",
+      "component": "gpu_supervisor",
+      "severity": "software",
+      "confidence": 80,
+      "title": "GPU command buffer timeout (GPUC supervisor fault)",
+      "diagnosis": "The GPU supervisor (GPUC) detected a Metal command buffer that did not complete within the hardware timeout limit, triggering a GPU reset or kernel panic.",
+      "probabilities": [
+        {
+          "cause": "Metal compute shader infinite loop or infinite barrier",
+          "percent": 50,
+          "description": "Compute shader ran beyond the GPU hardware timeout."
+        },
+        {
+          "cause": "Large render pass taking too long",
+          "percent": 30,
+          "description": "Enormous single render pass exceeded GPU execution time budget."
+        },
+        {
+          "cause": "GPU power gating during command execution",
+          "percent": 20,
+          "description": "Aggressive power gating interrupted a long-running GPU command."
+        }
+      ],
+      "repair_steps": [
+        "Update app (developer should use fences/smaller command buffers)",
+        "Update iOS",
+        "Avoid apps with extremely heavy GPU workloads on warm device"
+      ],
+      "test_procedure": [
+        "Check crash log for 'GPUC' or 'GPUSupervisor'",
+        "Test if crash is reproducible with consistent GPU workload"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "gpu_agx_firmware_hang",
+        "gpu_hang"
+      ]
+    },
+    {
+      "id": "baseband_ice_modem_crash",
+      "keywords": [
+        "ICE modem",
+        "ICE crash",
+        "ICEModem",
+        "nskip",
+        "com.apple.iceModem"
+      ],
+      "category": "kernelPanic",
+      "component": "ice_modem",
+      "severity": "hardware",
+      "confidence": 82,
+      "title": "ICE (in-call engine) modem crash",
+      "diagnosis": "Apple's ICE (In-Call Engine) modem software stack crashed. ICE handles the protocol stack between the iOS telephony layer and the baseband chip.",
+      "probabilities": [
+        {
+          "cause": "Abnormal network signalling triggering ICE assert",
+          "percent": 50,
+          "description": "Malformed or unusual network packet caused ICE stack assertion."
+        },
+        {
+          "cause": "ICE software bug in iOS version",
+          "percent": 30,
+          "description": "Known ICE crash fixed in subsequent iOS release."
+        },
+        {
+          "cause": "RF interference destabilising modem state machine",
+          "percent": 20,
+          "description": "Extreme RF environment caused unexpected modem state transitions."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS and carrier settings",
+        "Toggle Airplane mode on/off to reset modem stack",
+        "Contact carrier if specific network triggers crash"
+      ],
+      "test_procedure": [
+        "Check if crash occurs during calls or data sessions specifically",
+        "Test on different carrier network if possible"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "baseband_crash",
+        "kernel_wmr_panic"
+      ]
+    },
+    {
+      "id": "baseband_pmb9943_fault",
+      "keywords": [
+        "pmb9943",
+        "PMB9943",
+        "Infineon modem",
+        "X-Gold modem",
+        "baseband EL3"
+      ],
+      "category": "kernelPanic",
+      "component": "pmb9943_modem",
+      "severity": "hardware",
+      "confidence": 80,
+      "title": "PMB9943 (Infineon/Intel) baseband modem fault",
+      "diagnosis": "The PMB9943 baseband modem IC (used in older LTE iPhones with Intel modem) encountered a fatal hardware fault or firmware crash.",
+      "probabilities": [
+        {
+          "cause": "Modem IC hardware fault",
+          "percent": 45,
+          "description": "PMB9943 chip physical failure — solder joint, ESD damage, or aging."
+        },
+        {
+          "cause": "Baseband firmware incompatibility with iOS version",
+          "percent": 35,
+          "description": "Firmware mismatch after partial update."
+        },
+        {
+          "cause": "RF power amplifier fault affecting modem",
+          "percent": 20,
+          "description": "PA fault causing modem to detect over/under voltage."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS carrier settings",
+        "DFU restore to force complete baseband reflash",
+        "Apple service / baseband IC replacement"
+      ],
+      "test_procedure": [
+        "Test cellular in multiple coverage areas",
+        "Check Modem Firmware version in Settings > General > About"
+      ],
+      "models_affected": [
+        "iPhone10,1",
+        "iPhone10,2",
+        "iPhone10,3",
+        "iPhone10,4",
+        "iPhone11,2",
+        "iPhone11,4",
+        "iPhone11,6",
+        "iPhone11,8"
+      ],
+      "related_patterns": [
+        "baseband_crash"
+      ]
+    },
+    {
+      "id": "baseband_qualcomm_x55_x65",
+      "keywords": [
+        "Qualcomm",
+        "X55",
+        "X65",
+        "QCom modem",
+        "MDM9250",
+        "SDX55",
+        "SDX65"
+      ],
+      "category": "kernelPanic",
+      "component": "qualcomm_modem",
+      "severity": "hardware",
+      "confidence": 80,
+      "title": "Qualcomm X55/X65 5G baseband fault",
+      "diagnosis": "The Qualcomm X55 (iPhone 12 series) or X65 (iPhone 13-14 series) 5G modem encountered a firmware crash or hardware fault, causing cellular connectivity loss or device crash.",
+      "probabilities": [
+        {
+          "cause": "5G mmWave sub-6 state machine fault",
+          "percent": 40,
+          "description": "5G band switching caused modem state machine to enter undefined state."
+        },
+        {
+          "cause": "Modem overheating under sustained data",
+          "percent": 30,
+          "description": "Qualcomm modem thermal throttle causing firmware timeout."
+        },
+        {
+          "cause": "SIM APDU communication error",
+          "percent": 30,
+          "description": "SIM card interface error causing modem authentication failure."
+        }
+      ],
+      "repair_steps": [
+        "Toggle Airplane mode, update carrier settings",
+        "Disable 5G (Settings > Cellular > Voice & Data > LTE) temporarily",
+        "Update iOS, DFU restore if persistent"
+      ],
+      "test_procedure": [
+        "Test with 5G disabled to isolate 5G band switching issue",
+        "Check if crash correlates with switching between 5G and LTE"
+      ],
+      "models_affected": [
+        "iPhone13,1",
+        "iPhone13,2",
+        "iPhone13,3",
+        "iPhone13,4",
+        "iPhone14,2",
+        "iPhone14,3",
+        "iPhone14,4",
+        "iPhone14,5"
+      ],
+      "related_patterns": [
+        "baseband_crash",
+        "kernel_wmr_panic"
+      ]
+    },
+    {
+      "id": "baseband_sim_error",
+      "keywords": [
+        "SIM",
+        "ICC-ID",
+        "SIM not provisioned",
+        "SIM failure",
+        "ATCommandProxy SIM"
+      ],
+      "category": "kernelPanic",
+      "component": "sim_interface",
+      "severity": "hardware",
+      "confidence": 83,
+      "title": "SIM card communication failure",
+      "diagnosis": "The SIM card interface (physical or eSIM) failed to communicate with the baseband modem, causing cellular service loss and potentially a baseband crash.",
+      "probabilities": [
+        {
+          "cause": "Physical SIM card damaged or misseated",
+          "percent": 45,
+          "description": "SIM card contacts corroded, bent, or SIM not fully seated in tray."
+        },
+        {
+          "cause": "SIM tray / reader hardware fault",
+          "percent": 30,
+          "description": "SIM tray or reader on logic board damaged."
+        },
+        {
+          "cause": "eSIM provisioning data corrupted",
+          "percent": 25,
+          "description": "eSIM profile data on eUICC corrupted."
+        }
+      ],
+      "repair_steps": [
+        "Eject and reseat SIM card, inspect contacts",
+        "Try a new SIM card from carrier",
+        "For eSIM issues: Settings > Cellular > Remove eSIM, re-add"
+      ],
+      "test_procedure": [
+        "Check Settings > Cellular for 'No SIM' indicator",
+        "Test with a known-good SIM from same carrier"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "baseband_crash"
+      ]
+    },
+    {
+      "id": "baseband_no_service",
+      "keywords": [
+        "no service",
+        "radio frequency",
+        "RF calibration",
+        "RFFE",
+        "antenna switch"
+      ],
+      "category": "kernelPanic",
+      "component": "rf_frontend",
+      "severity": "hardware",
+      "confidence": 78,
+      "title": "RF frontend / antenna fault causing no service",
+      "diagnosis": "The RF front-end (antenna switch, PA module, or RFFE interface) has a hardware fault, resulting in persistent 'No Service' and potentially baseband crashes.",
+      "probabilities": [
+        {
+          "cause": "Antenna flex cable damaged (drop damage)",
+          "percent": 50,
+          "description": "Cellular antenna flex cable damaged from impact or bending."
+        },
+        {
+          "cause": "RF power amplifier IC failure",
+          "percent": 30,
+          "description": "RFFE PA module failed — common after liquid damage."
+        },
+        {
+          "cause": "Baseband RF calibration data corrupted",
+          "percent": 20,
+          "description": "NVM RF calibration data corrupted requiring reflash."
+        }
+      ],
+      "repair_steps": [
+        "Test in area with strong signal coverage",
+        "DFU restore to attempt RF calibration recovery",
+        "Board-level repair: RF PA module or antenna flex replacement"
+      ],
+      "test_procedure": [
+        "Check signal bar count and Field Test mode (*3001#12345#*)",
+        "Test outdoors with clear line of sight to cell tower"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "baseband_crash",
+        "kernel_wmr_panic"
+      ]
+    },
+    {
+      "id": "baseband_imei_missing",
+      "keywords": [
+        "imei",
+        "IMEI invalid",
+        "IMEI 000000000000000",
+        "no IMEI",
+        "invalid IMEI"
+      ],
+      "category": "kernelPanic",
+      "component": "baseband_nvm",
+      "severity": "hardware",
+      "confidence": 88,
+      "title": "IMEI missing or corrupted — baseband NVM fault",
+      "diagnosis": "The device's IMEI is missing or shows as zeros/invalid, indicating the baseband NVM (Non-Volatile Memory) storing calibration and identity data is corrupted or the baseband has been replaced.",
+      "probabilities": [
+        {
+          "cause": "Baseband NVM data erased or corrupted",
+          "percent": 55,
+          "description": "IMEI/calibration data in baseband NVM overwritten or failed."
+        },
+        {
+          "cause": "Baseband chip replaced without NVM programming",
+          "percent": 30,
+          "description": "Component-level repair replaced baseband IC without restoring NVM."
+        },
+        {
+          "cause": "DFU restore erased baseband NVM",
+          "percent": 15,
+          "description": "Partial or interrupted DFU left NVM in unprogrammed state."
+        }
+      ],
+      "repair_steps": [
+        "DFU restore via iTunes/Finder — may restore NVM backup",
+        "If IMEI still missing: baseband NVM re-programming required (specialist repair)",
+        "Apple service if unable to restore IMEI"
+      ],
+      "test_procedure": [
+        "Check Settings > General > About > IMEI",
+        "Dial *#06# — IMEI should appear on screen"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "baseband_crash",
+        "baseband_firmware_update_fail"
+      ]
+    },
+    {
+      "id": "baseband_seprom_mismatch",
+      "keywords": [
+        "AppleBaseband",
+        "SEP baseband mismatch",
+        "baseband SEP certificate",
+        "baseband authentication failed"
+      ],
+      "category": "kernelPanic",
+      "component": "baseband_sep_auth",
+      "severity": "critical",
+      "confidence": 82,
+      "title": "Baseband-SEP authentication / certificate mismatch",
+      "diagnosis": "The baseband firmware failed authentication against the Secure Enclave, indicating a version mismatch, corrupt firmware signature, or non-genuine baseband component.",
+      "probabilities": [
+        {
+          "cause": "Baseband firmware version incompatible with iOS SEP",
+          "percent": 45,
+          "description": "Partial update left baseband at version incompatible with current SEP."
+        },
+        {
+          "cause": "Non-genuine or mismatched baseband chip",
+          "percent": 35,
+          "description": "Replacement baseband IC not matching device's SEP pairing."
+        },
+        {
+          "cause": "Corrupt baseband firmware signature in NVM",
+          "percent": 20,
+          "description": "Code signing data in baseband NVM corrupted."
+        }
+      ],
+      "repair_steps": [
+        "DFU restore to fully re-sign and flash baseband",
+        "If non-genuine baseband: original part required for authentication",
+        "Apple service — paired component replacement"
+      ],
+      "test_procedure": [
+        "Check if cellular is functional at all",
+        "DFU restore and verify modem firmware version restored correctly"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "baseband_crash",
+        "sep_panic"
+      ]
+    },
+    {
+      "id": "sep_secure_boot_failure",
+      "keywords": [
+        "Secure Boot",
+        "boot policy",
+        "LocalPolicy",
+        "img4 verify",
+        "SecureBootError"
+      ],
+      "category": "kernelPanic",
+      "component": "secure_boot",
+      "severity": "critical",
+      "confidence": 88,
+      "title": "Secure Boot verification failure",
+      "diagnosis": "The device failed Secure Boot chain verification (img4 / LocalPolicy). The boot firmware, OS image, or SEP could not be verified cryptographically.",
+      "probabilities": [
+        {
+          "cause": "iOS firmware file corrupted in NAND",
+          "percent": 45,
+          "description": "System firmware files on NAND corrupted; img4 validation fails."
+        },
+        {
+          "cause": "Partial or interrupted OTA update",
+          "percent": 35,
+          "description": "OTA update interrupted, leaving system partition in partial state."
+        },
+        {
+          "cause": "SEP / LocalPolicy mismatch after repair",
+          "percent": 20,
+          "description": "Component replacement (Screen, Face ID) invalidated LocalPolicy."
+        }
+      ],
+      "repair_steps": [
+        "DFU restore via iTunes/Finder on Mac/PC",
+        "Ensure device is paired before attempting restore (LocalPolicy)",
+        "Apple service if DFU restore repeatedly fails"
+      ],
+      "test_procedure": [
+        "Attempt DFU restore",
+        "After restore, verify Touch ID / Face ID re-enrollment works"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "sep_panic",
+        "sep_firmware_panic",
+        "ota_failure_hardware"
+      ]
+    },
+    {
+      "id": "sep_touchid_failure",
+      "keywords": [
+        "TouchID",
+        "Touch ID",
+        "BKSBiometricKit",
+        "fingerprint sensor",
+        "touch id failed"
+      ],
+      "category": "kernelPanic",
+      "component": "touchid_sensor",
+      "severity": "hardware",
+      "confidence": 87,
+      "title": "Touch ID sensor failure / SEP communication fault",
+      "diagnosis": "Touch ID fingerprint recognition failed permanently. Either the sensor hardware is damaged, or the SEP pairing between the home button and main logic board is broken.",
+      "probabilities": [
+        {
+          "cause": "Home button sensor hardware damaged",
+          "percent": 45,
+          "description": "Touch ID sensor damaged by drop, water, or unauthorized repair."
+        },
+        {
+          "cause": "SEP pairing invalidated after screen/board repair",
+          "percent": 35,
+          "description": "Home button is paired to its original logic board; transplant breaks Touch ID."
+        },
+        {
+          "cause": "Touch ID flex cable fault",
+          "percent": 20,
+          "description": "Connector or flex cable between home button and logic board damaged."
+        }
+      ],
+      "repair_steps": [
+        "Test with original home button if available",
+        "Note: Touch ID component is paired — only Apple or official partner can restore",
+        "Disable Touch ID and use passcode only if hardware replacement not possible"
+      ],
+      "test_procedure": [
+        "Settings > Touch ID & Passcode — attempt fingerprint enrollment",
+        "Check if 'Touch ID is not available' error appears"
+      ],
+      "models_affected": [
+        "iPhone8,1",
+        "iPhone8,2",
+        "iPhone8,4",
+        "iPhone9,1",
+        "iPhone9,2",
+        "iPhone9,3",
+        "iPhone9,4"
+      ],
+      "related_patterns": [
+        "face_id_failure",
+        "sep_panic"
+      ]
+    },
+    {
+      "id": "sep_amfi_violation",
+      "keywords": [
+        "AMFI",
+        "AMFI: code signature",
+        "AMFI violation",
+        "trust cache miss",
+        "cs_invalid"
+      ],
+      "category": "kernelPanic",
+      "component": "amfi_codesigning",
+      "severity": "software",
+      "confidence": 85,
+      "title": "AMFI code signature / trust cache violation",
+      "diagnosis": "Apple Mobile File Integrity (AMFI) rejected a process due to invalid code signature, missing trust cache entry, or codesigning policy violation.",
+      "probabilities": [
+        {
+          "cause": "App binary corrupted or modified post-install",
+          "percent": 40,
+          "description": "App binary on storage modified; AMFI signature check fails at launch."
+        },
+        {
+          "cause": "Enterprise provisioning profile expired",
+          "percent": 30,
+          "description": "Enterprise-signed app's provisioning profile has expired."
+        },
+        {
+          "cause": "Jailbreak / tweak injection blocked by AMFI",
+          "percent": 30,
+          "description": "Jailbreak tools attempt to inject code blocked by AMFI."
+        }
+      ],
+      "repair_steps": [
+        "Delete and reinstall app from App Store",
+        "Renew enterprise provisioning profile if applicable",
+        "Restore device if jailbreak interference suspected"
+      ],
+      "test_procedure": [
+        "Delete app and reinstall — check if AMFI error resolved",
+        "Check device trust for enterprise apps: Settings > General > VPN & Device Management"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "sep_panic",
+        "app_crash_sigill"
+      ]
+    },
+    {
+      "id": "sep_applysep_panic",
+      "keywords": [
+        "AppleSEP",
+        "AppleSEPManager",
+        "SEP mailbox timeout",
+        "SEP IPC timeout"
+      ],
+      "category": "kernelPanic",
+      "component": "sep_manager",
+      "severity": "critical",
+      "confidence": 85,
+      "title": "AppleSEP IPC / mailbox communication timeout",
+      "diagnosis": "The AP-side SEP manager (AppleSEPManager) timed out waiting for a response from the SEP processor via the mailbox IPC channel.",
+      "probabilities": [
+        {
+          "cause": "SEP processor hung during cryptographic operation",
+          "percent": 50,
+          "description": "SEP busy with key derivation; mailbox response timed out."
+        },
+        {
+          "cause": "SEP firmware crash caused silence on mailbox",
+          "percent": 30,
+          "description": "SEP firmware crashed internally without sending error response."
+        },
+        {
+          "cause": "SEP power gating issue",
+          "percent": 20,
+          "description": "SEP power domain unexpectedly gated off during active IPC."
+        }
+      ],
+      "repair_steps": [
+        "Restart iPhone",
+        "Update iOS",
+        "If recurring: Apple service — SEP hardware fault"
+      ],
+      "test_procedure": [
+        "Test Face ID, Touch ID, and Apple Pay after restart",
+        "Check if keychain operations (password autofill) work"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "sep_panic",
+        "sep_firmware_panic"
+      ]
+    },
+    {
+      "id": "sep_biometric_hardware",
+      "keywords": [
+        "biometric",
+        "FaceID",
+        "BiometricKit",
+        "flood illuminator",
+        "dot projector",
+        "infrared camera"
+      ],
+      "category": "kernelPanic",
+      "component": "truedepth_camera",
+      "severity": "hardware",
+      "confidence": 87,
+      "title": "Face ID TrueDepth hardware component failure",
+      "diagnosis": "One or more TrueDepth camera components (flood illuminator, dot projector, or IR camera) have failed, making Face ID permanently unavailable.",
+      "probabilities": [
+        {
+          "cause": "TrueDepth module damaged by drop/repair",
+          "percent": 55,
+          "description": "Physical impact or unauthorized screen replacement damaged TrueDepth module."
+        },
+        {
+          "cause": "TrueDepth flex cable connection fault",
+          "percent": 25,
+          "description": "Flex cable connector between TrueDepth and board loosened or damaged."
+        },
+        {
+          "cause": "TrueDepth component aging/delamination",
+          "percent": 20,
+          "description": "VCSEL array or structured light projector component failed from aging."
+        }
+      ],
+      "repair_steps": [
+        "Test Face ID in Settings > Face ID & Passcode",
+        "Only Apple or authorized service provider can replace TrueDepth module (paired component)",
+        "Use passcode as alternative"
+      ],
+      "test_procedure": [
+        "Settings > Face ID & Passcode > Set Up Face ID — check for hardware error",
+        "Note 'Face ID is not available' message"
+      ],
+      "models_affected": [
+        "iPhone10,3",
+        "iPhone10,6",
+        "iPhone11,2",
+        "iPhone11,4",
+        "iPhone11,6",
+        "iPhone12,1",
+        "iPhone12,3",
+        "iPhone13,2",
+        "iPhone13,3",
+        "iPhone14,2",
+        "iPhone14,3",
+        "iPhone15,2",
+        "iPhone15,3"
+      ],
+      "related_patterns": [
+        "face_id_failure",
+        "sep_applysep_panic"
+      ]
+    },
+    {
+      "id": "pmu_spmi_fault",
+      "keywords": [
+        "SPMI",
+        "AppleSPMI",
+        "SPMI transaction failed",
+        "power management bus error"
+      ],
+      "category": "kernelPanic",
+      "component": "spmi_bus",
+      "severity": "hardware",
+      "confidence": 83,
+      "title": "SPMI bus communication fault (PMU subsystem)",
+      "diagnosis": "The SPMI (System Power Management Interface) bus between the AP and PMU/PMIC experienced a transaction failure, disrupting power rail monitoring and control.",
+      "probabilities": [
+        {
+          "cause": "PMU IC hardware fault",
+          "percent": 50,
+          "description": "PMIC chip partially failed causing SPMI bus errors."
+        },
+        {
+          "cause": "SPMI bus solder joint / ESD damage",
+          "percent": 30,
+          "description": "PCB trace or solder joint on SPMI bus damaged."
+        },
+        {
+          "cause": "PMU firmware bug",
+          "percent": 20,
+          "description": "PMU firmware edge case causing SPMI transaction hang."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS — PMU firmware updates included",
+        "Apple service / PMU IC replacement if hardware fault confirmed",
+        "Board-level micro-soldering for SPMI trace repair"
+      ],
+      "test_procedure": [
+        "Check for random shutdowns and charging issues alongside crash",
+        "Monitor battery percentage stability"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "pmu_failure",
+        "smc_panic_assertion"
+      ]
+    },
+    {
+      "id": "pmu_charging_fault",
+      "keywords": [
+        "AppleCharger",
+        "chgr",
+        "ACOK",
+        "vbus",
+        "charging fault",
+        "BMIC"
+      ],
+      "category": "kernelPanic",
+      "component": "charging_ic",
+      "severity": "hardware",
+      "confidence": 85,
+      "title": "Charging IC / BMIC hardware fault",
+      "diagnosis": "The battery management IC (BMIC/charger IC) reported a fault condition: VBUS anomaly, ACOK failure, or charger IC hardware fault preventing safe charging.",
+      "probabilities": [
+        {
+          "cause": "Charging IC (BQ25 / SN2671 / Hammerhead) hardware fault",
+          "percent": 50,
+          "description": "Charger IC failed — phone may not charge or charges erratically."
+        },
+        {
+          "cause": "Connector contamination / liquid damage",
+          "percent": 30,
+          "description": "Liquid in Lightning/USB-C port causing VBUS anomalies."
+        },
+        {
+          "cause": "Charger/cable supplying incorrect voltage",
+          "percent": 20,
+          "description": "Non-compliant charger triggering ACOK fault in charging IC."
+        }
+      ],
+      "repair_steps": [
+        "Clean Lightning/USB-C port with isopropyl alcohol",
+        "Test with Apple-certified cable and charger",
+        "If phone doesn't charge: charging IC replacement required"
+      ],
+      "test_procedure": [
+        "Test charging with Apple original cable and 20W adapter",
+        "Check if 'Charging Not Supported' alert appears with non-Apple accessories"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "pmu_failure",
+        "tristar_failure"
+      ]
+    },
+    {
+      "id": "pmu_nopmi_fault",
+      "keywords": [
+        "nopmi",
+        "no PMI",
+        "PMI missing",
+        "power management interrupt missing"
+      ],
+      "category": "kernelPanic",
+      "component": "pmi_interrupt",
+      "severity": "hardware",
+      "confidence": 80,
+      "title": "Power Management Interrupt (PMI) missing fault",
+      "diagnosis": "The Power Management Interrupt (PMI) signal from the PMIC to the AP is missing or not asserted, preventing the kernel from receiving power state change notifications.",
+      "probabilities": [
+        {
+          "cause": "PMU/PMIC hardware fault — interrupt line dead",
+          "percent": 55,
+          "description": "PMU chip failed or interrupt pin open-circuit."
+        },
+        {
+          "cause": "PCB trace fault on PMI line",
+          "percent": 30,
+          "description": "Broken PCB trace carrying PMI interrupt signal."
+        },
+        {
+          "cause": "Firmware bug masking PMI",
+          "percent": 15,
+          "description": "iOS driver accidentally masking PMI interrupt."
+        }
+      ],
+      "repair_steps": [
+        "DFU restore to rule out firmware cause",
+        "Apple service / board-level PMU repair",
+        "Micro-soldering on PMI trace if trace fault confirmed"
+      ],
+      "test_procedure": [
+        "Check if random shutdowns accompany this crash",
+        "Test battery percentage reading stability"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "pmu_failure",
+        "smc_panic_assertion"
+      ]
+    },
+    {
+      "id": "pmu_sn2671_fault",
+      "keywords": [
+        "SN2671",
+        "wireless charging IC",
+        "MagSafe fault",
+        "WLC controller fault",
+        "qi charging"
+      ],
+      "category": "kernelPanic",
+      "component": "wireless_charging_ic",
+      "severity": "hardware",
+      "confidence": 80,
+      "title": "SN2671 wireless charging / MagSafe IC fault",
+      "diagnosis": "The SN2671 wireless charging controller (handles Qi and MagSafe wireless charging) reported a fault, preventing wireless charging or causing power instability during wireless charging.",
+      "probabilities": [
+        {
+          "cause": "SN2671 IC hardware fault",
+          "percent": 50,
+          "description": "Wireless charging controller chip failed."
+        },
+        {
+          "cause": "Wireless charging coil damage",
+          "percent": 30,
+          "description": "Charging coil delaminated or shorted."
+        },
+        {
+          "cause": "MagSafe magnet array interfering with IC",
+          "percent": 20,
+          "description": "MagSafe alignment magnets demagnetized or foreign metal particles."
+        }
+      ],
+      "repair_steps": [
+        "Test with Apple MagSafe charger only",
+        "Remove phone case and retry wireless charging",
+        "If wireless charging fails: SN2671 IC or coil replacement"
+      ],
+      "test_procedure": [
+        "Place on Apple MagSafe charger — check if charging indicator appears",
+        "Test Qi charging with standard Qi pad"
+      ],
+      "models_affected": [
+        "iPhone12,1",
+        "iPhone12,3",
+        "iPhone12,5",
+        "iPhone13,1",
+        "iPhone13,2",
+        "iPhone13,3",
+        "iPhone13,4",
+        "iPhone14,2",
+        "iPhone14,3"
+      ],
+      "related_patterns": [
+        "pmu_failure",
+        "pmu_charging_fault"
+      ]
+    },
+    {
+      "id": "pmu_battery_gauge_fault",
+      "keywords": [
+        "battery gauge",
+        "FuelGauge",
+        "gas gauge",
+        "battery SoC error",
+        "coulomb counter"
+      ],
+      "category": "kernelPanic",
+      "component": "battery_gauge",
+      "severity": "hardware",
+      "confidence": 82,
+      "title": "Battery fuel gauge / SoC measurement fault",
+      "diagnosis": "The battery fuel gauge (coulomb counter / gas gauge IC) is reporting inaccurate State-of-Charge or has failed, causing the OS to receive incorrect battery percentage data.",
+      "probabilities": [
+        {
+          "cause": "Aged battery causing gauge calibration drift",
+          "percent": 45,
+          "description": "Old battery's impedance has changed, causing gauge to miscalculate SoC."
+        },
+        {
+          "cause": "Battery replacement without gauge reset",
+          "percent": 35,
+          "description": "New battery installed without recalibrating fuel gauge."
+        },
+        {
+          "cause": "Gauge IC hardware fault",
+          "percent": 20,
+          "description": "Battery management IC gauge circuit failure."
+        }
+      ],
+      "repair_steps": [
+        "Calibrate battery: drain fully, charge to 100% uninterrupted",
+        "Replace battery through Apple service (recalibrates gauge)",
+        "Settings > Battery > Battery Health — check for 'Service' recommendation"
+      ],
+      "test_procedure": [
+        "Check for sudden jumps in battery percentage",
+        "Note if phone shuts down above 0% — classic gauge drift symptom"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "pmu_failure",
+        "battery_voltage_missing"
+      ]
+    },
+    {
+      "id": "pmu_power_rail_fault",
+      "keywords": [
+        "power rail",
+        "VREG",
+        "LDO fault",
+        "regulator assert",
+        "PMIC regulator"
+      ],
+      "category": "kernelPanic",
+      "component": "power_regulator",
+      "severity": "hardware",
+      "confidence": 80,
+      "title": "PMIC power rail / voltage regulator fault",
+      "diagnosis": "A power regulator or LDO (Low-Dropout regulator) managed by the PMIC reported a fault — undervoltage, overcurrent, or dropout — causing system instability.",
+      "probabilities": [
+        {
+          "cause": "PMIC power rail fault after liquid damage",
+          "percent": 45,
+          "description": "Corrosion on PMIC rails causing regulator fault."
+        },
+        {
+          "cause": "Component drawing excessive current on rail",
+          "percent": 35,
+          "description": "Shorted peripheral causing current limit on shared power rail."
+        },
+        {
+          "cause": "PMIC aging / electromigration",
+          "percent": 20,
+          "description": "PMIC regulator degraded after years of thermal cycling."
+        }
+      ],
+      "repair_steps": [
+        "Inspect for liquid damage indicators (LCI stickers)",
+        "Apple service / board-level PMIC work",
+        "Identify shorted component via current injection"
+      ],
+      "test_procedure": [
+        "Check for liquid damage in SIM tray slot (LCI indicator)",
+        "Measure battery voltage under load with external meter if possible"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "pmu_failure",
+        "smc_panic_assertion"
+      ]
+    },
+    {
+      "id": "pmu_applecharger_disconnect",
+      "keywords": [
+        "AppleCharger",
+        "charger disconnected",
+        "charger detection failed",
+        "ChargerDetect"
+      ],
+      "category": "kernelPanic",
+      "component": "charger_detection",
+      "severity": "hardware",
+      "confidence": 75,
+      "title": "Charger detection / Apple Charger disconnect event",
+      "diagnosis": "The charger detection subsystem reported an unexpected disconnect or failure to identify the connected charger type, causing charging to stop or fail.",
+      "probabilities": [
+        {
+          "cause": "Lightning/USB-C port corrosion or debris",
+          "percent": 55,
+          "description": "Dirty connector causing intermittent charger detection."
+        },
+        {
+          "cause": "Damaged charging port flex cable",
+          "percent": 25,
+          "description": "Port flex cable pins bent or broken."
+        },
+        {
+          "cause": "Cable fault (fraying near connector)",
+          "percent": 20,
+          "description": "Damaged USB cable causing intermittent connection."
+        }
+      ],
+      "repair_steps": [
+        "Clean port with soft brush and compressed air",
+        "Test with original Apple cable",
+        "Replace charging port flex if cleaning doesn't resolve"
+      ],
+      "test_procedure": [
+        "Check if charging indicator appears and stays stable when connected",
+        "Try multiple cables — rule out cable fault first"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "tristar_failure",
+        "pmu_charging_fault"
+      ]
+    },
+    {
+      "id": "sensor_accelerometer_fault",
+      "keywords": [
+        "accelerometer",
+        "STMicro",
+        "LIS3DH",
+        "LIS2DH",
+        "accelerometer not responding"
+      ],
+      "category": "kernelPanic",
+      "component": "accelerometer",
+      "severity": "hardware",
+      "confidence": 82,
+      "title": "Accelerometer sensor failure (STMicro / LIS series)",
+      "diagnosis": "The accelerometer (typically STMicroelectronics LIS2DH or similar) stopped responding on the I2C/SPI bus, causing motion sensing to fail and potentially triggering a kernel panic in the sensor stack.",
+      "probabilities": [
+        {
+          "cause": "Accelerometer IC damaged by drop",
+          "percent": 55,
+          "description": "Impact damage dislodged or cracked the accelerometer IC."
+        },
+        {
+          "cause": "I2C bus fault / solder joint failure",
+          "percent": 30,
+          "description": "I2C bus solder joint under accelerometer failed."
+        },
+        {
+          "cause": "Accelerometer firmware/configuration lost",
+          "percent": 15,
+          "description": "Power cycle corrupted IC configuration registers."
+        }
+      ],
+      "repair_steps": [
+        "Test rotation/auto-rotate functionality",
+        "Test motion in Compass app — accelerometer drives it",
+        "Board-level: accelerometer IC replacement under microscope"
+      ],
+      "test_procedure": [
+        "Open Compass app — should show level indicator responding to tilt",
+        "Open a game using tilt controls — verify response"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "i2c_bus_failure"
+      ]
+    },
+    {
+      "id": "sensor_gyroscope_fault",
+      "keywords": [
+        "gyroscope",
+        "gyro not responding",
+        "STMicro gyro",
+        "L3GD20",
+        "rotation rate sensor"
+      ],
+      "category": "kernelPanic",
+      "component": "gyroscope",
+      "severity": "hardware",
+      "confidence": 80,
+      "title": "Gyroscope sensor failure",
+      "diagnosis": "The gyroscope sensor (often co-located with accelerometer in an IMU chip) failed or is providing invalid data, affecting AR, gaming, and image stabilisation.",
+      "probabilities": [
+        {
+          "cause": "IMU chip (gyro section) damaged",
+          "percent": 50,
+          "description": "Physical damage to 6-axis IMU chip damaging gyro MEMS structure."
+        },
+        {
+          "cause": "Gyro MEMS contamination",
+          "percent": 30,
+          "description": "Dust or moisture entering MEMS structure causing drift/failure."
+        },
+        {
+          "cause": "Software calibration data corrupted",
+          "percent": 20,
+          "description": "Gyro factory calibration NVM data corrupted."
+        }
+      ],
+      "repair_steps": [
+        "Test gyro in ARKit app or Compass app (navigation)",
+        "Restore iPhone to reset gyro calibration data",
+        "If hardware: IMU chip replacement"
+      ],
+      "test_procedure": [
+        "Open Compass app — walk in a circle, heading should update smoothly",
+        "Test AR app (Measure app) for tracking stability"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "sensor_accelerometer_fault",
+        "i2c_bus_failure"
+      ]
+    },
+    {
+      "id": "sensor_magnetometer_fault",
+      "keywords": [
+        "magnetometer",
+        "Compass failure",
+        "AK09911",
+        "magnetic sensor",
+        "compass not working"
+      ],
+      "category": "kernelPanic",
+      "component": "magnetometer",
+      "severity": "hardware",
+      "confidence": 78,
+      "title": "Magnetometer / Compass sensor failure",
+      "diagnosis": "The magnetometer (compass sensor, typically AKM AK09911) failed or is severely miscalibrated, causing the Compass app and magnetic heading in Maps to be unavailable.",
+      "probabilities": [
+        {
+          "cause": "Magnetometer IC damaged (often near magnetic accessories)",
+          "percent": 45,
+          "description": "Strong magnets (cases, mounts) permanently magnetised or damaged the sensor."
+        },
+        {
+          "cause": "I2C bus fault",
+          "percent": 30,
+          "description": "I2C communication failure between magnetometer and AP."
+        },
+        {
+          "cause": "Compass calibration data corrupted",
+          "percent": 25,
+          "description": "NVM calibration data corrupted, requiring factory reset to recalibrate."
+        }
+      ],
+      "repair_steps": [
+        "Calibrate compass: Settings > Privacy > Location Services > Compass Calibration > On",
+        "Move away from magnetic cases/accessories and recalibrate",
+        "If still failing: magnetometer IC replacement"
+      ],
+      "test_procedure": [
+        "Open Compass app — should show heading and prompt calibration if needed",
+        "Rotate phone through figure-8 motion to calibrate"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "i2c_bus_failure"
+      ]
+    },
+    {
+      "id": "sensor_lidar_fault",
+      "keywords": [
+        "LiDAR",
+        "SPAD",
+        "time-of-flight depth",
+        "depth camera failure",
+        "ToF sensor"
+      ],
+      "category": "kernelPanic",
+      "component": "lidar_sensor",
+      "severity": "hardware",
+      "confidence": 80,
+      "title": "LiDAR scanner (ToF depth sensor) failure",
+      "diagnosis": "The LiDAR scanner (SPAD-based time-of-flight depth sensor on Pro iPhones) failed or is not responding, breaking ARKit scene understanding and portrait lighting.",
+      "probabilities": [
+        {
+          "cause": "LiDAR module damaged by drop (rear camera impact)",
+          "percent": 55,
+          "description": "Physical impact to rear camera module damaged LiDAR SPAD array."
+        },
+        {
+          "cause": "LiDAR flex cable connection fault",
+          "percent": 25,
+          "description": "LiDAR module flex cable connection broken or loose."
+        },
+        {
+          "cause": "LiDAR VCSEL emitter failure",
+          "percent": 20,
+          "description": "IR VCSEL laser emitter in LiDAR module has failed."
+        }
+      ],
+      "repair_steps": [
+        "Test ARKit app (Measure) — LiDAR required for instant AR",
+        "Rear camera module assembly replacement (LiDAR is part of camera module)"
+      ],
+      "test_procedure": [
+        "Open Measure app — tap '+' to measure; should work instantly with LiDAR",
+        "Open Instagram filters that use face/AR — depth-dependent effects should work"
+      ],
+      "models_affected": [
+        "iPhone13,3",
+        "iPhone13,4",
+        "iPhone14,3",
+        "iPhone15,3",
+        "iPhone16,2"
+      ],
+      "related_patterns": [
+        "camera_isp_panic"
+      ]
+    },
+    {
+      "id": "sensor_barometer_v2",
+      "keywords": [
+        "barometer",
+        "barometric pressure",
+        "LPS22",
+        "BMP280",
+        "pressure sensor missing"
+      ],
+      "category": "kernelPanic",
+      "component": "barometer",
+      "severity": "hardware",
+      "confidence": 83,
+      "title": "Barometric pressure sensor failure",
+      "diagnosis": "The barometric pressure sensor (used for floor-level detection and weather) is missing from sensor reports or providing invalid data, causing thermal/altitude monitoring failures.",
+      "probabilities": [
+        {
+          "cause": "Barometer sensor IC failure",
+          "percent": 55,
+          "description": "LPS22 or BMP280 IC failed — common after liquid damage."
+        },
+        {
+          "cause": "Barometer vent hole blocked",
+          "percent": 25,
+          "description": "Tiny barometer vent hole on device sealed by adhesive or case."
+        },
+        {
+          "cause": "I2C bus issue",
+          "percent": 20,
+          "description": "I2C communication to barometer chip interrupted."
+        }
+      ],
+      "repair_steps": [
+        "Check baro vent (usually near SIM tray or bottom of device)",
+        "Unblock vent with fine needle if debris-blocked",
+        "If IC failed: replacement requires board-level repair"
+      ],
+      "test_procedure": [
+        "Download a barometric pressure app to test sensor reading",
+        "Compare reading to local weather service pressure reading"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "baro_missing",
+        "i2c_bus_failure"
+      ]
+    },
+    {
+      "id": "sensor_haptic_fault",
+      "keywords": [
+        "taptic engine",
+        "haptic",
+        "Taptic",
+        "DRV2624",
+        "haptic actuator",
+        "vibration motor"
+      ],
+      "category": "kernelPanic",
+      "component": "taptic_engine",
+      "severity": "hardware",
+      "confidence": 80,
+      "title": "Taptic Engine / haptic actuator failure",
+      "diagnosis": "The Taptic Engine (linear resonant actuator) failed or is producing abnormal haptic patterns. Can cause kernel panics if the haptic driver detects a fault condition.",
+      "probabilities": [
+        {
+          "cause": "Taptic Engine physically damaged (drop)",
+          "percent": 50,
+          "description": "Linear actuator mass displaced or coil damaged by impact."
+        },
+        {
+          "cause": "Taptic Engine flex cable fault",
+          "percent": 30,
+          "description": "Cable to Taptic Engine damaged or connector loose."
+        },
+        {
+          "cause": "Haptic driver IC fault",
+          "percent": 20,
+          "description": "DRV2624 or equivalent haptic driver IC failed."
+        }
+      ],
+      "repair_steps": [
+        "Test in Settings > Sounds & Haptics — Haptic Preview slider",
+        "Taptic Engine replacement (standalone or with battery assembly depending on model)"
+      ],
+      "test_procedure": [
+        "Settings > Sounds & Haptics > System Haptics — toggle on/off and feel",
+        "3D Touch / Haptic Touch long-press on app icon"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "i2c_bus_failure"
+      ]
+    },
+    {
+      "id": "sensor_stk3310_als",
+      "keywords": [
+        "STK3310",
+        "STK3335",
+        "ambient light sensor",
+        "Ambient Light",
+        "proximity sensor IC"
+      ],
+      "category": "kernelPanic",
+      "component": "als_proximity_ic",
+      "severity": "hardware",
+      "confidence": 83,
+      "title": "STK3310/STK3335 ALS+Proximity IC failure",
+      "diagnosis": "The Sensortek STK3310 or STK3335 combined ambient light and proximity sensor IC is not responding, causing both auto-brightness and screen-off-during-call to fail.",
+      "probabilities": [
+        {
+          "cause": "STK33xx IC damaged (drop or liquid)",
+          "percent": 55,
+          "description": "Sensor IC on front flex assembly damaged."
+        },
+        {
+          "cause": "Front panel flex cable connector fault",
+          "percent": 30,
+          "description": "Connector carrying ALS/prox signals to logic board loose or broken."
+        },
+        {
+          "cause": "Sensor window blocked (third-party screen)",
+          "percent": 15,
+          "description": "Aftermarket screen has opaque material over sensor window."
+        }
+      ],
+      "repair_steps": [
+        "Check auto-brightness (Settings > Accessibility > Display > Auto-Brightness)",
+        "Test proximity: call yourself, put phone to ear — screen should go dark",
+        "Front assembly replacement if IC confirmed failed"
+      ],
+      "test_procedure": [
+        "Cover the top front sensor area during a call — screen should stay off",
+        "Settings > Accessibility > Display & Text Size > Auto-Brightness — toggle and test"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "als_missing",
+        "prox_missing",
+        "i2c_bus_failure"
+      ]
+    },
+    {
+      "id": "sensor_arkit_crash",
+      "keywords": [
+        "ARKit",
+        "ARSession",
+        "ARCamera",
+        "com.apple.arkit",
+        "ARSessionDelegate"
+      ],
+      "category": "appCrash",
+      "component": "arkit_framework",
+      "severity": "software",
+      "confidence": 78,
+      "title": "ARKit session crash / AR framework fault",
+      "diagnosis": "An ARKit session crashed, either due to hardware sensor unavailability (camera, LiDAR, IMU) or a software bug in the AR framework or app.",
+      "probabilities": [
+        {
+          "cause": "Camera permission denied mid-session",
+          "percent": 35,
+          "description": "App's camera access revoked while AR session was running."
+        },
+        {
+          "cause": "ARKit hardware requirement not met",
+          "percent": 35,
+          "description": "LiDAR or camera not functioning, ARSession fails to initialise."
+        },
+        {
+          "cause": "ARKit software crash in iOS version",
+          "percent": 30,
+          "description": "Known ARKit bug fixed in later iOS point release."
+        }
+      ],
+      "repair_steps": [
+        "Grant camera permission: Settings > Privacy > Camera",
+        "Update iOS and the AR app",
+        "If camera fails: camera hardware inspection"
+      ],
+      "test_procedure": [
+        "Test in Measure app — basic ARKit without LiDAR",
+        "Check camera permission in Settings > Privacy > Camera for affected app"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "sensor_lidar_fault",
+        "camera_isp_panic"
+      ]
+    },
+    {
+      "id": "sensor_meson_touch",
+      "keywords": [
+        "Meson",
+        "touch IC",
+        "Azalea",
+        "Rumba",
+        "SPI touch",
+        "touch controller"
+      ],
+      "category": "kernelPanic",
+      "component": "touch_ic",
+      "severity": "hardware",
+      "confidence": 85,
+      "title": "Touch IC (Meson/Azalea/Rumba) failure or panic",
+      "diagnosis": "Apple's custom touch controller (codenames Meson, Azalea, Rumba depending on generation) encountered a firmware crash or hardware fault, causing touch input to stop working.",
+      "probabilities": [
+        {
+          "cause": "Touch IC hardware damaged (screen impact)",
+          "percent": 50,
+          "description": "Cracked or hard-impact display damaged the touch IC on the screen assembly."
+        },
+        {
+          "cause": "Touch IC firmware fault — iOS update required",
+          "percent": 25,
+          "description": "Touch IC firmware bug exposed by iOS version."
+        },
+        {
+          "cause": "SPI bus communication fault",
+          "percent": 25,
+          "description": "SPI bus between touch IC and AP experiencing errors."
+        }
+      ],
+      "repair_steps": [
+        "Test touchscreen: open a note and draw across entire screen",
+        "If areas unresponsive: screen assembly replacement",
+        "Update iOS — touch IC firmware updates included"
+      ],
+      "test_procedure": [
+        "Draw diagonals in Notes app across full screen",
+        "Test all four corners and edges for responsiveness"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "i2c_bus_failure",
+        "display_backlight_failure"
+      ]
+    },
+    {
+      "id": "sensor_ultra_wideband_fault",
+      "keywords": [
+        "UWB",
+        "U1 chip",
+        "ultra-wideband",
+        "AirDrop precision",
+        "FindMy direction"
+      ],
+      "category": "kernelPanic",
+      "component": "uwb_u1",
+      "severity": "hardware",
+      "confidence": 78,
+      "title": "Ultra Wideband (U1) chip fault",
+      "diagnosis": "The Apple U1 ultra-wideband chip experienced a hardware or firmware fault, disabling precision FindMy direction, directional AirDrop, and CarKey functionality.",
+      "probabilities": [
+        {
+          "cause": "U1 chip hardware fault",
+          "percent": 50,
+          "description": "U1 silicon failure — may be related to impact damage."
+        },
+        {
+          "cause": "U1 antenna connection fault",
+          "percent": 30,
+          "description": "UWB antenna flex connection broken."
+        },
+        {
+          "cause": "U1 firmware bug — iOS fix available",
+          "percent": 20,
+          "description": "U1 firmware issue resolved in later iOS version."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS",
+        "Test Precision Finding in Find My app with another U1 device nearby",
+        "Apple service if U1 hardware confirmed failed"
+      ],
+      "test_procedure": [
+        "Use Find My app with another iPhone 11+ nearby — Precision Finding arrow should appear",
+        "Test directional AirDrop with another U1 iPhone"
+      ],
+      "models_affected": [
+        "iPhone12,1",
+        "iPhone12,3",
+        "iPhone12,5",
+        "iPhone13,1",
+        "iPhone13,2",
+        "iPhone13,3",
+        "iPhone13,4",
+        "iPhone14,2",
+        "iPhone14,3"
+      ],
+      "related_patterns": [
+        "uwb_failure"
+      ]
+    },
+    {
+      "id": "kernel_pac_failure",
+      "keywords": [
+        "EXC_ARM_PAC_FAIL",
+        "Pointer Authentication",
+        "pac fail"
+      ],
+      "category": "kernelPanic",
+      "component": "cpu_pac",
+      "severity": "software",
+      "confidence": 88,
+      "title": "Pointer Authentication Code (PAC) failure — ARM64e integrity violation",
+      "diagnosis": "ARM64e PAC (Pointer Authentication Code) check failed. A function pointer or return address had an invalid auth signature, indicating memory corruption or a code-reuse attack blocked by hardware.",
+      "probabilities": [
+        {
+          "cause": "Memory corruption overwriting authenticated pointer",
+          "percent": 55,
+          "description": "Heap or stack corruption overwrote a PAC-signed pointer, failing re-auth on use."
+        },
+        {
+          "cause": "Kernel driver PAC mismatch",
+          "percent": 30,
+          "description": "Driver compiled without PAC calling into PAC-protected kernel code."
+        },
+        {
+          "cause": "Jailbreak/exploit attempt blocked by PAC",
+          "percent": 15,
+          "description": "PAC hardware blocked a code-reuse attack vector."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS — PAC violations in system code are fixed by iOS updates",
+        "DFU restore if persistent"
+      ],
+      "test_procedure": [
+        "Source: osfmk/arm64/sleh.c — EXC_ARM_PAC_FAIL exception code",
+        "Check iOS version for security patches"
+      ],
+      "models_affected": [
+        "iPhone11,2",
+        "iPhone11,4",
+        "iPhone11,6",
+        "iPhone11,8",
+        "iPhone12,1",
+        "iPhone12,3",
+        "iPhone12,5",
+        "iPhone13,1",
+        "iPhone13,2",
+        "iPhone13,3",
+        "iPhone13,4",
+        "iPhone14,2",
+        "iPhone14,3",
+        "iPhone15,2",
+        "iPhone15,3",
+        "iPhone16,1",
+        "iPhone16,2"
+      ],
+      "related_patterns": [
+        "kernel_permission_fault"
+      ]
+    },
+    {
+      "id": "kernel_bti_failure",
+      "keywords": [
+        "Kernel BTI failure",
+        "BTYPE=0x",
+        "Branch Target Identification"
+      ],
+      "category": "kernelPanic",
+      "component": "cpu_bti",
+      "severity": "software",
+      "confidence": 85,
+      "title": "Kernel BTI failure — Branch Target Identification violation",
+      "diagnosis": "ARM64 BTI (Branch Target Identification) hardware protection blocked an indirect branch to a non-BTI-landing-pad address. Indicates control-flow hijack attempt or kernel bug.",
+      "probabilities": [
+        {
+          "cause": "Control flow hijack blocked by BTI",
+          "percent": 50,
+          "description": "Attempted indirect branch to non-landing-pad instruction — security protection triggered."
+        },
+        {
+          "cause": "Kernel driver not compiled with BTI",
+          "percent": 30,
+          "description": "KEXT or driver object code without BTI landing pads called from BTI-enforced kernel."
+        },
+        {
+          "cause": "JIT code without BTI markers",
+          "percent": 20,
+          "description": "JIT-compiled code missing BTI landing pad instructions."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS",
+        "DFU restore if persistent"
+      ],
+      "test_procedure": [
+        "Source: osfmk/arm64/sleh.c — 'Kernel BTI failure (BTYPE=0x%04x)'",
+        "Update iOS for kernel security fixes"
+      ],
+      "models_affected": [
+        "iPhone14,2",
+        "iPhone14,3",
+        "iPhone15,2",
+        "iPhone15,3",
+        "iPhone16,1",
+        "iPhone16,2"
+      ],
+      "related_patterns": [
+        "kernel_pac_failure",
+        "kernel_permission_fault"
+      ]
+    },
+    {
+      "id": "kernel_integrity_violation",
+      "keywords": [
+        "Kernel integrity, violation in frame",
+        "Kernel integrity, not locked",
+        "Kernel integrity, already locked"
+      ],
+      "category": "kernelPanic",
+      "component": "kernel_integrity",
+      "severity": "software",
+      "confidence": 90,
+      "title": "Kernel integrity violation — KTRR/PPL protection triggered",
+      "diagnosis": "Kernel Integrity Protection (KIP/KTRR) detected an attempt to modify protected kernel memory. The kernel text region is locked at boot — any write attempt causes an immediate panic.",
+      "probabilities": [
+        {
+          "cause": "Kernel driver attempted to write to kernel text",
+          "percent": 45,
+          "description": "Buggy driver wrote to read-only kernel code region."
+        },
+        {
+          "cause": "Memory corruption reaching kernel text",
+          "percent": 35,
+          "description": "Heap corruption propagated to protected kernel memory region."
+        },
+        {
+          "cause": "Jailbreak/exploit attempt blocked by KPP",
+          "percent": 20,
+          "description": "Kernel Patch Protection blocked unauthorized kernel modification."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS — kernel integrity violations fixed by security updates",
+        "DFU restore"
+      ],
+      "test_procedure": [
+        "Source: osfmk/arm64/sleh.c — 'Kernel integrity, violation in frame 0x%016lx'",
+        "DFU restore to latest iOS"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "kernel_pac_failure"
+      ]
+    },
+    {
+      "id": "kernel_invalid_stack_pointer",
+      "keywords": [
+        "Invalid kernel stack pointer (probable overflow)",
+        "Invalid kernel stack pointer (probable corruption"
+      ],
+      "category": "kernelPanic",
+      "component": "kernel_stack",
+      "severity": "software",
+      "confidence": 92,
+      "title": "Invalid kernel stack pointer — stack overflow or corruption",
+      "diagnosis": "ARM64 exception handler detected an invalid kernel SP (stack pointer). Either the kernel stack overflowed its guard page, or the SP register was corrupted by a memory safety violation.",
+      "probabilities": [
+        {
+          "cause": "Kernel stack overflow",
+          "percent": 60,
+          "description": "Deep call chain or recursion in kernel driver exhausted the kernel thread stack."
+        },
+        {
+          "cause": "Stack pointer corruption from memory error",
+          "percent": 25,
+          "description": "Memory corruption (DRAM bit flip or use-after-free) overwrote the SP."
+        },
+        {
+          "cause": "Early boot stack state error",
+          "percent": 15,
+          "description": "Boot-time stack not yet initialized — usually a one-time occurrence."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS",
+        "DFU restore if persistent"
+      ],
+      "test_procedure": [
+        "Source: osfmk/arm64/sleh.c — exact string 'Invalid kernel stack pointer (probable overflow).'"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "kernel_stack_overflow"
+      ]
+    },
+    {
+      "id": "kernel_parity_error",
+      "keywords": [
+        "Kernel parity error",
+        "parity error"
+      ],
+      "category": "kernelPanic",
+      "component": "dram",
+      "severity": "hardware",
+      "confidence": 90,
+      "title": "Kernel parity error — DRAM uncorrectable memory error",
+      "diagnosis": "ARM64 exception handler reported a kernel parity error. On Apple Silicon, this indicates an uncorrectable DRAM ECC error — a hardware memory failure.",
+      "probabilities": [
+        {
+          "cause": "DRAM ECC uncorrectable error",
+          "percent": 70,
+          "description": "LPDDR DRAM cell failure producing uncorrectable bit error detected by ECC."
+        },
+        {
+          "cause": "DRAM controller hardware fault",
+          "percent": 20,
+          "description": "Memory controller hardware error generating false parity signal."
+        },
+        {
+          "cause": "PoP solder ball failure",
+          "percent": 10,
+          "description": "DRAM Package-on-Package solder connection causing intermittent parity errors."
+        }
+      ],
+      "repair_steps": [
+        "Logic board replacement required — DRAM is PoP soldered to SoC",
+        "If intermittent: may coincide with device overheating or power issues"
+      ],
+      "test_procedure": [
+        "Source: osfmk/arm64/sleh.c — 'Kernel parity error.'",
+        "Run memory stress test — does it reproduce under thermal load?"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "kernel_amcc_panic",
+        "kernel_dram_init_failure"
+      ]
+    },
+    {
+      "id": "kernel_sp_alignment",
+      "keywords": [
+        "SP alignment exception from kernel",
+        "EXC_ARM_SP_ALIGN"
+      ],
+      "category": "kernelPanic",
+      "component": "cpu",
+      "severity": "software",
+      "confidence": 85,
+      "title": "SP alignment exception from kernel — stack pointer misaligned",
+      "diagnosis": "ARM64 requires the stack pointer to be 16-byte aligned at function calls. A kernel driver violated this constraint, causing an immediate alignment exception.",
+      "probabilities": [
+        {
+          "cause": "Kernel driver assembly with wrong SP alignment",
+          "percent": 55,
+          "description": "Hand-written assembly in driver not maintaining 16-byte SP alignment."
+        },
+        {
+          "cause": "Stack corruption from buffer overflow",
+          "percent": 30,
+          "description": "Buffer overflow corrupted SP to a misaligned value."
+        },
+        {
+          "cause": "Compiler bug in KEXT",
+          "percent": 15,
+          "description": "Incorrect codegen producing misaligned SP in function prologue."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS",
+        "Remove recently installed profiles/MDM configs"
+      ],
+      "test_procedure": [
+        "Source: osfmk/arm64/sleh.c — 'SP alignment exception from kernel.'"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "kernel_bus_alignment"
+      ]
+    },
+    {
+      "id": "kernel_zone_metadata_corruption",
+      "keywords": [
+        "zone metadata corruption",
+        "zone element pointer validation failed",
+        "metadata list corruption"
+      ],
+      "category": "kernelPanic",
+      "component": "kernel_zones",
+      "severity": "software",
+      "confidence": 88,
+      "title": "Zone metadata corruption — kernel heap integrity failure",
+      "diagnosis": "Kernel zone allocator detected corrupted zone metadata. Zone metadata tracks allocation state — corruption indicates a use-after-free, double-free, or out-of-bounds write in kernel code.",
+      "probabilities": [
+        {
+          "cause": "Kernel use-after-free corrupting zone metadata",
+          "percent": 55,
+          "description": "Freed zone element reused by kernel, overwriting zone's free-list metadata."
+        },
+        {
+          "cause": "Out-of-bounds write from adjacent zone element",
+          "percent": 30,
+          "description": "Buffer overrun from one allocation corrupting neighboring zone metadata."
+        },
+        {
+          "cause": "DRAM bit error in zone metadata region",
+          "percent": 15,
+          "description": "Hardware memory error flipping bit in zone management structures."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS — zone corruption bugs are fixed in kernel security patches",
+        "DFU restore if persistent"
+      ],
+      "test_procedure": [
+        "Source: osfmk/kern/zalloc.c — 'zone metadata corruption: %s (meta %p, zone %s%s)'",
+        "Update iOS to latest version"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "kernel_double_free",
+        "kernel_use_after_free"
+      ]
+    },
+    {
+      "id": "kernel_zone_double_free",
+      "keywords": [
+        "double free of",
+        "freeing already freed zone",
+        "zalloc double free"
+      ],
+      "category": "kernelPanic",
+      "component": "kernel_zones",
+      "severity": "software",
+      "confidence": 88,
+      "title": "Zone allocator double-free — kernel memory freed twice",
+      "diagnosis": "Zone allocator detected the same memory element being freed twice. Exact string from XNU zalloc.c: '%s: double free of %p to zone %s%s'",
+      "probabilities": [
+        {
+          "cause": "Kernel driver reference counting bug",
+          "percent": 60,
+          "description": "IOKit object released more times than retained — zone catches the double-free."
+        },
+        {
+          "cause": "Race condition in driver teardown",
+          "percent": 30,
+          "description": "Concurrent teardown paths both call free on the same object."
+        },
+        {
+          "cause": "Corrupted reference count from DRAM error",
+          "percent": 10,
+          "description": "Memory error lowered refcount causing premature free."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS",
+        "Remove recently connected accessories"
+      ],
+      "test_procedure": [
+        "Source: osfmk/kern/zalloc.c — '%s: double free of %p to zone %s%s'"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "kernel_double_free",
+        "kernel_zone_metadata_corruption"
+      ]
+    },
+    {
+      "id": "initproc_exited",
+      "keywords": [
+        "initproc exited",
+        "initproc failed to start",
+        "LTE preinit process exited"
+      ],
+      "category": "kernelPanic",
+      "component": "launchd",
+      "severity": "critical",
+      "confidence": 95,
+      "title": "initproc (launchd) exited — complete system failure",
+      "diagnosis": "launchd (pid 1, initproc) exited or failed to start. This is a fatal kernel panic — without launchd, no userspace can function. Indicates severe iOS corruption or hardware failure.",
+      "probabilities": [
+        {
+          "cause": "iOS system partition corruption",
+          "percent": 50,
+          "description": "launchd binary or its dependencies corrupted on NAND."
+        },
+        {
+          "cause": "NAND storage failure preventing launchd exec",
+          "percent": 30,
+          "description": "Flash storage too degraded for launchd to execute correctly."
+        },
+        {
+          "cause": "launchd plist/config corruption",
+          "percent": 20,
+          "description": "Corrupted launchd configuration causing immediate exit."
+        }
+      ],
+      "repair_steps": [
+        "DFU restore required — this is unrecoverable without restore",
+        "If DFU fails with 4013/4014: NAND hardware failure — logic board repair needed"
+      ],
+      "test_procedure": [
+        "Source: bsd/kern/kern_exit.c — exact string 'initproc exited'",
+        "Attempt DFU restore immediately"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "kernel_nand_panic",
+        "restore_error_4013"
+      ]
+    },
+    {
+      "id": "text_page_corruption",
+      "keywords": [
+        "Text page corruption detected",
+        "CS_KILLED",
+        "code signing violation"
+      ],
+      "category": "kernelPanic",
+      "component": "code_signing",
+      "severity": "hardware",
+      "confidence": 85,
+      "title": "Text page corruption — executable code integrity failure",
+      "diagnosis": "Kernel detected corruption in a process's executable text pages. Source: kern_exit.c 'Text page corruption detected in dying process %d'. Indicates NAND flash error or DRAM error corrupting code pages.",
+      "probabilities": [
+        {
+          "cause": "NAND bad block in app code segment",
+          "percent": 50,
+          "description": "Flash storage error returning bad data for app's executable pages."
+        },
+        {
+          "cause": "DRAM bit error in code cache",
+          "percent": 30,
+          "description": "DRAM error corrupting instruction cache content."
+        },
+        {
+          "cause": "CS_KILLED — code signing enforcement",
+          "percent": 20,
+          "description": "Kernel killed process because code pages modified (jailbreak or corruption)."
+        }
+      ],
+      "repair_steps": [
+        "Delete and reinstall affected app",
+        "DFU restore if system binary affected",
+        "Logic board inspection if DRAM/NAND suspected"
+      ],
+      "test_procedure": [
+        "Source: bsd/kern/kern_exit.c — 'Text page corruption detected in dying process %d'",
+        "Reinstall app — recurs after reinstall = hardware"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "sep_amfi_codesign",
+        "kernel_nand_panic"
+      ]
+    },
+    {
+      "id": "jetsam_proc_thrashing",
+      "keywords": [
+        "proc-thrashing",
+        "kMemorystatusKilledProcThrashing",
+        "process thrashing"
+      ],
+      "category": "jetsam",
+      "component": "memory_management",
+      "severity": "software",
+      "confidence": 88,
+      "title": "Jetsam: process thrashing — repeated rapid memory kills",
+      "diagnosis": "iOS detected process thrashing: a process being killed and relaunched repeatedly in rapid succession due to memory pressure. Source: kern_memorystatus.c kill reason 'proc-thrashing'.",
+      "probabilities": [
+        {
+          "cause": "App repeatedly relaunching into memory pressure",
+          "percent": 65,
+          "description": "App killed by jetsam, relaunches immediately, gets killed again in a tight loop."
+        },
+        {
+          "cause": "Daemon restart loop under memory pressure",
+          "percent": 25,
+          "description": "System daemon restarted by launchd into persistent memory pressure."
+        },
+        {
+          "cause": "Memory leak on each launch cycle",
+          "percent": 10,
+          "description": "App allocates large memory each launch before being killed again."
+        }
+      ],
+      "repair_steps": [
+        "Restart device to clear memory pressure",
+        "Update app causing the thrash loop"
+      ],
+      "test_procedure": [
+        "Source: bsd/kern/kern_memorystatus.c — kMemorystatusKilledProcThrashing → 'proc-thrashing'",
+        "Check for rapidly growing jetsam log entries for same process"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "jetsam_memory_pressure",
+        "jetsam_vm_pageshortage"
+      ]
+    },
+    {
+      "id": "jetsam_fc_thrashing",
+      "keywords": [
+        "fc-thrashing",
+        "kMemorystatusKilledFCThrashing",
+        "file cache thrashing"
+      ],
+      "category": "jetsam",
+      "component": "file_cache",
+      "severity": "software",
+      "confidence": 85,
+      "title": "Jetsam: file cache thrashing — page cache pressure",
+      "diagnosis": "iOS file cache (unified buffer cache) thrashing: pages being evicted and re-loaded repeatedly. Source: kern_memorystatus.c kill reason 'fc-thrashing'.",
+      "probabilities": [
+        {
+          "cause": "Working set too large for available RAM",
+          "percent": 60,
+          "description": "App's file access pattern exceeds available page cache, causing constant eviction/reload."
+        },
+        {
+          "cause": "Multiple large file operations simultaneously",
+          "percent": 25,
+          "description": "Concurrent large file I/O operations competing for page cache."
+        },
+        {
+          "cause": "Memory-mapped files with random access pattern",
+          "percent": 15,
+          "description": "mmap'd file with random access causing excessive page faults."
+        }
+      ],
+      "repair_steps": [
+        "Restart device",
+        "Close memory-intensive apps doing large file operations"
+      ],
+      "test_procedure": [
+        "Source: bsd/kern/kern_memorystatus.c — kMemorystatusKilledFCThrashing → 'fc-thrashing'"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "jetsam_vm_pageshortage",
+        "jetsam_compressor_space"
+      ]
+    },
+    {
+      "id": "jetsam_vnode_limit",
+      "keywords": [
+        "vnode-limit",
+        "kMemorystatusKilledVnodes",
+        "vnode exhaustion"
+      ],
+      "category": "jetsam",
+      "component": "file_system",
+      "severity": "software",
+      "confidence": 85,
+      "title": "Jetsam: vnode limit — kernel vnode table exhausted",
+      "diagnosis": "iOS vnode table (kernel structure for open files/directories) exhausted. Source: kern_memorystatus.c kill reason 'vnode-limit'. iOS kills processes to reclaim vnodes.",
+      "probabilities": [
+        {
+          "cause": "App or daemon with too many open files",
+          "percent": 55,
+          "description": "Process opened many files/directories without closing them."
+        },
+        {
+          "cause": "File descriptor leak across many processes",
+          "percent": 30,
+          "description": "Multiple apps each leaking vnodes until system limit reached."
+        },
+        {
+          "cause": "Spotlight/indexing vnode usage spike",
+          "percent": 15,
+          "description": "Spotlight re-indexing using many vnodes simultaneously."
+        }
+      ],
+      "repair_steps": [
+        "Restart device to clear vnode table",
+        "Update app that may be leaking file descriptors"
+      ],
+      "test_procedure": [
+        "Source: bsd/kern/kern_memorystatus.c — kMemorystatusKilledVnodes → 'vnode-limit'",
+        "Restart device resolves"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "jetsam_zone_map"
+      ]
+    },
+    {
+      "id": "jetsam_disk_space_shortage",
+      "keywords": [
+        "disk-space-shortage",
+        "kMemorystatusKilledDiskSpaceShortage",
+        "storage critically low"
+      ],
+      "category": "jetsam",
+      "component": "storage",
+      "severity": "software",
+      "confidence": 90,
+      "title": "Jetsam: disk space shortage — storage critically low",
+      "diagnosis": "iOS killed processes because internal storage is critically low. Source: kern_memorystatus.c kill reason 'disk-space-shortage'. Below ~500MB free, iOS aggressively kills processes.",
+      "probabilities": [
+        {
+          "cause": "Device storage nearly full",
+          "percent": 80,
+          "description": "Less than 500MB free — iOS must kill processes to create space for system operations."
+        },
+        {
+          "cause": "Large app cache not purged",
+          "percent": 15,
+          "description": "App caches consuming the last free storage."
+        },
+        {
+          "cause": "Crash logs / system logs accumulation",
+          "percent": 5,
+          "description": "System logs filling up last available storage."
+        }
+      ],
+      "repair_steps": [
+        "Free up storage immediately: delete unused apps, photos, large files",
+        "Settings > General > iPhone Storage — use recommendations",
+        "Offload unused apps"
+      ],
+      "test_procedure": [
+        "Source: bsd/kern/kern_memorystatus.c — kMemorystatusKilledDiskSpaceShortage → 'disk-space-shortage'",
+        "Settings > General > iPhone Storage — check free space"
+      ],
+      "models_affected": [],
+      "related_patterns": []
+    },
+    {
+      "id": "jetsam_vm_pageout_starvation",
+      "keywords": [
+        "vm-pageout-starvation",
+        "kMemorystatusKilledVMPageoutStarvation",
+        "pageout starvation"
+      ],
+      "category": "jetsam",
+      "component": "virtual_memory",
+      "severity": "software",
+      "confidence": 82,
+      "title": "Jetsam: VM pageout starvation — memory reclaim system overloaded",
+      "diagnosis": "VM pageout daemon is starved — can't reclaim pages fast enough to keep up with allocation rate. Source: kern_memorystatus.c kill reason 'vm-pageout-starvation'.",
+      "probabilities": [
+        {
+          "cause": "Memory allocation rate exceeds pageout rate",
+          "percent": 60,
+          "description": "Apps allocating memory faster than the pageout daemon can compress/evict."
+        },
+        {
+          "cause": "Slow NAND I/O slowing pageout",
+          "percent": 25,
+          "description": "Degraded NAND causing pageout operations to be slow, starving the system."
+        },
+        {
+          "cause": "Pageout daemon priority inversion",
+          "percent": 15,
+          "description": "High-priority allocation blocking pageout thread execution."
+        }
+      ],
+      "repair_steps": [
+        "Restart device",
+        "Close CPU/memory-intensive apps",
+        "If NAND degraded: DFU restore or hardware repair"
+      ],
+      "test_procedure": [
+        "Source: bsd/kern/kern_memorystatus.c — kMemorystatusKilledVMPageoutStarvation → 'vm-pageout-starvation'"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "jetsam_vm_pageshortage",
+        "jetsam_compressor_space"
+      ]
+    },
+    {
+      "id": "jetsam_long_idle_exit",
+      "keywords": [
+        "long-idle-exit",
+        "kMemorystatusKilledLongIdleExit",
+        "long idle"
+      ],
+      "category": "jetsam",
+      "component": "process_management",
+      "severity": "informational",
+      "confidence": 95,
+      "title": "Jetsam: long-idle-exit — app idle for extended period",
+      "diagnosis": "Extended idle exit: process idle for longer than the long-idle threshold. Source: kern_memorystatus.c kill reason 'long-idle-exit'. More aggressive than regular idle-exit.",
+      "probabilities": [
+        {
+          "cause": "Background app idle for hours without activity",
+          "percent": 85,
+          "description": "Normal iOS housekeeping — long-idle processes reclaimed after extended inactivity."
+        },
+        {
+          "cause": "Daemon with no pending work",
+          "percent": 15,
+          "description": "System daemon finished its work and left idle in memory."
+        }
+      ],
+      "repair_steps": [
+        "No action needed — expected iOS behavior"
+      ],
+      "test_procedure": [
+        "Source: bsd/kern/kern_memorystatus.c — kMemorystatusKilledLongIdleExit → 'long-idle-exit'"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "jetsam_idle_exit"
+      ]
+    },
+    {
+      "id": "jetsam_conclave_limit",
+      "keywords": [
+        "conclave-limit",
+        "kMemorystatusKilledConclaveLimit",
+        "conclave memory"
+      ],
+      "category": "jetsam",
+      "component": "memory_management",
+      "severity": "software",
+      "confidence": 75,
+      "title": "Jetsam: conclave memory limit — App Intents / extensibility memory",
+      "diagnosis": "App Conclave (iOS 17+ extensibility isolation container) exceeded its memory limit. Source: kern_memorystatus.c kill reason 'conclave-limit'. Affects App Intents, Live Activities, and Widgets.",
+      "probabilities": [
+        {
+          "cause": "App Intent / Live Activity memory overuse",
+          "percent": 65,
+          "description": "App Intents or Live Activity extension using too much memory in its isolated container."
+        },
+        {
+          "cause": "Widget memory growth",
+          "percent": 25,
+          "description": "Home Screen widget exceeding its memory budget in the conclave."
+        },
+        {
+          "cause": "Extension process memory leak",
+          "percent": 10,
+          "description": "Memory leak inside the extensibility conclave container."
+        }
+      ],
+      "repair_steps": [
+        "Update app — developer needs to reduce extension memory footprint",
+        "Remove Live Activity if problematic"
+      ],
+      "test_procedure": [
+        "Source: bsd/kern/kern_memorystatus.c — kMemorystatusKilledConclaveLimit → 'conclave-limit'",
+        "Only on iOS 17+"
+      ],
+      "models_affected": [
+        "iPhone15,2",
+        "iPhone15,3",
+        "iPhone15,4",
+        "iPhone15,5",
+        "iPhone16,1",
+        "iPhone16,2",
+        "iPhone17,1",
+        "iPhone17,2",
+        "iPhone17,3",
+        "iPhone17,4"
+      ],
+      "related_patterns": [
+        "jetsam_per_process_limit"
+      ]
+    },
+    {
+      "id": "exc_resource_wakeup_rate",
+      "keywords": [
+        "EXC_RESOURCE",
+        "wakeups per second",
+        "LIMIT_WAKEUPS",
+        "wakeup rate exceeded"
+      ],
+      "category": "appCrash",
+      "component": "cpu",
+      "severity": "software",
+      "confidence": 82,
+      "title": "EXC_RESOURCE: wakeup rate exceeded — 150 wakeups/sec limit",
+      "diagnosis": "App exceeded the system-enforced wakeup rate limit of 150 wakeups/second over a 300-second window. Source: XNU task.c TASK_WAKEUPS_MONITOR_DEFAULT_LIMIT = 150.",
+      "probabilities": [
+        {
+          "cause": "High-frequency timer or polling loop",
+          "percent": 60,
+          "description": "App using timers firing more than 150 times/second continuously."
+        },
+        {
+          "cause": "Tight IPC loop causing excessive wakeups",
+          "percent": 25,
+          "description": "Mach message send/receive loop generating rapid thread wakeups."
+        },
+        {
+          "cause": "Spinning wait loop",
+          "percent": 15,
+          "description": "Busy-wait loop disguised as async callbacks generating wakeups."
+        }
+      ],
+      "repair_steps": [
+        "Update app",
+        "Report to developer: reduce timer frequency or use coalesced timers"
+      ],
+      "test_procedure": [
+        "Source: osfmk/kern/task.c — TASK_WAKEUPS_MONITOR_DEFAULT_LIMIT = 150/sec over 300s",
+        "EXC_RESOURCE type WAKEUPS in crash log"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "cpu_wakeup_rate_panic"
+      ]
+    },
+    {
+      "id": "kernel_rwlock_not_released",
+      "keywords": [
+        "rwlock_count",
+        "possibly it still holds a rwlock",
+        "rwlock not released"
+      ],
+      "category": "kernelPanic",
+      "component": "kernel_sync",
+      "severity": "software",
+      "confidence": 80,
+      "title": "Kernel RWLock not released at thread termination",
+      "diagnosis": "Kernel thread terminated while still holding an RW lock. Source: osfmk/kern/thread.c — 'rwlock_count is %d for thread %p, possibly it still holds a rwlock'.",
+      "probabilities": [
+        {
+          "cause": "Kernel driver exiting lock without releasing RWLock",
+          "percent": 65,
+          "description": "Driver error path returning without calling lck_rw_unlock."
+        },
+        {
+          "cause": "Exception during RWLock-held section",
+          "percent": 25,
+          "description": "Kernel fault inside a locked section prevented unlock."
+        },
+        {
+          "cause": "Driver teardown sequence error",
+          "percent": 10,
+          "description": "Driver terminated (thread killed) while lock was held."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS — usually fixed in iOS point releases",
+        "Update or remove third-party app triggering the driver path"
+      ],
+      "test_procedure": [
+        "Source: osfmk/kern/thread.c — 'rwlock_count is %d for thread %p, possibly it still holds a rwlock'"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "kernel_spinlock_timeout"
+      ]
+    },
+    {
+      "id": "ipc_mqueue_panic",
+      "keywords": [
+        "ipc_mqueue_receive_results: strange ith_state",
+        "Unknown waitq type",
+        "ipc_mqueue_receive_results: strange wait_result"
+      ],
+      "category": "kernelPanic",
+      "component": "mach_ipc",
+      "severity": "software",
+      "confidence": 78,
+      "title": "IPC message queue panic — Mach messaging system corruption",
+      "diagnosis": "Mach IPC message queue encountered an unexpected internal state. Source: osfmk/ipc/ipc_mqueue.c. Indicates kernel IPC subsystem corruption or invariant violation.",
+      "probabilities": [
+        {
+          "cause": "Kernel IPC state machine corruption",
+          "percent": 55,
+          "description": "IPC thread state corrupted, causing message queue to reach impossible state."
+        },
+        {
+          "cause": "Wait queue type mismatch",
+          "percent": 30,
+          "description": "Wrong type of wait queue passed to IPC receive — driver or kernel bug."
+        },
+        {
+          "cause": "Memory corruption in IPC structures",
+          "percent": 15,
+          "description": "Heap corruption overwriting IPC queue structures."
+        }
+      ],
+      "repair_steps": [
+        "Update iOS",
+        "Restart device"
+      ],
+      "test_procedure": [
+        "Source: osfmk/ipc/ipc_mqueue.c — 'ipc_mqueue_receive_results: strange ith_state %d'"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "kernel_mach_trap"
+      ]
     }
   ]
 }
