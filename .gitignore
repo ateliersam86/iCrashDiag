@@ -4,3 +4,4 @@
 DerivedData/
 .swiftpm/
 iCrashDiag.app/
+node_modules/
