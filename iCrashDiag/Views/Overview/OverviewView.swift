@@ -35,8 +35,17 @@ struct OverviewView: View {
                     DiagnosisCardView(diagnosis: diag)
                 }
 
+                // Reboot Events Dashboard
+                let reboots = viewModel.rebootEvents
+                if !reboots.isEmpty {
+                    RebootDashboardCard(reboots: reboots)
+                }
+
                 HStack(spacing: 16) {
                     StatCard(title: "Total Crashes", value: "\(report.totalCrashes)", icon: "doc.text.fill")
+                    StatCard(title: "Reboots", value: "\(viewModel.rebootCount)",
+                             icon: "arrow.clockwise.circle.fill",
+                             accent: viewModel.rebootCount > 0 ? .red : .secondary)
                     if let dr = report.dateRange {
                         let days = max(1, Calendar.current.dateComponents([.day], from: dr.start, to: dr.end).day ?? 1)
                         StatCard(title: "Per Day", value: "\(report.totalCrashes / days)", icon: "calendar")
@@ -119,20 +128,154 @@ struct OverviewView: View {
     }
 }
 
+// MARK: - Reboot Dashboard Card
+
+private struct RebootDashboardCard: View {
+    let reboots: [CrashLog]
+
+    private var hardwareReboots: [CrashLog] {
+        reboots.filter { $0.diagnosis?.severity == .hardware || $0.diagnosis?.severity == .critical }
+    }
+    private var softwareReboots: [CrashLog] {
+        reboots.filter { $0.diagnosis?.severity == .software || $0.diagnosis?.severity == .informational || $0.diagnosis == nil }
+    }
+    private var lastReboot: CrashLog? { reboots.first }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 6) {
+                Image(systemName: "arrow.clockwise.circle.fill")
+                    .foregroundStyle(.red)
+                Text("Reboot Events")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                Spacer()
+                Text("\(reboots.count) total")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            // Hardware vs Software breakdown
+            HStack(spacing: 12) {
+                RebootTypeChip(
+                    label: "Hardware cause",
+                    count: hardwareReboots.count,
+                    color: hardwareReboots.isEmpty ? .secondary : .red
+                )
+                RebootTypeChip(
+                    label: "Software / unknown",
+                    count: softwareReboots.count,
+                    color: softwareReboots.isEmpty ? .secondary : .orange
+                )
+            }
+
+            // Last reboot info
+            if let last = lastReboot {
+                HStack(spacing: 6) {
+                    Image(systemName: "clock.arrow.circlepath")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    Text("Last reboot: \(last.timestamp.formatted(date: .abbreviated, time: .shortened))")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    if let diag = last.diagnosis {
+                        Text("— \(diag.title)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                }
+            }
+
+            // Top reboot patterns
+            let rebootPatterns = topPatterns()
+            if !rebootPatterns.isEmpty {
+                Divider()
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Root causes")
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                        .textCase(.uppercase)
+                    ForEach(rebootPatterns.prefix(3), id: \.title) { item in
+                        HStack(spacing: 6) {
+                            Circle()
+                                .fill(item.severity == .critical || item.severity == .hardware ? Color.red : Color.orange)
+                                .frame(width: 6, height: 6)
+                            Text(item.title)
+                                .font(.caption)
+                                .lineLimit(1)
+                            Spacer()
+                            Text("\(item.count)×")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(.secondary)
+                                .monospacedDigit()
+                        }
+                    }
+                }
+            }
+        }
+        .padding(12)
+        .background(Color.red.opacity(0.07), in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Color.red.opacity(0.2), lineWidth: 1))
+    }
+
+    private func topPatterns() -> [(title: String, count: Int, severity: Severity)] {
+        var counts: [String: (title: String, count: Int, severity: Severity)] = [:]
+        for r in reboots {
+            if let d = r.diagnosis {
+                if var existing = counts[d.patternID] {
+                    existing.count += 1
+                    counts[d.patternID] = existing
+                } else {
+                    counts[d.patternID] = (d.title, 1, d.severity)
+                }
+            }
+        }
+        return counts.values.sorted { $0.count > $1.count }
+    }
+}
+
+private struct RebootTypeChip: View {
+    let label: String
+    let count: Int
+    let color: Color
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Text("\(count)")
+                .font(.caption)
+                .fontWeight(.bold)
+                .foregroundStyle(color)
+                .monospacedDigit()
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(color.opacity(0.1), in: Capsule())
+    }
+}
+
+// MARK: - StatCard
+
 struct StatCard: View {
     let title: String
     let value: String
     let icon: String
+    var accent: Color = .secondary
 
     var body: some View {
         VStack(spacing: 4) {
             Image(systemName: icon)
                 .font(.title3)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(accent)
             Text(value)
                 .font(.title2)
                 .fontWeight(.bold)
                 .monospacedDigit()
+                .foregroundStyle(accent == .secondary ? .primary : accent)
             Text(title)
                 .font(.caption2)
                 .foregroundStyle(.secondary)

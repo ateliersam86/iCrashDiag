@@ -1,0 +1,11 @@
+name = "icrashdiag-license"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+account_id = "7d79fd825ebb2a7e44ea967ae090464b"
+
+[[kv_namespaces]]
+binding = "LICENSES"
+id = "e547c3f9a0574c729378dfc5a86c4a6c"
+
+[vars]
+WORKER_ENV = "production"

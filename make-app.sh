@@ -35,6 +35,13 @@ if [ -d "${KNOWLEDGE_BUNDLE}" ]; then
     cp -R "${KNOWLEDGE_BUNDLE}" "${BUNDLE}/Contents/Resources/"
 fi
 
+# Copy localization files to Contents/Resources/ for Bundle.main lookup
+for lproj in "${SCRIPT_DIR}/iCrashDiag/Resources/"*.lproj; do
+    if [ -d "${lproj}" ]; then
+        cp -R "${lproj}" "${BUNDLE}/Contents/Resources/"
+    fi
+done
+
 echo "==> Signing ad-hoc..."
 codesign --force --deep --sign - "${BUNDLE}" 2>&1 || true
 

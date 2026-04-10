@@ -1,0 +1,85 @@
+/* SidebarView */
+"Import Folder…" = "フォルダをインポート…";
+"Pull from iPhone" = "iPhoneから取得";
+"Connected" = "接続済み";
+"No logs loaded" = "ログが読み込まれていません";
+"Categories" = "カテゴリー";
+"Severity" = "重大度";
+"Devices" = "デバイス";
+"Stats" = "統計";
+"Period" = "期間";
+"Avg/day" = "平均/日";
+"History" = "履歴";
+"Recent Sessions" = "最近のセッション";
+"All Crashes" = "すべてのクラッシュ";
+
+/* WelcomeView */
+"iPhone Crash Log Analyzer" = "iPhoneクラッシュログ分析ツール";
+"Parse all .ips crash types" = "すべての.ipsクラッシュタイプを解析";
+"Kernel panics, Jetsam, watchdogs, GPU events, OTA failures" = "カーネルパニック、Jetsam、ウォッチドッグ、GPUイベント、OTA障害";
+"Hardware vs software diagnosis" = "ハードウェア対ソフトウェア診断";
+"Confidence scores, repair steps, test procedures" = "信頼度スコア、修理ステップ、テスト手順";
+"Timeline & export" = "タイムラインとエクスポート";
+"Full report as Markdown or JSON for further analysis" = "MarkdownまたはJSON形式の完全なレポート";
+"Import Crash Logs Folder…" = "クラッシュログフォルダをインポート…";
+"Pull from iPhone via USB" = "USBでiPhoneから取得";
+"USB unavailable — install via: brew install libimobiledevice" = "USBが利用できません – インストール: brew install libimobiledevice";
+"Tip: On your iPhone, go to Settings → Privacy → Analytics & Improvements → Analytics Data, then copy .ips files to a folder." = "ヒント: iPhoneで設定 → プライバシー → 分析と改善 → 分析データに進み、.ipsファイルをフォルダにコピーしてください。";
+
+/* WhatsNewView */
+"What's New in iCrashDiag" = "iCrashDiagの新機能";
+"Continue" = "続行";
+"iCrashDiag 1.0" = "iCrashDiag 1.0";
+"Native macOS crash log analyzer for repair technicians." = "修理技術者向けのネイティブmacOSクラッシュログ分析ツール。";
+"32 diagnostic patterns" = "32の診断パターン";
+"Covers kernel panics, watchdogs, sensor failures, GPU, NAND, audio IC, Face ID, NFC, UWB, and more." = "カーネルパニック、ウォッチドッグ、センサー障害、GPU、NAND、オーディオIC、Face ID、NFC、UWBなどをカバー。";
+"Progressive analysis" = "プログレッシブ分析";
+"Crash logs appear in real-time as they're parsed. Hardware vs software verdict with confidence score." = "クラッシュログはリアルタイムで解析される際に表示されます。信頼度スコア付きのハードウェア対ソフトウェア判定。";
+"USB extraction" = "USB抽出";
+"Pull crash logs directly from a connected iPhone via libimobiledevice." = "libimobiledevice経由で接続されているiPhoneから直接クラッシュログを取得します。";
+"Export Markdown & JSON" = "MarkdownとJSONをエクスポート";
+"Full diagnosis report for clipboard, file, or AI analysis tools." = "クリップボード、ファイル、またはAI分析ツール用の完全な診断レポート。";
+"Auto-updating KB" = "自動更新ナレッジベース";
+"New iPhone models and patterns fetched from GitHub without an app update." = "アプリの更新なしでGitHubから取得した新しいiPhoneモデルとパターン。";
+
+/* SettingsView */
+"General" = "一般";
+"Notifications" = "通知";
+"Knowledge Base" = "ナレッジベース";
+"Export" = "エクスポート";
+"About" = "について";
+"Appearance" = "外観";
+"System" = "システム";
+"Light" = "ライト";
+"Dark" = "ダーク";
+"Language" = "言語";
+"Restart the app to fully apply the language change." = "言語変更を完全に適用するためにアプリを再起動してください。";
+"USB Detection" = "USB検出";
+"Auto-detect iPhone via USB" = "USBでiPhoneを自動検出";
+"Polls for connected devices every 3 seconds." = "3秒ごとに接続されたデバイスをポーリングします。";
+"System Notifications" = "システム通知";
+"iPhone connected" = "iPhoneが接続されました";
+"Analysis complete" = "分析完了";
+"Request Notification Permission" = "通知許可をリクエスト";
+"Permissions" = "許可";
+"Updates" = "更新";
+"Auto-update knowledge base on launch" = "起動時にナレッジベースを自動更新";
+"Current version" = "現在のバージョン";
+"Check for Updates Now" = "今すぐ更新をチェック";
+"Manual" = "マニュアル";
+"Checking…" = "チェック中…";
+"Done — restart to apply." = "完了 — 再起動して適用。";
+"JSON Export" = "JSONエクスポート";
+"Include raw .ips body in JSON export" = "JSONエクスポートに未加工の.ipsボディを含める";
+"Markdown and PDF exports always include the full diagnosis report." = "MarkdownおよびPDFエクスポートは常に完全な診断レポートを含みます。";
+
+/* LoadingView */
+"Scanning…" = "スキャン中…";
+"Parsing crash logs…" = "クラッシュログを解析中…";
+"Building analysis report…" = "分析レポートを作成中…";
+"Complete" = "完了";
+
+/* Notifications */
+"iPhone Connected" = "iPhoneが接続されました";
+" is ready. Tap to pull crash logs." = " の準備ができました。タップしてクラッシュログを取得してください。";
+"Analysis Complete — %lld logs" = "分析完了 – %lldログ";

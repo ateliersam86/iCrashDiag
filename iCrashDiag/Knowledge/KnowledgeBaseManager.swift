@@ -11,6 +11,17 @@ actor KnowledgeBaseManager {
         self.localDir = appSupport.appendingPathComponent("iCrashDiag/knowledge")
     }
 
+    /// Convenience: checks and downloads if newer version found.
+    func checkAndUpdate() async {
+        let bundleVersion: String
+        if let url = Bundle.module.url(forResource: "version", withExtension: "json", subdirectory: "knowledge"),
+           let data = try? Data(contentsOf: url),
+           let file = try? JSONDecoder().decode(VersionFile.self, from: data) {
+            bundleVersion = file.version
+        } else { bundleVersion = "0" }
+        _ = await checkForUpdates(currentVersion: bundleVersion)
+    }
+
     func checkForUpdates(currentVersion: String) async -> Bool {
         do {
             let versionURL = remoteBaseURL.appendingPathComponent("version.json")

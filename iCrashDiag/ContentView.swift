@@ -29,7 +29,7 @@ struct ContentView: View {
             .navigationTitle("iCrashDiag")
             .toolbar {
                 if viewModel.analysisReport != nil {
-                    ToolbarItem {
+                    ToolbarItem(placement: .navigation) {
                         Button {
                             withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                                 viewModel.selectedCrashID = nil
@@ -40,7 +40,32 @@ struct ContentView: View {
                         .help("Show overview report")
                     }
 
-                    ToolbarItem {
+                    ToolbarItemGroup(placement: .primaryAction) {
+                        Menu {
+                            Button {
+                                viewModel.copyReportToClipboard()
+                            } label: {
+                                Label("Copy as Markdown", systemImage: "doc.on.clipboard")
+                            }
+
+                            Button {
+                                viewModel.saveReportAsFile()
+                            } label: {
+                                Label("Save as Markdown…", systemImage: "doc.text")
+                            }
+
+                            Divider()
+
+                            Button {
+                                viewModel.exportPDF()
+                            } label: {
+                                Label("Export PDF…", systemImage: "doc.richtext")
+                            }
+                        } label: {
+                            Label("Export", systemImage: "square.and.arrow.up")
+                        }
+                        .help("Export report")
+
                         Text("KB v\(viewModel.knowledgeBase.version)")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
@@ -59,14 +84,24 @@ struct ContentView: View {
             // Loading overlay — sits on top of everything
             if viewModel.isLoading {
                 LoadingView(
+                    stage: viewModel.loadingStage,
                     progress: viewModel.loadingProgress,
                     parsed: viewModel.loadingParsed,
                     total: viewModel.loadingTotal,
-                    currentFile: viewModel.loadingCurrentFile
+                    currentFile: viewModel.loadingCurrentFile,
+                    message: viewModel.loadingMessage
                 )
                 .ignoresSafeArea()
                 .zIndex(100)
                 .transition(.opacity.animation(.easeInOut(duration: 0.25)))
+            }
+
+            // License gate overlay
+            if viewModel.showLicenseGate {
+                LicenseGateView()
+                    .ignoresSafeArea()
+                    .zIndex(200)
+                    .transition(.opacity.animation(.easeInOut(duration: 0.3)))
             }
         }
         .animation(.spring(response: 0.4, dampingFraction: 0.85), value: viewModel.isLoading)

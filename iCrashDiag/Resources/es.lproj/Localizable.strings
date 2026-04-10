@@ -1,0 +1,85 @@
+/* SidebarView */
+"Import Folder…" = "Importar carpeta…";
+"Pull from iPhone" = "Obtener desde iPhone";
+"Connected" = "Conectado";
+"No logs loaded" = "Sin registros cargados";
+"Categories" = "Categorías";
+"Severity" = "Gravedad";
+"Devices" = "Dispositivos";
+"Stats" = "Estadísticas";
+"Period" = "Período";
+"Avg/day" = "Promedio/día";
+"History" = "Historial";
+"Recent Sessions" = "Sesiones recientes";
+"All Crashes" = "Todos los bloqueos";
+
+/* WelcomeView */
+"iPhone Crash Log Analyzer" = "Analizador de registros de bloqueo de iPhone";
+"Parse all .ips crash types" = "Analizar todos los tipos de bloqueo .ips";
+"Kernel panics, Jetsam, watchdogs, GPU events, OTA failures" = "Pánico del kernel, Jetsam, watchdogs, eventos GPU, fallos OTA";
+"Hardware vs software diagnosis" = "Diagnóstico hardware vs software";
+"Confidence scores, repair steps, test procedures" = "Puntuaciones de confianza, pasos de reparación, procedimientos de prueba";
+"Timeline & export" = "Cronología y exportación";
+"Full report as Markdown or JSON for further analysis" = "Informe completo como Markdown o JSON para análisis posterior";
+"Import Crash Logs Folder…" = "Importar carpeta de registros de bloqueo…";
+"Pull from iPhone via USB" = "Obtener desde iPhone por USB";
+"USB unavailable — install via: brew install libimobiledevice" = "USB no disponible – instale mediante: brew install libimobiledevice";
+"Tip: On your iPhone, go to Settings → Privacy → Analytics & Improvements → Analytics Data, then copy .ips files to a folder." = "Consejo: En tu iPhone, ve a Configuración → Privacidad → Analítica y mejoras → Datos de analítica, luego copia los archivos .ips a una carpeta.";
+
+/* WhatsNewView */
+"What's New in iCrashDiag" = "Novedades en iCrashDiag";
+"Continue" = "Continuar";
+"iCrashDiag 1.0" = "iCrashDiag 1.0";
+"Native macOS crash log analyzer for repair technicians." = "Analizador nativo de registros de bloqueo macOS para técnicos de reparación.";
+"32 diagnostic patterns" = "32 patrones de diagnóstico";
+"Covers kernel panics, watchdogs, sensor failures, GPU, NAND, audio IC, Face ID, NFC, UWB, and more." = "Cubre pánico del kernel, watchdogs, fallos de sensor, GPU, NAND, IC de audio, Face ID, NFC, UWB y más.";
+"Progressive analysis" = "Análisis progresivo";
+"Crash logs appear in real-time as they're parsed. Hardware vs software verdict with confidence score." = "Los registros de bloqueo aparecen en tiempo real a medida que se analizan. Veredicto hardware vs software con puntuación de confianza.";
+"USB extraction" = "Extracción USB";
+"Pull crash logs directly from a connected iPhone via libimobiledevice." = "Obtenga registros de bloqueo directamente desde un iPhone conectado a través de libimobiledevice.";
+"Export Markdown & JSON" = "Exportar Markdown y JSON";
+"Full diagnosis report for clipboard, file, or AI analysis tools." = "Informe de diagnóstico completo para portapapeles, archivo o herramientas de análisis de IA.";
+"Auto-updating KB" = "Base de conocimientos actualizada automáticamente";
+"New iPhone models and patterns fetched from GitHub without an app update." = "Nuevos modelos y patrones de iPhone obtenidos de GitHub sin actualizar la aplicación.";
+
+/* SettingsView */
+"General" = "General";
+"Notifications" = "Notificaciones";
+"Knowledge Base" = "Base de conocimientos";
+"Export" = "Exportar";
+"About" = "Acerca de";
+"Appearance" = "Apariencia";
+"System" = "Sistema";
+"Light" = "Claro";
+"Dark" = "Oscuro";
+"Language" = "Idioma";
+"Restart the app to fully apply the language change." = "Reinicia la aplicación para aplicar completamente el cambio de idioma.";
+"USB Detection" = "Detección USB";
+"Auto-detect iPhone via USB" = "Detectar automáticamente iPhone por USB";
+"Polls for connected devices every 3 seconds." = "Sondea dispositivos conectados cada 3 segundos.";
+"System Notifications" = "Notificaciones del sistema";
+"iPhone connected" = "iPhone conectado";
+"Analysis complete" = "Análisis completado";
+"Request Notification Permission" = "Solicitar permiso de notificación";
+"Permissions" = "Permisos";
+"Updates" = "Actualizaciones";
+"Auto-update knowledge base on launch" = "Actualizar automáticamente base de conocimientos al iniciar";
+"Current version" = "Versión actual";
+"Check for Updates Now" = "Buscar actualizaciones ahora";
+"Manual" = "Manual";
+"Checking…" = "Comprobando…";
+"Done — restart to apply." = "Hecho – reinicia para aplicar.";
+"JSON Export" = "Exportación JSON";
+"Include raw .ips body in JSON export" = "Incluir cuerpo .ips sin procesar en exportación JSON";
+"Markdown and PDF exports always include the full diagnosis report." = "Las exportaciones Markdown y PDF siempre incluyen el informe de diagnóstico completo.";
+
+/* LoadingView */
+"Scanning…" = "Escaneando…";
+"Parsing crash logs…" = "Analizando registros de bloqueo…";
+"Building analysis report…" = "Construyendo informe de análisis…";
+"Complete" = "Completado";
+
+/* Notifications */
+"iPhone Connected" = "iPhone conectado";
+" is ready. Tap to pull crash logs." = " está listo. Toca para obtener registros de bloqueo.";
+"Analysis Complete — %lld logs" = "Análisis completado – %lld registros";

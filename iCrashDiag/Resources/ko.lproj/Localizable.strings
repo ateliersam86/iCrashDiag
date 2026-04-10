@@ -1,0 +1,85 @@
+/* SidebarView */
+"Import Folder…" = "폴더 가져오기…";
+"Pull from iPhone" = "iPhone에서 가져오기";
+"Connected" = "연결됨";
+"No logs loaded" = "로그 없음";
+"Categories" = "카테고리";
+"Severity" = "심각도";
+"Devices" = "기기";
+"Stats" = "통계";
+"Period" = "기간";
+"Avg/day" = "평균/일";
+"History" = "기록";
+"Recent Sessions" = "최근 세션";
+"All Crashes" = "모든 충돌";
+
+/* WelcomeView */
+"iPhone Crash Log Analyzer" = "iPhone 충돌 로그 분석기";
+"Parse all .ips crash types" = "모든 .ips 충돌 유형 분석";
+"Kernel panics, Jetsam, watchdogs, GPU events, OTA failures" = "커널 패닉, Jetsam, 워치독, GPU 이벤트, OTA 실패";
+"Hardware vs software diagnosis" = "하드웨어 대 소프트웨어 진단";
+"Confidence scores, repair steps, test procedures" = "신뢰도 점수, 수리 단계, 테스트 절차";
+"Timeline & export" = "타임라인 및 내보내기";
+"Full report as Markdown or JSON for further analysis" = "추가 분석을 위한 Markdown 또는 JSON 형식의 전체 보고서";
+"Import Crash Logs Folder…" = "충돌 로그 폴더 가져오기…";
+"Pull from iPhone via USB" = "USB를 통해 iPhone에서 가져오기";
+"USB unavailable — install via: brew install libimobiledevice" = "USB를 사용할 수 없음 – 설치: brew install libimobiledevice";
+"Tip: On your iPhone, go to Settings → Privacy → Analytics & Improvements → Analytics Data, then copy .ips files to a folder." = "팁: iPhone에서 설정 → 개인정보보호 → 분석 및 개선 → 분석 데이터로 이동한 후 .ips 파일을 폴더에 복사하세요.";
+
+/* WhatsNewView */
+"What's New in iCrashDiag" = "iCrashDiag의 새로운 기능";
+"Continue" = "계속";
+"iCrashDiag 1.0" = "iCrashDiag 1.0";
+"Native macOS crash log analyzer for repair technicians." = "수리 기술자를 위한 기본 macOS 충돌 로그 분석기.";
+"32 diagnostic patterns" = "32가지 진단 패턴";
+"Covers kernel panics, watchdogs, sensor failures, GPU, NAND, audio IC, Face ID, NFC, UWB, and more." = "커널 패닉, 워치독, 센서 오류, GPU, NAND, 오디오 IC, Face ID, NFC, UWB 등을 다룹니다.";
+"Progressive analysis" = "점진적 분석";
+"Crash logs appear in real-time as they're parsed. Hardware vs software verdict with confidence score." = "충돌 로그는 분석되면서 실시간으로 표시됩니다. 신뢰도 점수가 있는 하드웨어 대 소프트웨어 판정.";
+"USB extraction" = "USB 추출";
+"Pull crash logs directly from a connected iPhone via libimobiledevice." = "libimobiledevice를 통해 연결된 iPhone에서 직접 충돌 로그를 가져옵니다.";
+"Export Markdown & JSON" = "Markdown 및 JSON 내보내기";
+"Full diagnosis report for clipboard, file, or AI analysis tools." = "클립보드, 파일 또는 AI 분석 도구용 전체 진단 보고서.";
+"Auto-updating KB" = "자동 업데이트 지식 기반";
+"New iPhone models and patterns fetched from GitHub without an app update." = "앱 업데이트 없이 GitHub에서 가져온 새로운 iPhone 모델 및 패턴.";
+
+/* SettingsView */
+"General" = "일반";
+"Notifications" = "알림";
+"Knowledge Base" = "지식 기반";
+"Export" = "내보내기";
+"About" = "정보";
+"Appearance" = "모양";
+"System" = "시스템";
+"Light" = "밝음";
+"Dark" = "어두움";
+"Language" = "언어";
+"Restart the app to fully apply the language change." = "언어 변경을 완전히 적용하려면 앱을 다시 시작하십시오.";
+"USB Detection" = "USB 감지";
+"Auto-detect iPhone via USB" = "USB를 통해 iPhone 자동 감지";
+"Polls for connected devices every 3 seconds." = "3초마다 연결된 기기를 확인합니다.";
+"System Notifications" = "시스템 알림";
+"iPhone connected" = "iPhone 연결됨";
+"Analysis complete" = "분석 완료";
+"Request Notification Permission" = "알림 권한 요청";
+"Permissions" = "권한";
+"Updates" = "업데이트";
+"Auto-update knowledge base on launch" = "시작 시 지식 기반 자동 업데이트";
+"Current version" = "현재 버전";
+"Check for Updates Now" = "지금 업데이트 확인";
+"Manual" = "수동";
+"Checking…" = "확인 중…";
+"Done — restart to apply." = "완료 – 적용하려면 다시 시작하세요.";
+"JSON Export" = "JSON 내보내기";
+"Include raw .ips body in JSON export" = "JSON 내보내기에 원시 .ips 본문 포함";
+"Markdown and PDF exports always include the full diagnosis report." = "Markdown 및 PDF 내보내기에는 항상 전체 진단 보고서가 포함됩니다.";
+
+/* LoadingView */
+"Scanning…" = "스캔 중…";
+"Parsing crash logs…" = "충돌 로그 분석 중…";
+"Building analysis report…" = "분석 보고서 작성 중…";
+"Complete" = "완료";
+
+/* Notifications */
+"iPhone Connected" = "iPhone 연결됨";
+" is ready. Tap to pull crash logs." = " 준비가 되었습니다. 충돌 로그를 가져오려면 탭하세요.";
+"Analysis Complete — %lld logs" = "분석 완료 – %lld개 로그";

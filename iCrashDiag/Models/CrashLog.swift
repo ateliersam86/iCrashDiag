@@ -116,6 +116,14 @@ struct CrashLog: Identifiable, Codable, Hashable, Sendable {
     // Diagnosis (set after analysis)
     var diagnosis: Diagnosis?
 
+    /// True if this event forces a full device reboot (kernel panic, watchdog, severe thermal shutdown).
+    var isRebootEvent: Bool {
+        category == .kernelPanic || category == .watchdog
+        || (category == .thermal && (panicString?.contains("thermal shutdown") == true
+                                      || panicString?.contains("Thermal shutdown") == true
+                                      || faultingService == "critical"))
+    }
+
     static func == (lhs: CrashLog, rhs: CrashLog) -> Bool { lhs.id == rhs.id }
     func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }

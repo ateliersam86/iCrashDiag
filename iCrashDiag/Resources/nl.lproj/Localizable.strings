@@ -1,0 +1,85 @@
+/* SidebarView */
+"Import Folder…" = "Map importeren…";
+"Pull from iPhone" = "Ophalen uit iPhone";
+"Connected" = "Verbonden";
+"No logs loaded" = "Geen logboeken geladen";
+"Categories" = "Categorieën";
+"Severity" = "Ernst";
+"Devices" = "Apparaten";
+"Stats" = "Statistieken";
+"Period" = "Periode";
+"Avg/day" = "Gem./dag";
+"History" = "Geschiedenis";
+"Recent Sessions" = "Recente sessies";
+"All Crashes" = "Alle crashes";
+
+/* WelcomeView */
+"iPhone Crash Log Analyzer" = "iPhone crash log-analysator";
+"Parse all .ips crash types" = "Alle .ips crash-typen parseren";
+"Kernel panics, Jetsam, watchdogs, GPU events, OTA failures" = "Kernel panics, Jetsam, watchdogs, GPU-events, OTA-fouten";
+"Hardware vs software diagnosis" = "Hardware vs software diagnose";
+"Confidence scores, repair steps, test procedures" = "Betrouwbaarheidsscores, reparatiestappen, testprocedures";
+"Timeline & export" = "Tijdlijn en export";
+"Full report as Markdown or JSON for further analysis" = "Volledig rapport als Markdown of JSON voor verdere analyse";
+"Import Crash Logs Folder…" = "Map met crash logs importeren…";
+"Pull from iPhone via USB" = "Ophalen uit iPhone via USB";
+"USB unavailable — install via: brew install libimobiledevice" = "USB niet beschikbaar – installeer via: brew install libimobiledevice";
+"Tip: On your iPhone, go to Settings → Privacy → Analytics & Improvements → Analytics Data, then copy .ips files to a folder." = "Tip: Ga op uw iPhone naar Instellingen → Privacy → Analyse en verbeteringen → Analysegegevens en kopieer .ips-bestanden naar een map.";
+
+/* WhatsNewView */
+"What's New in iCrashDiag" = "Wat is er nieuw in iCrashDiag";
+"Continue" = "Doorgaan";
+"iCrashDiag 1.0" = "iCrashDiag 1.0";
+"Native macOS crash log analyzer for repair technicians." = "Native macOS crash log-analysator voor reparatietechnici.";
+"32 diagnostic patterns" = "32 diagnostische patronen";
+"Covers kernel panics, watchdogs, sensor failures, GPU, NAND, audio IC, Face ID, NFC, UWB, and more." = "Behandelt kernel panics, watchdogs, sensorstoringen, GPU, NAND, audio IC, Face ID, NFC, UWB en meer.";
+"Progressive analysis" = "Progressieve analyse";
+"Crash logs appear in real-time as they're parsed. Hardware vs software verdict with confidence score." = "Crash logs verschijnen in real-time terwijl ze worden geparseerd. Hardware vs software verdict met betrouwbaarheidsscore.";
+"USB extraction" = "USB-extractie";
+"Pull crash logs directly from a connected iPhone via libimobiledevice." = "Haal crash logs direct op van een verbonden iPhone via libimobiledevice.";
+"Export Markdown & JSON" = "Exporteer Markdown en JSON";
+"Full diagnosis report for clipboard, file, or AI analysis tools." = "Volledig diagnoserapport voor klembord, bestand of AI-analysetools.";
+"Auto-updating KB" = "Automatisch bijgewerkte kennisbank";
+"New iPhone models and patterns fetched from GitHub without an app update." = "Nieuwe iPhone-modellen en patronen opgehaald van GitHub zonder app-update.";
+
+/* SettingsView */
+"General" = "Algemeen";
+"Notifications" = "Meldingen";
+"Knowledge Base" = "Kennisbank";
+"Export" = "Exporteer";
+"About" = "Over";
+"Appearance" = "Uiterlijk";
+"System" = "Systeem";
+"Light" = "Licht";
+"Dark" = "Donker";
+"Language" = "Taal";
+"Restart the app to fully apply the language change." = "Start de app opnieuw op om de taalwijziging volledig toe te passen.";
+"USB Detection" = "USB-detectie";
+"Auto-detect iPhone via USB" = "iPhone automatisch detecteren via USB";
+"Polls for connected devices every 3 seconds." = "Controleert om de 3 seconden op verbonden apparaten.";
+"System Notifications" = "Systeemmeldingen";
+"iPhone connected" = "iPhone verbonden";
+"Analysis complete" = "Analyse voltooid";
+"Request Notification Permission" = "Meldingstoestemming aanvragen";
+"Permissions" = "Machtigingen";
+"Updates" = "Updates";
+"Auto-update knowledge base on launch" = "Kennisbank automatisch bijwerken bij starten";
+"Current version" = "Huidige versie";
+"Check for Updates Now" = "Controleer nu op updates";
+"Manual" = "Handmatig";
+"Checking…" = "Wordt gecontroleerd…";
+"Done — restart to apply." = "Klaar – start opnieuw op om toe te passen.";
+"JSON Export" = "JSON-export";
+"Include raw .ips body in JSON export" = "Onverwerkte .ips-body in JSON-export opnemen";
+"Markdown and PDF exports always include the full diagnosis report." = "Markdown- en PDF-exports bevatten altijd het volledige diagnoserapport.";
+
+/* LoadingView */
+"Scanning…" = "Wordt gescand…";
+"Parsing crash logs…" = "Crash logs worden geparseerd…";
+"Building analysis report…" = "Analyserapport wordt opgesteld…";
+"Complete" = "Voltooid";
+
+/* Notifications */
+"iPhone Connected" = "iPhone verbonden";
+" is ready. Tap to pull crash logs." = " is gereed. Tik om crash logs op te halen.";
+"Analysis Complete — %lld logs" = "Analyse voltooid – %lld logboeken";

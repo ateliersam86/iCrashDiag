@@ -3,7 +3,10 @@
   "patterns": [
     {
       "id": "mic1_missing",
-      "keywords": ["Missing sensor(s): mic1", "Missing sensor: mic1"],
+      "keywords": [
+        "Missing sensor(s): mic1",
+        "Missing sensor: mic1"
+      ],
       "category": "kernelPanic",
       "component": "lightning_flex",
       "severity": "hardware",
@@ -11,9 +14,21 @@
       "title": "Bottom microphone thermal sensor failure (mic1)",
       "diagnosis": "The mic1 NTC thermal sensor on the lightning/charging flex cable is disconnected or damaged.",
       "probabilities": [
-        { "cause": "Lightning flex cable defective", "percent": 85, "description": "The NTC sensor is soldered on the flex. Flex replacement resolves." },
-        { "cause": "Audio codec IC damage", "percent": 10, "description": "Codec IC (338S00509) not reading sensor. Requires micro-soldering." },
-        { "cause": "NTC resistor only", "percent": 5, "description": "Standalone NTC failure. Replaceable with micro-soldering." }
+        {
+          "cause": "Lightning flex cable defective",
+          "percent": 85,
+          "description": "The NTC sensor is soldered on the flex. Flex replacement resolves."
+        },
+        {
+          "cause": "Audio codec IC damage",
+          "percent": 10,
+          "description": "Codec IC (338S00509) not reading sensor. Requires micro-soldering."
+        },
+        {
+          "cause": "NTC resistor only",
+          "percent": 5,
+          "description": "Standalone NTC failure. Replaceable with micro-soldering."
+        }
       ],
       "repair_steps": [
         "1. Replace lightning/charging flex cable assembly",
@@ -26,12 +41,26 @@
         "Phone call: speaker on mute, other party should hear you clearly",
         "Diagnostics: Settings > Privacy > Analytics > check for new panic-full logs"
       ],
-      "models_affected": ["iPhone8,*", "iPhone9,*", "iPhone10,*", "iPhone11,*", "iPhone12,*", "iPhone13,*", "iPhone14,*"],
-      "related_patterns": ["thermalmonitord_watchdog", "mic2_missing"]
+      "models_affected": [
+        "iPhone8,*",
+        "iPhone9,*",
+        "iPhone10,*",
+        "iPhone11,*",
+        "iPhone12,*",
+        "iPhone13,*",
+        "iPhone14,*"
+      ],
+      "related_patterns": [
+        "thermalmonitord_watchdog",
+        "mic2_missing"
+      ]
     },
     {
       "id": "mic2_missing",
-      "keywords": ["Missing sensor(s): mic2", "Missing sensor: mic2"],
+      "keywords": [
+        "Missing sensor(s): mic2",
+        "Missing sensor: mic2"
+      ],
       "category": "kernelPanic",
       "component": "display_touch",
       "severity": "hardware",
@@ -39,9 +68,21 @@
       "title": "Side/rear microphone thermal sensor failure (mic2)",
       "diagnosis": "The mic2 NTC thermal sensor (near volume buttons or rear mic) is disconnected.",
       "probabilities": [
-        { "cause": "Rear camera/mic flex damaged", "percent": 70, "description": "mic2 sensor on the rear camera or side flex. Replace flex." },
-        { "cause": "FPC connector not seated", "percent": 20, "description": "Connector dislodged during previous repair." },
-        { "cause": "Board-level trace damage", "percent": 10, "description": "Trace to mic2 sensor broken. Requires micro-soldering." }
+        {
+          "cause": "Rear camera/mic flex damaged",
+          "percent": 70,
+          "description": "mic2 sensor on the rear camera or side flex. Replace flex."
+        },
+        {
+          "cause": "FPC connector not seated",
+          "percent": 20,
+          "description": "Connector dislodged during previous repair."
+        },
+        {
+          "cause": "Board-level trace damage",
+          "percent": 10,
+          "description": "Trace to mic2 sensor broken. Requires micro-soldering."
+        }
       ],
       "repair_steps": [
         "1. Reseat or replace rear camera/mic flex cable",
@@ -54,12 +95,25 @@
         "Video recording: check audio clarity",
         "Monitor Analytics for new panic-full logs after repair"
       ],
-      "models_affected": ["iPhone10,*", "iPhone11,*", "iPhone12,*", "iPhone13,*", "iPhone14,*", "iPhone15,*"],
-      "related_patterns": ["mic1_missing", "thermalmonitord_watchdog"]
+      "models_affected": [
+        "iPhone10,*",
+        "iPhone11,*",
+        "iPhone12,*",
+        "iPhone13,*",
+        "iPhone14,*",
+        "iPhone15,*"
+      ],
+      "related_patterns": [
+        "mic1_missing",
+        "thermalmonitord_watchdog"
+      ]
     },
     {
       "id": "mic3_missing",
-      "keywords": ["Missing sensor(s): mic3", "Missing sensor: mic3"],
+      "keywords": [
+        "Missing sensor(s): mic3",
+        "Missing sensor: mic3"
+      ],
       "category": "kernelPanic",
       "component": "earpiece_flex",
       "severity": "hardware",
@@ -67,9 +121,21 @@
       "title": "Top microphone thermal sensor failure (mic3)",
       "diagnosis": "The mic3 NTC thermal sensor near the earpiece/top speaker is disconnected.",
       "probabilities": [
-        { "cause": "Earpiece/proximity flex damaged", "percent": 75, "description": "mic3 is on the earpiece/front sensor flex. Replace flex." },
-        { "cause": "Screen replacement damage", "percent": 20, "description": "Flex damaged during screen replacement. Reseat or replace." },
-        { "cause": "Board connector damage", "percent": 5, "description": "FPC connector damaged. Micro-soldering required." }
+        {
+          "cause": "Earpiece/proximity flex damaged",
+          "percent": 75,
+          "description": "mic3 is on the earpiece/front sensor flex. Replace flex."
+        },
+        {
+          "cause": "Screen replacement damage",
+          "percent": 20,
+          "description": "Flex damaged during screen replacement. Reseat or replace."
+        },
+        {
+          "cause": "Board connector damage",
+          "percent": 5,
+          "description": "FPC connector damaged. Micro-soldering required."
+        }
       ],
       "repair_steps": [
         "1. Replace earpiece/proximity sensor flex cable",
@@ -82,12 +148,28 @@
         "Phone call quality (earpiece mic)",
         "Check for new panic logs after 24h"
       ],
-      "models_affected": ["iPhone10,3", "iPhone10,6", "iPhone11,*", "iPhone12,*", "iPhone13,*", "iPhone14,*", "iPhone15,*"],
-      "related_patterns": ["mic1_missing", "als_missing", "prox_missing"]
+      "models_affected": [
+        "iPhone10,3",
+        "iPhone10,6",
+        "iPhone11,*",
+        "iPhone12,*",
+        "iPhone13,*",
+        "iPhone14,*",
+        "iPhone15,*"
+      ],
+      "related_patterns": [
+        "mic1_missing",
+        "als_missing",
+        "prox_missing"
+      ]
     },
     {
       "id": "als_missing",
-      "keywords": ["Missing sensor(s): als", "Missing sensor: als", "Missing sensor(s): ALS"],
+      "keywords": [
+        "Missing sensor(s): als",
+        "Missing sensor: als",
+        "Missing sensor(s): ALS"
+      ],
       "category": "kernelPanic",
       "component": "display_touch",
       "severity": "hardware",
@@ -95,9 +177,21 @@
       "title": "Ambient light sensor failure (ALS)",
       "diagnosis": "The ambient light sensor on the front flex cable is disconnected or damaged. Auto-brightness will not work.",
       "probabilities": [
-        { "cause": "Front sensor/proximity flex damaged", "percent": 80, "description": "ALS is on the proximity/earpiece flex. Replace flex." },
-        { "cause": "Screen replacement damage", "percent": 15, "description": "Flex not transferred or damaged during screen swap." },
-        { "cause": "Board-level ALS IC failure", "percent": 5, "description": "ALS controller IC failed. Micro-soldering required." }
+        {
+          "cause": "Front sensor/proximity flex damaged",
+          "percent": 80,
+          "description": "ALS is on the proximity/earpiece flex. Replace flex."
+        },
+        {
+          "cause": "Screen replacement damage",
+          "percent": 15,
+          "description": "Flex not transferred or damaged during screen swap."
+        },
+        {
+          "cause": "Board-level ALS IC failure",
+          "percent": 5,
+          "description": "ALS controller IC failed. Micro-soldering required."
+        }
       ],
       "repair_steps": [
         "1. Replace proximity/earpiece sensor flex cable",
@@ -110,12 +204,23 @@
         "Settings > Accessibility > Display > Auto-Brightness toggle",
         "Monitor for new panic-full logs"
       ],
-      "models_affected": ["*"],
-      "related_patterns": ["prox_missing", "mic3_missing", "thermalmonitord_watchdog"]
+      "models_affected": [
+        "*"
+      ],
+      "related_patterns": [
+        "prox_missing",
+        "mic3_missing",
+        "thermalmonitord_watchdog"
+      ]
     },
     {
       "id": "prox_missing",
-      "keywords": ["Missing sensor(s): prox", "Missing sensor: prox", "AOP PANIC", "prox"],
+      "keywords": [
+        "Missing sensor(s): prox",
+        "Missing sensor: prox",
+        "AOP PANIC",
+        "prox"
+      ],
       "category": "kernelPanic",
       "component": "display_touch",
       "severity": "hardware",
@@ -123,9 +228,21 @@
       "title": "Proximity sensor failure",
       "diagnosis": "The proximity sensor is disconnected. Screen stays on during calls (burns ear, pocket dials).",
       "probabilities": [
-        { "cause": "Proximity flex cable damaged", "percent": 75, "description": "Proximity sensor on the earpiece/front flex. Replace flex." },
-        { "cause": "Screen replacement — flex not transferred", "percent": 20, "description": "Aftermarket screen without proximity flex. Transfer from OEM." },
-        { "cause": "Board connector damage", "percent": 5, "description": "FPC connector pins bent or corroded." }
+        {
+          "cause": "Proximity flex cable damaged",
+          "percent": 75,
+          "description": "Proximity sensor on the earpiece/front flex. Replace flex."
+        },
+        {
+          "cause": "Screen replacement — flex not transferred",
+          "percent": 20,
+          "description": "Aftermarket screen without proximity flex. Transfer from OEM."
+        },
+        {
+          "cause": "Board connector damage",
+          "percent": 5,
+          "description": "FPC connector pins bent or corroded."
+        }
       ],
       "repair_steps": [
         "1. Replace or reseat proximity/earpiece flex cable",
@@ -138,12 +255,22 @@
         "Cover proximity sensor with finger — screen should blank",
         "Check Settings > Phone > Proximity Sensor behavior"
       ],
-      "models_affected": ["*"],
-      "related_patterns": ["als_missing", "mic3_missing"]
+      "models_affected": [
+        "*"
+      ],
+      "related_patterns": [
+        "als_missing",
+        "mic3_missing"
+      ]
     },
     {
       "id": "baro_missing",
-      "keywords": ["Missing sensor(s): prs0", "Missing sensor: prs0", "Missing sensor(s): baro", "barometer"],
+      "keywords": [
+        "Missing sensor(s): prs0",
+        "Missing sensor: prs0",
+        "Missing sensor(s): baro",
+        "barometer"
+      ],
       "category": "kernelPanic",
       "component": "lightning_flex",
       "severity": "hardware",
@@ -151,9 +278,21 @@
       "title": "Barometer/pressure sensor failure (PRS0)",
       "diagnosis": "The PRS0 barometric pressure sensor is disconnected. Located on the charging port flex cable.",
       "probabilities": [
-        { "cause": "Charging port flex cable damaged", "percent": 80, "description": "PRS0 is on the lightning flex. Replace the entire flex." },
-        { "cause": "Sensor IC failure", "percent": 15, "description": "Barometer IC failed. Usually resolves with flex replacement." },
-        { "cause": "Board trace damage", "percent": 5, "description": "Trace to barometer broken on board." }
+        {
+          "cause": "Charging port flex cable damaged",
+          "percent": 80,
+          "description": "PRS0 is on the lightning flex. Replace the entire flex."
+        },
+        {
+          "cause": "Sensor IC failure",
+          "percent": 15,
+          "description": "Barometer IC failed. Usually resolves with flex replacement."
+        },
+        {
+          "cause": "Board trace damage",
+          "percent": 5,
+          "description": "Trace to barometer broken on board."
+        }
       ],
       "repair_steps": [
         "1. Replace lightning/charging port flex cable assembly",
@@ -165,12 +304,26 @@
         "Weather app: verify local pressure reading",
         "Health app: check flights climbed tracking"
       ],
-      "models_affected": ["iPhone8,*", "iPhone9,*", "iPhone10,*", "iPhone11,*", "iPhone12,*"],
-      "related_patterns": ["mic1_missing", "thermalmonitord_watchdog"]
+      "models_affected": [
+        "iPhone8,*",
+        "iPhone9,*",
+        "iPhone10,*",
+        "iPhone11,*",
+        "iPhone12,*"
+      ],
+      "related_patterns": [
+        "mic1_missing",
+        "thermalmonitord_watchdog"
+      ]
     },
     {
       "id": "battery_temp_missing",
-      "keywords": ["Missing sensor(s): TG0B", "Missing sensor: TG0B", "Missing sensor(s): tg0b", "battery temperature"],
+      "keywords": [
+        "Missing sensor(s): TG0B",
+        "Missing sensor: TG0B",
+        "Missing sensor(s): tg0b",
+        "battery temperature"
+      ],
       "category": "kernelPanic",
       "component": "battery",
       "severity": "hardware",
@@ -178,9 +331,21 @@
       "title": "Battery temperature sensor failure (TG0B)",
       "diagnosis": "The battery NTC temperature sensor is disconnected or damaged. Device may refuse to charge.",
       "probabilities": [
-        { "cause": "Battery connector not seated", "percent": 50, "description": "Battery flex not properly connected. Reseat connector." },
-        { "cause": "Battery defective", "percent": 40, "description": "NTC on battery flex is damaged. Replace battery." },
-        { "cause": "Board connector damage", "percent": 10, "description": "Battery FPC connector pins damaged." }
+        {
+          "cause": "Battery connector not seated",
+          "percent": 50,
+          "description": "Battery flex not properly connected. Reseat connector."
+        },
+        {
+          "cause": "Battery defective",
+          "percent": 40,
+          "description": "NTC on battery flex is damaged. Replace battery."
+        },
+        {
+          "cause": "Board connector damage",
+          "percent": 10,
+          "description": "Battery FPC connector pins damaged."
+        }
       ],
       "repair_steps": [
         "1. Disconnect and reseat battery connector firmly",
@@ -193,12 +358,21 @@
         "Verify charging works (both wired and wireless if supported)",
         "Monitor temperature during use (should not overheat)"
       ],
-      "models_affected": ["*"],
-      "related_patterns": ["thermalmonitord_watchdog", "battery_voltage_missing"]
+      "models_affected": [
+        "*"
+      ],
+      "related_patterns": [
+        "thermalmonitord_watchdog",
+        "battery_voltage_missing"
+      ]
     },
     {
       "id": "battery_voltage_missing",
-      "keywords": ["Missing sensor(s): TG0V", "Missing sensor: TG0V", "bq27541"],
+      "keywords": [
+        "Missing sensor(s): TG0V",
+        "Missing sensor: TG0V",
+        "bq27541"
+      ],
       "category": "kernelPanic",
       "component": "battery",
       "severity": "hardware",
@@ -206,9 +380,21 @@
       "title": "Battery voltage/fuel gauge sensor failure (TG0V)",
       "diagnosis": "The battery fuel gauge IC (bq27541) cannot communicate. Battery percentage may be inaccurate.",
       "probabilities": [
-        { "cause": "Battery connector issue", "percent": 45, "description": "Battery flex not seated. Reseat connector." },
-        { "cause": "Battery fuel gauge IC failed", "percent": 35, "description": "bq27541 chip on battery failed. Replace battery." },
-        { "cause": "Board-level gas gauge circuit", "percent": 20, "description": "Communication line to fuel gauge broken on board." }
+        {
+          "cause": "Battery connector issue",
+          "percent": 45,
+          "description": "Battery flex not seated. Reseat connector."
+        },
+        {
+          "cause": "Battery fuel gauge IC failed",
+          "percent": 35,
+          "description": "bq27541 chip on battery failed. Replace battery."
+        },
+        {
+          "cause": "Board-level gas gauge circuit",
+          "percent": 20,
+          "description": "Communication line to fuel gauge broken on board."
+        }
       ],
       "repair_steps": [
         "1. Disconnect and reseat battery connector",
@@ -220,12 +406,20 @@
         "coconutBattery or 3uTools battery health check",
         "Verify no unexpected shutdowns at >20% battery"
       ],
-      "models_affected": ["*"],
-      "related_patterns": ["battery_temp_missing", "thermalmonitord_watchdog"]
+      "models_affected": [
+        "*"
+      ],
+      "related_patterns": [
+        "battery_temp_missing",
+        "thermalmonitord_watchdog"
+      ]
     },
     {
       "id": "thermalmonitord_watchdog",
-      "keywords": ["no successful checkins from thermalmonitord", "thermalmonitord watchdog"],
+      "keywords": [
+        "no successful checkins from thermalmonitord",
+        "thermalmonitord watchdog"
+      ],
       "category": "watchdog",
       "component": "thermal_system",
       "severity": "hardware",
@@ -233,9 +427,21 @@
       "title": "Thermal monitoring service failure",
       "diagnosis": "thermalmonitord crashed or hung, usually due to a missing/disconnected thermal sensor.",
       "probabilities": [
-        { "cause": "Disconnected thermal sensor", "percent": 70, "description": "A sensor cable is damaged or not seated. Check panic string for 'Missing sensor' to identify which." },
-        { "cause": "Thermal IC failure", "percent": 20, "description": "PMU or thermal controller IC fault." },
-        { "cause": "iOS software bug", "percent": 10, "description": "Rare. Check if specific to one iOS version." }
+        {
+          "cause": "Disconnected thermal sensor",
+          "percent": 70,
+          "description": "A sensor cable is damaged or not seated. Check panic string for 'Missing sensor' to identify which."
+        },
+        {
+          "cause": "Thermal IC failure",
+          "percent": 20,
+          "description": "PMU or thermal controller IC fault."
+        },
+        {
+          "cause": "iOS software bug",
+          "percent": 10,
+          "description": "Rare. Check if specific to one iOS version."
+        }
       ],
       "repair_steps": [
         "1. Identify which sensor is missing from panic string",
@@ -247,12 +453,25 @@
         "Monitor for recurrence over 24h after repair",
         "Check Analytics for new crash logs"
       ],
-      "models_affected": ["*"],
-      "related_patterns": ["mic1_missing", "als_missing", "prox_missing", "battery_temp_missing"]
+      "models_affected": [
+        "*"
+      ],
+      "related_patterns": [
+        "mic1_missing",
+        "als_missing",
+        "prox_missing",
+        "battery_temp_missing"
+      ]
     },
     {
       "id": "gpu_hang",
-      "keywords": ["GPU Hang", "gpu hang", "firmware-detected lockup", "AGXFirmwareKextG", "AGXMetalA"],
+      "keywords": [
+        "GPU Hang",
+        "gpu hang",
+        "firmware-detected lockup",
+        "AGXFirmwareKextG",
+        "AGXMetalA"
+      ],
       "category": "gpuEvent",
       "component": "soc_gpu",
       "severity": "hardware",
@@ -260,9 +479,21 @@
       "title": "GPU firmware lockup / hang",
       "diagnosis": "The GPU core locked up, triggering a firmware reset or kernel panic.",
       "probabilities": [
-        { "cause": "BGA solder joint failure", "percent": 70, "description": "Cold solder joint under SoC. Common after drop or thermal cycling." },
-        { "cause": "Overheating / thermal throttle failure", "percent": 20, "description": "GPU thermal paste dried, heatsink not seated." },
-        { "cause": "iOS driver bug", "percent": 10, "description": "Check if specific to one iOS version. Try DFU restore." }
+        {
+          "cause": "BGA solder joint failure",
+          "percent": 70,
+          "description": "Cold solder joint under SoC. Common after drop or thermal cycling."
+        },
+        {
+          "cause": "Overheating / thermal throttle failure",
+          "percent": 20,
+          "description": "GPU thermal paste dried, heatsink not seated."
+        },
+        {
+          "cause": "iOS driver bug",
+          "percent": 10,
+          "description": "Check if specific to one iOS version. Try DFU restore."
+        }
       ],
       "repair_steps": [
         "1. DFU restore to rule out software",
@@ -275,12 +506,18 @@
         "Monitor for GPU recovery messages in console",
         "Check for visual artifacts on screen"
       ],
-      "models_affected": ["*"],
+      "models_affected": [
+        "*"
+      ],
       "related_patterns": []
     },
     {
       "id": "kernel_data_abort",
-      "keywords": ["Data Abort", "data_abort", "kernel data abort"],
+      "keywords": [
+        "Data Abort",
+        "data_abort",
+        "kernel data abort"
+      ],
       "category": "kernelPanic",
       "component": "memory_nand",
       "severity": "hardware",
@@ -288,9 +525,21 @@
       "title": "Kernel data abort — invalid memory access",
       "diagnosis": "The kernel accessed an invalid memory address, causing an immediate panic.",
       "probabilities": [
-        { "cause": "RAM defect", "percent": 60, "description": "LPDDR4/5 cell failure. Not repairable." },
-        { "cause": "NAND corruption", "percent": 30, "description": "Flash storage read error propagated to kernel. Try DFU restore first." },
-        { "cause": "iOS kernel bug", "percent": 10, "description": "Rare. Check if tied to specific iOS version." }
+        {
+          "cause": "RAM defect",
+          "percent": 60,
+          "description": "LPDDR4/5 cell failure. Not repairable."
+        },
+        {
+          "cause": "NAND corruption",
+          "percent": 30,
+          "description": "Flash storage read error propagated to kernel. Try DFU restore first."
+        },
+        {
+          "cause": "iOS kernel bug",
+          "percent": 10,
+          "description": "Rare. Check if tied to specific iOS version."
+        }
       ],
       "repair_steps": [
         "1. DFU restore (rule out NAND filesystem corruption)",
@@ -303,12 +552,19 @@
         "Run memory-intensive apps",
         "Check Analytics for recurrence"
       ],
-      "models_affected": ["*"],
-      "related_patterns": ["ans2_panic"]
+      "models_affected": [
+        "*"
+      ],
+      "related_patterns": [
+        "ans2_panic"
+      ]
     },
     {
       "id": "watchdog_backboardd",
-      "keywords": ["no successful checkins from backboardd", "backboardd watchdog"],
+      "keywords": [
+        "no successful checkins from backboardd",
+        "backboardd watchdog"
+      ],
       "category": "watchdog",
       "component": "display_touch",
       "severity": "hardware",
@@ -316,9 +572,21 @@
       "title": "Display/touch service timeout (backboardd)",
       "diagnosis": "backboardd (display + touch input service) stopped responding.",
       "probabilities": [
-        { "cause": "Display flex cable", "percent": 80, "description": "Damaged or poorly seated display flex. Check FPC connector." },
-        { "cause": "FPC connector damage", "percent": 15, "description": "Connector pins bent or corroded on logic board." },
-        { "cause": "Meson touch IC", "percent": 5, "description": "Touch controller IC failure. Requires micro-soldering." }
+        {
+          "cause": "Display flex cable",
+          "percent": 80,
+          "description": "Damaged or poorly seated display flex. Check FPC connector."
+        },
+        {
+          "cause": "FPC connector damage",
+          "percent": 15,
+          "description": "Connector pins bent or corroded on logic board."
+        },
+        {
+          "cause": "Meson touch IC",
+          "percent": 5,
+          "description": "Touch controller IC failure. Requires micro-soldering."
+        }
       ],
       "repair_steps": [
         "1. Reseat display flex cable",
@@ -331,12 +599,19 @@
         "3D Touch / Haptic Touch pressure test",
         "Display color/dead pixel check"
       ],
-      "models_affected": ["*"],
-      "related_patterns": ["display_flex_panic"]
+      "models_affected": [
+        "*"
+      ],
+      "related_patterns": [
+        "display_flex_panic"
+      ]
     },
     {
       "id": "watchdog_wifid",
-      "keywords": ["no successful checkins from wifid", "wifid watchdog"],
+      "keywords": [
+        "no successful checkins from wifid",
+        "wifid watchdog"
+      ],
       "category": "watchdog",
       "component": "wifi_bt_chip",
       "severity": "hardware",
@@ -344,9 +619,21 @@
       "title": "WiFi/Bluetooth service failure (wifid)",
       "diagnosis": "wifid stopped responding, indicating WiFi/BT chip communication failure.",
       "probabilities": [
-        { "cause": "WiFi/BT chip defect", "percent": 70, "description": "USI 339S00648 or similar. Common after water damage." },
-        { "cause": "Antenna disconnected", "percent": 20, "description": "WiFi antenna cable not seated or damaged." },
-        { "cause": "Software/firmware", "percent": 10, "description": "Try network settings reset, then DFU restore." }
+        {
+          "cause": "WiFi/BT chip defect",
+          "percent": 70,
+          "description": "USI 339S00648 or similar. Common after water damage."
+        },
+        {
+          "cause": "Antenna disconnected",
+          "percent": 20,
+          "description": "WiFi antenna cable not seated or damaged."
+        },
+        {
+          "cause": "Software/firmware",
+          "percent": 10,
+          "description": "Try network settings reset, then DFU restore."
+        }
       ],
       "repair_steps": [
         "1. Reset network settings",
@@ -360,12 +647,17 @@
         "AirDrop: test file transfer",
         "Check Settings > General > About > WiFi Address (if 'N/A' = chip dead)"
       ],
-      "models_affected": ["*"],
+      "models_affected": [
+        "*"
+      ],
       "related_patterns": []
     },
     {
       "id": "watchdog_mediaserverd",
-      "keywords": ["no successful checkins from mediaserverd", "mediaserverd watchdog"],
+      "keywords": [
+        "no successful checkins from mediaserverd",
+        "mediaserverd watchdog"
+      ],
       "category": "watchdog",
       "component": "audio_ic",
       "severity": "hardware",
@@ -373,9 +665,21 @@
       "title": "Media services failure (mediaserverd)",
       "diagnosis": "mediaserverd hung — handles audio/video playback. Often related to audio IC or codec.",
       "probabilities": [
-        { "cause": "Audio IC (Cirrus Logic) failure", "percent": 50, "description": "Audio codec IC unresponsive. Common on iPhone 7/7+ (audio IC disease)." },
-        { "cause": "Speaker/earpiece flex disconnected", "percent": 30, "description": "Audio output flex not seated. Reseat connections." },
-        { "cause": "iOS software issue", "percent": 20, "description": "Try DFU restore first." }
+        {
+          "cause": "Audio IC (Cirrus Logic) failure",
+          "percent": 50,
+          "description": "Audio codec IC unresponsive. Common on iPhone 7/7+ (audio IC disease)."
+        },
+        {
+          "cause": "Speaker/earpiece flex disconnected",
+          "percent": 30,
+          "description": "Audio output flex not seated. Reseat connections."
+        },
+        {
+          "cause": "iOS software issue",
+          "percent": 20,
+          "description": "Try DFU restore first."
+        }
       ],
       "repair_steps": [
         "1. DFU restore",
@@ -389,12 +693,20 @@
         "Voice Memos: record and playback",
         "Check if Voice Memos app opens without freezing"
       ],
-      "models_affected": ["*"],
-      "related_patterns": ["audio_ic_failure", "sleep_wake_hang"]
+      "models_affected": [
+        "*"
+      ],
+      "related_patterns": [
+        "audio_ic_failure",
+        "sleep_wake_hang"
+      ]
     },
     {
       "id": "watchdog_locationd",
-      "keywords": ["no successful checkins from locationd", "locationd watchdog"],
+      "keywords": [
+        "no successful checkins from locationd",
+        "locationd watchdog"
+      ],
       "category": "watchdog",
       "component": "gps_antenna",
       "severity": "hardware",
@@ -402,9 +714,21 @@
       "title": "Location service failure (locationd)",
       "diagnosis": "locationd hung — handles GPS/location. May indicate GPS antenna or baseband issue.",
       "probabilities": [
-        { "cause": "GPS antenna disconnected", "percent": 50, "description": "GPS antenna cable not seated. Check connections." },
-        { "cause": "Baseband/modem issue", "percent": 30, "description": "GPS is handled by baseband IC. If no signal either, baseband fault." },
-        { "cause": "iOS software bug", "percent": 20, "description": "Reset location services, try DFU restore." }
+        {
+          "cause": "GPS antenna disconnected",
+          "percent": 50,
+          "description": "GPS antenna cable not seated. Check connections."
+        },
+        {
+          "cause": "Baseband/modem issue",
+          "percent": 30,
+          "description": "GPS is handled by baseband IC. If no signal either, baseband fault."
+        },
+        {
+          "cause": "iOS software bug",
+          "percent": 20,
+          "description": "Reset location services, try DFU restore."
+        }
       ],
       "repair_steps": [
         "1. Reset Location & Privacy settings",
@@ -417,12 +741,19 @@
         "Compass app — does heading work?",
         "Check cellular signal simultaneously"
       ],
-      "models_affected": ["*"],
-      "related_patterns": ["baseband_crash"]
+      "models_affected": [
+        "*"
+      ],
+      "related_patterns": [
+        "baseband_crash"
+      ]
     },
     {
       "id": "watchdog_springboard",
-      "keywords": ["no successful checkins from SpringBoard", "SpringBoard watchdog"],
+      "keywords": [
+        "no successful checkins from SpringBoard",
+        "SpringBoard watchdog"
+      ],
       "category": "watchdog",
       "component": "system_memory",
       "severity": "software",
@@ -430,9 +761,21 @@
       "title": "SpringBoard (home screen) failure",
       "diagnosis": "SpringBoard stopped responding. Usually software-related but can indicate memory issues.",
       "probabilities": [
-        { "cause": "iOS software corruption", "percent": 60, "description": "Filesystem or app cache corruption. DFU restore usually fixes." },
-        { "cause": "Insufficient storage", "percent": 25, "description": "Device nearly full, SpringBoard can't cache. Free up space." },
-        { "cause": "RAM defect", "percent": 15, "description": "If frequent after DFU restore, may indicate RAM failure." }
+        {
+          "cause": "iOS software corruption",
+          "percent": 60,
+          "description": "Filesystem or app cache corruption. DFU restore usually fixes."
+        },
+        {
+          "cause": "Insufficient storage",
+          "percent": 25,
+          "description": "Device nearly full, SpringBoard can't cache. Free up space."
+        },
+        {
+          "cause": "RAM defect",
+          "percent": 15,
+          "description": "If frequent after DFU restore, may indicate RAM failure."
+        }
       ],
       "repair_steps": [
         "1. Force restart (volume up, volume down, hold power)",
@@ -445,12 +788,20 @@
         "Open 10+ apps rapidly, switch between them",
         "Check storage: Settings > General > iPhone Storage"
       ],
-      "models_affected": ["*"],
-      "related_patterns": ["jetsam_memory_pressure"]
+      "models_affected": [
+        "*"
+      ],
+      "related_patterns": [
+        "jetsam_memory_pressure"
+      ]
     },
     {
       "id": "sep_panic",
-      "keywords": ["SEP panic", "SEP Panic", "Secure Enclave"],
+      "keywords": [
+        "SEP panic",
+        "SEP Panic",
+        "Secure Enclave"
+      ],
       "category": "kernelPanic",
       "component": "secure_enclave",
       "severity": "critical",
@@ -458,8 +809,16 @@
       "title": "Secure Enclave Processor panic",
       "diagnosis": "The SEP crashed. This is a critical, board-level issue.",
       "probabilities": [
-        { "cause": "SEP hardware failure", "percent": 90, "description": "SEP is part of the SoC. Not field-repairable." },
-        { "cause": "Board damage near SEP", "percent": 10, "description": "Power rail issue affecting SEP." }
+        {
+          "cause": "SEP hardware failure",
+          "percent": 90,
+          "description": "SEP is part of the SoC. Not field-repairable."
+        },
+        {
+          "cause": "Board damage near SEP",
+          "percent": 10,
+          "description": "Power rail issue affecting SEP."
+        }
       ],
       "repair_steps": [
         "1. DFU restore (very unlikely to help but worth trying)",
@@ -471,12 +830,17 @@
         "Apple Pay enrollment test",
         "Keychain access test"
       ],
-      "models_affected": ["*"],
+      "models_affected": [
+        "*"
+      ],
       "related_patterns": []
     },
     {
       "id": "jetsam_memory_pressure",
-      "keywords": ["JetsamEvent", "per-process-limit"],
+      "keywords": [
+        "JetsamEvent",
+        "per-process-limit"
+      ],
       "category": "jetsam",
       "component": "system_memory",
       "severity": "informational",
@@ -484,9 +848,21 @@
       "title": "Memory pressure — app killed by Jetsam",
       "diagnosis": "iOS killed a process due to memory pressure. Usually normal behavior under heavy multitasking.",
       "probabilities": [
-        { "cause": "Normal iOS behavior", "percent": 70, "description": "Heavy app usage, many background processes. Not a hardware issue." },
-        { "cause": "Memory leak in app", "percent": 20, "description": "A specific app consuming excessive memory." },
-        { "cause": "RAM defect", "percent": 10, "description": "If Jetsam events are extremely frequent (100+/day), may indicate bad RAM cells." }
+        {
+          "cause": "Normal iOS behavior",
+          "percent": 70,
+          "description": "Heavy app usage, many background processes. Not a hardware issue."
+        },
+        {
+          "cause": "Memory leak in app",
+          "percent": 20,
+          "description": "A specific app consuming excessive memory."
+        },
+        {
+          "cause": "RAM defect",
+          "percent": 10,
+          "description": "If Jetsam events are extremely frequent (100+/day), may indicate bad RAM cells."
+        }
       ],
       "repair_steps": [
         "1. Check frequency — occasional Jetsam is normal",
@@ -499,12 +875,19 @@
         "Note which apps trigger the most events",
         "Compare to baseline (5-20/day is normal under active use)"
       ],
-      "models_affected": ["*"],
+      "models_affected": [
+        "*"
+      ],
       "related_patterns": []
     },
     {
       "id": "baseband_crash",
-      "keywords": ["EURCoreDump", "Baseband crash", "baseband panic", "AppleARMPE::powerStateDidChange"],
+      "keywords": [
+        "EURCoreDump",
+        "Baseband crash",
+        "baseband panic",
+        "AppleARMPE::powerStateDidChange"
+      ],
       "category": "kernelPanic",
       "component": "baseband_modem",
       "severity": "hardware",
@@ -512,9 +895,21 @@
       "title": "Baseband/cellular modem crash",
       "diagnosis": "The cellular modem firmware crashed. Device may show 'No Service' or 'Searching'.",
       "probabilities": [
-        { "cause": "Baseband IC failure", "percent": 60, "description": "Qualcomm/Intel modem IC soldering issue or failure." },
-        { "cause": "Baseband PMIC failure", "percent": 25, "description": "Baseband power management IC not supplying correct voltage." },
-        { "cause": "Software/firmware issue", "percent": 15, "description": "Carrier settings or iOS baseband firmware corruption." }
+        {
+          "cause": "Baseband IC failure",
+          "percent": 60,
+          "description": "Qualcomm/Intel modem IC soldering issue or failure."
+        },
+        {
+          "cause": "Baseband PMIC failure",
+          "percent": 25,
+          "description": "Baseband power management IC not supplying correct voltage."
+        },
+        {
+          "cause": "Software/firmware issue",
+          "percent": 15,
+          "description": "Carrier settings or iOS baseband firmware corruption."
+        }
       ],
       "repair_steps": [
         "1. Check for 'No Service' or missing IMEI (Settings > General > About)",
@@ -528,12 +923,22 @@
         "Make a phone call",
         "Check if airplane mode toggle works"
       ],
-      "models_affected": ["*"],
-      "related_patterns": ["watchdog_locationd"]
+      "models_affected": [
+        "*"
+      ],
+      "related_patterns": [
+        "watchdog_locationd"
+      ]
     },
     {
       "id": "ans2_panic",
-      "keywords": ["ANS2", "ANS panic", "AppleANS2", "NAND panic", "storage panic"],
+      "keywords": [
+        "ANS2",
+        "ANS panic",
+        "AppleANS2",
+        "NAND panic",
+        "storage panic"
+      ],
       "category": "kernelPanic",
       "component": "memory_nand",
       "severity": "critical",
@@ -541,9 +946,21 @@
       "title": "NAND storage controller panic (ANS2)",
       "diagnosis": "The Apple NAND Storage v2 controller lost communication with flash storage. Critical storage issue.",
       "probabilities": [
-        { "cause": "NAND flash chip failure", "percent": 50, "description": "Flash storage IC failing. May need NAND replacement." },
-        { "cause": "NAND controller communication error", "percent": 35, "description": "SoC-NAND communication line fault. Board-level issue." },
-        { "cause": "Filesystem corruption", "percent": 15, "description": "Severe corruption. DFU restore may recover." }
+        {
+          "cause": "NAND flash chip failure",
+          "percent": 50,
+          "description": "Flash storage IC failing. May need NAND replacement."
+        },
+        {
+          "cause": "NAND controller communication error",
+          "percent": 35,
+          "description": "SoC-NAND communication line fault. Board-level issue."
+        },
+        {
+          "cause": "Filesystem corruption",
+          "percent": 15,
+          "description": "Severe corruption. DFU restore may recover."
+        }
       ],
       "repair_steps": [
         "1. DFU restore (may fail if NAND is physically damaged)",
@@ -557,12 +974,21 @@
         "Check storage capacity: Settings > General > iPhone Storage",
         "Monitor for boot loops"
       ],
-      "models_affected": ["*"],
-      "related_patterns": ["kernel_data_abort"]
+      "models_affected": [
+        "*"
+      ],
+      "related_patterns": [
+        "kernel_data_abort"
+      ]
     },
     {
       "id": "smc_panic_assertion",
-      "keywords": ["SMC Panic", "ASSERTION FAILED", "SMC panic assertion", "smc_panic"],
+      "keywords": [
+        "SMC Panic",
+        "ASSERTION FAILED",
+        "SMC panic assertion",
+        "smc_panic"
+      ],
       "category": "kernelPanic",
       "component": "thermal_system",
       "severity": "hardware",
@@ -570,9 +996,21 @@
       "title": "SMC panic assertion failure (iPhone 13+)",
       "diagnosis": "System Management Controller assertion failed. Common on iPhone 13+ when sensor arrays report faults.",
       "probabilities": [
-        { "cause": "Sensor flex cable disconnected", "percent": 60, "description": "One or more sensor flex cables not seated. Check all connections." },
-        { "cause": "Aftermarket screen without sensors", "percent": 25, "description": "Screen replacement missing sensor data. Use OEM or quality aftermarket with sensor transfer." },
-        { "cause": "Board-level SMC issue", "percent": 15, "description": "SMC IC or power rail fault. Advanced repair." }
+        {
+          "cause": "Sensor flex cable disconnected",
+          "percent": 60,
+          "description": "One or more sensor flex cables not seated. Check all connections."
+        },
+        {
+          "cause": "Aftermarket screen without sensors",
+          "percent": 25,
+          "description": "Screen replacement missing sensor data. Use OEM or quality aftermarket with sensor transfer."
+        },
+        {
+          "cause": "Board-level SMC issue",
+          "percent": 15,
+          "description": "SMC IC or power rail fault. Advanced repair."
+        }
       ],
       "repair_steps": [
         "1. Check all flex cable connections (display, battery, camera, charging)",
@@ -585,12 +1023,25 @@
         "Auto-brightness test",
         "Monitor for panic recurrence after reseating all flexes"
       ],
-      "models_affected": ["iPhone14,*", "iPhone15,*", "iPhone16,*", "iPhone17,*"],
-      "related_patterns": ["thermalmonitord_watchdog", "mic1_missing", "als_missing"]
+      "models_affected": [
+        "iPhone14,*",
+        "iPhone15,*",
+        "iPhone16,*",
+        "iPhone17,*"
+      ],
+      "related_patterns": [
+        "thermalmonitord_watchdog",
+        "mic1_missing",
+        "als_missing"
+      ]
     },
     {
       "id": "sleep_wake_hang",
-      "keywords": ["Sleep/Wake hang", "sleep wake hang", "SleepWakeHang"],
+      "keywords": [
+        "Sleep/Wake hang",
+        "sleep wake hang",
+        "SleepWakeHang"
+      ],
       "category": "kernelPanic",
       "component": "audio_ic",
       "severity": "hardware",
@@ -598,9 +1049,21 @@
       "title": "Sleep/Wake hang — audio codec or power issue",
       "diagnosis": "Device hung during sleep/wake transition. Often related to audio IC, amplifier, or power management.",
       "probabilities": [
-        { "cause": "Audio IC (Cirrus Logic) failure", "percent": 50, "description": "Audio codec not responding during sleep transition. iPhone 7 'audio IC disease'." },
-        { "cause": "Power management issue", "percent": 30, "description": "PMU not handling sleep states properly." },
-        { "cause": "Display/backlight IC", "percent": 20, "description": "Backlight driver not responding during wake." }
+        {
+          "cause": "Audio IC (Cirrus Logic) failure",
+          "percent": 50,
+          "description": "Audio codec not responding during sleep transition. iPhone 7 'audio IC disease'."
+        },
+        {
+          "cause": "Power management issue",
+          "percent": 30,
+          "description": "PMU not handling sleep states properly."
+        },
+        {
+          "cause": "Display/backlight IC",
+          "percent": 20,
+          "description": "Backlight driver not responding during wake."
+        }
       ],
       "repair_steps": [
         "1. DFU restore",
@@ -613,12 +1076,24 @@
         "Lock phone, wait 5 min, unlock — any delay?",
         "Voice Memos recording during sleep/wake cycles"
       ],
-      "models_affected": ["iPhone9,*", "iPhone10,*", "iPhone11,*"],
-      "related_patterns": ["watchdog_mediaserverd", "audio_ic_failure"]
+      "models_affected": [
+        "iPhone9,*",
+        "iPhone10,*",
+        "iPhone11,*"
+      ],
+      "related_patterns": [
+        "watchdog_mediaserverd",
+        "audio_ic_failure"
+      ]
     },
     {
       "id": "audio_ic_failure",
-      "keywords": ["audio codec", "338S00509", "Cirrus Logic", "audio IC"],
+      "keywords": [
+        "audio codec",
+        "338S00509",
+        "Cirrus Logic",
+        "audio IC"
+      ],
       "category": "kernelPanic",
       "component": "audio_ic",
       "severity": "hardware",
@@ -626,9 +1101,21 @@
       "title": "Audio IC / codec failure",
       "diagnosis": "The Cirrus Logic audio codec IC is failing. Known as 'audio IC disease' on iPhone 7/7+.",
       "probabilities": [
-        { "cause": "Audio IC BGA solder failure", "percent": 75, "description": "Cold solder joints under audio IC. Very common on iPhone 7. Reball required." },
-        { "cause": "Audio IC pad damage", "percent": 20, "description": "Pads lifted from board. Jumper wire repair needed." },
-        { "cause": "Audio IC chip failure", "percent": 5, "description": "IC itself failed. Full IC replacement." }
+        {
+          "cause": "Audio IC BGA solder failure",
+          "percent": 75,
+          "description": "Cold solder joints under audio IC. Very common on iPhone 7. Reball required."
+        },
+        {
+          "cause": "Audio IC pad damage",
+          "percent": 20,
+          "description": "Pads lifted from board. Jumper wire repair needed."
+        },
+        {
+          "cause": "Audio IC chip failure",
+          "percent": 5,
+          "description": "IC itself failed. Full IC replacement."
+        }
       ],
       "repair_steps": [
         "1. Test: does Voice Memos app open? (frozen = classic audio IC symptom)",
@@ -642,12 +1129,27 @@
         "Record video — is there audio in playback?",
         "Headphones: does audio output work via jack/lightning?"
       ],
-      "models_affected": ["iPhone9,1", "iPhone9,2", "iPhone9,3", "iPhone9,4", "iPhone10,*"],
-      "related_patterns": ["sleep_wake_hang", "watchdog_mediaserverd"]
+      "models_affected": [
+        "iPhone9,1",
+        "iPhone9,2",
+        "iPhone9,3",
+        "iPhone9,4",
+        "iPhone10,*"
+      ],
+      "related_patterns": [
+        "sleep_wake_hang",
+        "watchdog_mediaserverd"
+      ]
     },
     {
       "id": "tristar_failure",
-      "keywords": ["tristar", "CBTL1612", "USB host", "charging IC", "hydra"],
+      "keywords": [
+        "tristar",
+        "CBTL1612",
+        "USB host",
+        "charging IC",
+        "hydra"
+      ],
       "category": "kernelPanic",
       "component": "tristar_ic",
       "severity": "hardware",
@@ -655,9 +1157,21 @@
       "title": "Tristar/Hydra USB charging IC failure",
       "diagnosis": "The Tristar (CBTL1612) or Hydra USB controller IC failed. Causes charging issues, 'This accessory may not be supported'.",
       "probabilities": [
-        { "cause": "Tristar IC water damage", "percent": 60, "description": "Tristar corroded from liquid exposure. IC replacement required." },
-        { "cause": "Tristar IC worn out", "percent": 30, "description": "IC degraded from using non-MFi cables. Replacement needed." },
-        { "cause": "Charging port flex issue", "percent": 10, "description": "Lightning port dirty or damaged. Try flex replacement first." }
+        {
+          "cause": "Tristar IC water damage",
+          "percent": 60,
+          "description": "Tristar corroded from liquid exposure. IC replacement required."
+        },
+        {
+          "cause": "Tristar IC worn out",
+          "percent": 30,
+          "description": "IC degraded from using non-MFi cables. Replacement needed."
+        },
+        {
+          "cause": "Charging port flex issue",
+          "percent": 10,
+          "description": "Lightning port dirty or damaged. Try flex replacement first."
+        }
       ],
       "repair_steps": [
         "1. Clean lightning port (IPA + brush)",
@@ -671,12 +1185,22 @@
         "Connect to iTunes/Finder — does computer recognize device?",
         "Check charging current with USB ammeter"
       ],
-      "models_affected": ["*"],
-      "related_patterns": ["mic1_missing"]
+      "models_affected": [
+        "*"
+      ],
+      "related_patterns": [
+        "mic1_missing"
+      ]
     },
     {
       "id": "face_id_failure",
-      "keywords": ["dot projector", "flood illuminator", "TrueDepth", "face id panic", "pearl"],
+      "keywords": [
+        "dot projector",
+        "flood illuminator",
+        "TrueDepth",
+        "face id panic",
+        "pearl"
+      ],
       "category": "kernelPanic",
       "component": "truedepth_camera",
       "severity": "hardware",
@@ -684,10 +1208,26 @@
       "title": "Face ID / TrueDepth camera system failure",
       "diagnosis": "The TrueDepth camera system (dot projector, flood illuminator, or IR camera) has failed.",
       "probabilities": [
-        { "cause": "Dot projector failure", "percent": 45, "description": "Dot projector laser module failed. Not individually replaceable on most models." },
-        { "cause": "Flood illuminator failure", "percent": 25, "description": "IR LED flood illuminator not functioning." },
-        { "cause": "Front camera flex damage", "percent": 25, "description": "TrueDepth flex cable damaged during screen replacement." },
-        { "cause": "Board-level VCSEL driver", "percent": 5, "description": "VCSEL driver IC on board failed." }
+        {
+          "cause": "Dot projector failure",
+          "percent": 45,
+          "description": "Dot projector laser module failed. Not individually replaceable on most models."
+        },
+        {
+          "cause": "Flood illuminator failure",
+          "percent": 25,
+          "description": "IR LED flood illuminator not functioning."
+        },
+        {
+          "cause": "Front camera flex damage",
+          "percent": 25,
+          "description": "TrueDepth flex cable damaged during screen replacement."
+        },
+        {
+          "cause": "Board-level VCSEL driver",
+          "percent": 5,
+          "description": "VCSEL driver IC on board failed."
+        }
       ],
       "repair_steps": [
         "1. Check if Face ID was working before last repair",
@@ -702,12 +1242,30 @@
         "Animoji: do face tracking animations work?",
         "Check for 'Face ID is not available' error in Settings"
       ],
-      "models_affected": ["iPhone10,3", "iPhone10,6", "iPhone11,*", "iPhone12,*", "iPhone13,*", "iPhone14,*", "iPhone15,*", "iPhone16,*", "iPhone17,*"],
-      "related_patterns": ["sep_panic"]
+      "models_affected": [
+        "iPhone10,3",
+        "iPhone10,6",
+        "iPhone11,*",
+        "iPhone12,*",
+        "iPhone13,*",
+        "iPhone14,*",
+        "iPhone15,*",
+        "iPhone16,*",
+        "iPhone17,*"
+      ],
+      "related_patterns": [
+        "sep_panic"
+      ]
     },
     {
       "id": "nfc_failure",
-      "keywords": ["NFC", "nfc watchdog", "nfc panic", "PN5xx", "NXP"],
+      "keywords": [
+        "NFC",
+        "nfc watchdog",
+        "nfc panic",
+        "PN5xx",
+        "NXP"
+      ],
       "category": "watchdog",
       "component": "nfc_chip",
       "severity": "hardware",
@@ -715,9 +1273,21 @@
       "title": "NFC controller failure",
       "diagnosis": "The NFC controller IC (NXP) is not responding. Apple Pay and NFC will not work.",
       "probabilities": [
-        { "cause": "NFC IC failure", "percent": 55, "description": "NXP NFC controller IC failed. Micro-soldering replacement." },
-        { "cause": "NFC antenna disconnected", "percent": 35, "description": "NFC antenna coil disconnected or damaged." },
-        { "cause": "Software issue", "percent": 10, "description": "DFU restore may resolve." }
+        {
+          "cause": "NFC IC failure",
+          "percent": 55,
+          "description": "NXP NFC controller IC failed. Micro-soldering replacement."
+        },
+        {
+          "cause": "NFC antenna disconnected",
+          "percent": 35,
+          "description": "NFC antenna coil disconnected or damaged."
+        },
+        {
+          "cause": "Software issue",
+          "percent": 10,
+          "description": "DFU restore may resolve."
+        }
       ],
       "repair_steps": [
         "1. DFU restore",
@@ -730,12 +1300,26 @@
         "NFC tag: hold an NFC tag to back of phone",
         "Express Transit: test with transit card if available"
       ],
-      "models_affected": ["iPhone8,*", "iPhone9,*", "iPhone10,*", "iPhone11,*", "iPhone12,*", "iPhone13,*", "iPhone14,*", "iPhone15,*"],
+      "models_affected": [
+        "iPhone8,*",
+        "iPhone9,*",
+        "iPhone10,*",
+        "iPhone11,*",
+        "iPhone12,*",
+        "iPhone13,*",
+        "iPhone14,*",
+        "iPhone15,*"
+      ],
       "related_patterns": []
     },
     {
       "id": "uwb_failure",
-      "keywords": ["UWB", "uwb watchdog", "U1 chip", "ultra wideband"],
+      "keywords": [
+        "UWB",
+        "uwb watchdog",
+        "U1 chip",
+        "ultra wideband"
+      ],
       "category": "watchdog",
       "component": "uwb_chip",
       "severity": "hardware",
@@ -743,9 +1327,21 @@
       "title": "Ultra-Wideband (U1/U2) chip failure",
       "diagnosis": "The UWB chip is not responding. AirDrop direction finding and Precision Finding for AirTags won't work.",
       "probabilities": [
-        { "cause": "UWB chip failure", "percent": 50, "description": "U1/U2 chip failed. Not practically repairable." },
-        { "cause": "UWB antenna disconnected", "percent": 35, "description": "UWB antenna cable not seated." },
-        { "cause": "Software issue", "percent": 15, "description": "DFU restore may resolve." }
+        {
+          "cause": "UWB chip failure",
+          "percent": 50,
+          "description": "U1/U2 chip failed. Not practically repairable."
+        },
+        {
+          "cause": "UWB antenna disconnected",
+          "percent": 35,
+          "description": "UWB antenna cable not seated."
+        },
+        {
+          "cause": "Software issue",
+          "percent": 15,
+          "description": "DFU restore may resolve."
+        }
       ],
       "repair_steps": [
         "1. DFU restore",
@@ -757,12 +1353,25 @@
         "Find My: test Precision Finding with an AirTag",
         "Nearby Interactions: test with another iPhone 11+"
       ],
-      "models_affected": ["iPhone12,*", "iPhone13,*", "iPhone14,*", "iPhone15,*", "iPhone16,*", "iPhone17,*"],
+      "models_affected": [
+        "iPhone12,*",
+        "iPhone13,*",
+        "iPhone14,*",
+        "iPhone15,*",
+        "iPhone16,*",
+        "iPhone17,*"
+      ],
       "related_patterns": []
     },
     {
       "id": "camera_isp_panic",
-      "keywords": ["ISP panic", "camera panic", "AppleCameraISP", "H11ISP", "AppleH"],
+      "keywords": [
+        "ISP panic",
+        "camera panic",
+        "AppleCameraISP",
+        "H11ISP",
+        "AppleH"
+      ],
       "category": "kernelPanic",
       "component": "camera_system",
       "severity": "hardware",
@@ -770,9 +1379,21 @@
       "title": "Camera ISP (Image Signal Processor) panic",
       "diagnosis": "The camera ISP crashed. Camera may show black screen or freeze the camera app.",
       "probabilities": [
-        { "cause": "Rear camera flex damaged", "percent": 50, "description": "Camera flex cable damaged. Replace rear camera module." },
-        { "cause": "Camera connector not seated", "percent": 30, "description": "Camera FPC not properly connected after repair." },
-        { "cause": "ISP firmware/SoC issue", "percent": 20, "description": "ISP is part of SoC. DFU restore may help if software-related." }
+        {
+          "cause": "Rear camera flex damaged",
+          "percent": 50,
+          "description": "Camera flex cable damaged. Replace rear camera module."
+        },
+        {
+          "cause": "Camera connector not seated",
+          "percent": 30,
+          "description": "Camera FPC not properly connected after repair."
+        },
+        {
+          "cause": "ISP firmware/SoC issue",
+          "percent": 20,
+          "description": "ISP is part of SoC. DFU restore may help if software-related."
+        }
       ],
       "repair_steps": [
         "1. Reseat rear camera flex cable",
@@ -786,12 +1407,19 @@
         "Record video — does it complete without freezing?",
         "Test flashlight toggle"
       ],
-      "models_affected": ["*"],
+      "models_affected": [
+        "*"
+      ],
       "related_patterns": []
     },
     {
       "id": "thermal_shutdown",
-      "keywords": ["thermal shutdown", "temperature exceeded", "thermal event", "overtemperature"],
+      "keywords": [
+        "thermal shutdown",
+        "temperature exceeded",
+        "thermal event",
+        "overtemperature"
+      ],
       "category": "thermal",
       "component": "thermal_system",
       "severity": "hardware",
@@ -799,10 +1427,26 @@
       "title": "Thermal shutdown — excessive temperature",
       "diagnosis": "Device shut down due to excessive temperature. May indicate cooling system or battery issue.",
       "probabilities": [
-        { "cause": "Normal environmental heat", "percent": 40, "description": "Direct sunlight, hot car, charging while gaming. Not a defect." },
-        { "cause": "Battery swelling/degradation", "percent": 30, "description": "Old or defective battery causing excess heat. Replace battery." },
-        { "cause": "Board-level short circuit", "percent": 20, "description": "Component on board drawing excess current, generating heat." },
-        { "cause": "Thermal paste degraded", "percent": 10, "description": "Thermal interface material dried out (older devices)." }
+        {
+          "cause": "Normal environmental heat",
+          "percent": 40,
+          "description": "Direct sunlight, hot car, charging while gaming. Not a defect."
+        },
+        {
+          "cause": "Battery swelling/degradation",
+          "percent": 30,
+          "description": "Old or defective battery causing excess heat. Replace battery."
+        },
+        {
+          "cause": "Board-level short circuit",
+          "percent": 20,
+          "description": "Component on board drawing excess current, generating heat."
+        },
+        {
+          "cause": "Thermal paste degraded",
+          "percent": 10,
+          "description": "Thermal interface material dried out (older devices)."
+        }
       ],
       "repair_steps": [
         "1. Check battery health (Settings > Battery > Battery Health)",
@@ -816,12 +1460,22 @@
         "Use thermal camera to identify hot spots on board",
         "Battery health percentage check"
       ],
-      "models_affected": ["*"],
-      "related_patterns": ["thermalmonitord_watchdog", "battery_temp_missing"]
+      "models_affected": [
+        "*"
+      ],
+      "related_patterns": [
+        "thermalmonitord_watchdog",
+        "battery_temp_missing"
+      ]
     },
     {
       "id": "pmu_failure",
-      "keywords": ["PMU", "power management", "PMIC", "voltage rail"],
+      "keywords": [
+        "PMU",
+        "power management",
+        "PMIC",
+        "voltage rail"
+      ],
       "category": "kernelPanic",
       "component": "pmu_ic",
       "severity": "critical",
@@ -829,9 +1483,21 @@
       "title": "Power Management Unit (PMU) failure",
       "diagnosis": "The PMU/PMIC chip is not functioning correctly. Causes boot issues, random shutdowns, or no power.",
       "probabilities": [
-        { "cause": "PMU IC failure", "percent": 60, "description": "PMU chip (Dialog/Apple) failed. Micro-soldering replacement." },
-        { "cause": "Voltage rail short", "percent": 30, "description": "Short circuit on a power rail. Identify and fix shorted component." },
-        { "cause": "Battery connector issue", "percent": 10, "description": "Battery not providing correct voltage. Try new battery." }
+        {
+          "cause": "PMU IC failure",
+          "percent": 60,
+          "description": "PMU chip (Dialog/Apple) failed. Micro-soldering replacement."
+        },
+        {
+          "cause": "Voltage rail short",
+          "percent": 30,
+          "description": "Short circuit on a power rail. Identify and fix shorted component."
+        },
+        {
+          "cause": "Battery connector issue",
+          "percent": 10,
+          "description": "Battery not providing correct voltage. Try new battery."
+        }
       ],
       "repair_steps": [
         "1. Check boot current with DC power supply",
@@ -845,12 +1511,22 @@
         "Check all voltage rails with multimeter",
         "Random shutdown frequency"
       ],
-      "models_affected": ["*"],
-      "related_patterns": ["battery_temp_missing", "battery_voltage_missing"]
+      "models_affected": [
+        "*"
+      ],
+      "related_patterns": [
+        "battery_temp_missing",
+        "battery_voltage_missing"
+      ]
     },
     {
       "id": "display_backlight_failure",
-      "keywords": ["backlight", "EXBrightComponent", "brightness panic", "display PMIC"],
+      "keywords": [
+        "backlight",
+        "EXBrightComponent",
+        "brightness panic",
+        "display PMIC"
+      ],
       "category": "kernelPanic",
       "component": "backlight_ic",
       "severity": "hardware",
@@ -858,9 +1534,21 @@
       "title": "Display backlight / brightness IC failure",
       "diagnosis": "The backlight driver IC failed. Screen may appear very dim or have no backlight.",
       "probabilities": [
-        { "cause": "Backlight IC failure", "percent": 55, "description": "Backlight driver IC failed. Micro-soldering replacement." },
-        { "cause": "Backlight filter/diode blown", "percent": 30, "description": "Backlight filter on board blown (often from connecting screen while battery is connected)." },
-        { "cause": "Display flex damage", "percent": 15, "description": "Backlight lines in display flex damaged." }
+        {
+          "cause": "Backlight IC failure",
+          "percent": 55,
+          "description": "Backlight driver IC failed. Micro-soldering replacement."
+        },
+        {
+          "cause": "Backlight filter/diode blown",
+          "percent": 30,
+          "description": "Backlight filter on board blown (often from connecting screen while battery is connected)."
+        },
+        {
+          "cause": "Display flex damage",
+          "percent": 15,
+          "description": "Backlight lines in display flex damaged."
+        }
       ],
       "repair_steps": [
         "1. Test: shine flashlight at screen — can you see image? (backlight dead but display works)",
@@ -874,12 +1562,21 @@
         "Maximum brightness slider test",
         "Connect to computer — does iTunes/Finder detect device?"
       ],
-      "models_affected": ["*"],
-      "related_patterns": ["watchdog_backboardd"]
+      "models_affected": [
+        "*"
+      ],
+      "related_patterns": [
+        "watchdog_backboardd"
+      ]
     },
     {
       "id": "i2c_bus_failure",
-      "keywords": ["I2C", "i2c bus", "i2c panic", "SPI bus"],
+      "keywords": [
+        "I2C",
+        "i2c bus",
+        "i2c panic",
+        "SPI bus"
+      ],
       "category": "kernelPanic",
       "component": "logic_board",
       "severity": "critical",
@@ -887,9 +1584,21 @@
       "title": "I2C/SPI bus communication failure",
       "diagnosis": "Inter-chip communication bus failed. Multiple sensors/ICs may be affected.",
       "probabilities": [
-        { "cause": "Water/liquid damage", "percent": 50, "description": "Corrosion on bus lines. Board cleaning and trace repair." },
-        { "cause": "Physical board damage", "percent": 35, "description": "Drop damage causing broken traces." },
-        { "cause": "IC failure on bus", "percent": 15, "description": "A device on the I2C/SPI bus pulling lines low." }
+        {
+          "cause": "Water/liquid damage",
+          "percent": 50,
+          "description": "Corrosion on bus lines. Board cleaning and trace repair."
+        },
+        {
+          "cause": "Physical board damage",
+          "percent": 35,
+          "description": "Drop damage causing broken traces."
+        },
+        {
+          "cause": "IC failure on bus",
+          "percent": 15,
+          "description": "A device on the I2C/SPI bus pulling lines low."
+        }
       ],
       "repair_steps": [
         "1. Inspect board under microscope for corrosion/damage",
@@ -902,8 +1611,406 @@
         "Test: touch, sensors, camera, WiFi systematically",
         "Look for corrosion indicators (LCI stickers)"
       ],
-      "models_affected": ["*"],
-      "related_patterns": ["pmu_failure"]
+      "models_affected": [
+        "*"
+      ],
+      "related_patterns": [
+        "pmu_failure"
+      ]
+    },
+    {
+      "id": "app_crash_exc_bad_access",
+      "keywords": [
+        "EXC_BAD_ACCESS",
+        "SIGSEGV",
+        "SIGBUS",
+        "EXC_BAD_ACCESS (SIGSEGV)",
+        "EXC_BAD_ACCESS (SIGBUS)"
+      ],
+      "category": "appCrash",
+      "component": "ram_chip",
+      "severity": "software",
+      "confidence": 65,
+      "title": "App crash — memory access violation (EXC_BAD_ACCESS)",
+      "diagnosis": "The app accessed an invalid memory address. Usually a software bug (null pointer, use-after-free), but if it affects many different apps it may indicate RAM issues.",
+      "probabilities": [
+        {
+          "cause": "App software bug (null pointer / use-after-free)",
+          "percent": 75,
+          "description": "Most common. Update or reinstall the app."
+        },
+        {
+          "cause": "RAM hardware fault (rare)",
+          "percent": 15,
+          "description": "If many unrelated apps crash with SIGSEGV, suspect soldered RAM failure."
+        },
+        {
+          "cause": "iOS memory management bug",
+          "percent": 10,
+          "description": "Known iOS bug in specific version. Check for iOS update."
+        }
+      ],
+      "repair_steps": [
+        "1. Update or reinstall the crashing app",
+        "2. Update iOS to latest version",
+        "3. If many different apps affected: backup + restore iPhone",
+        "4. If persists after restore: suspect RAM failure — professional board repair needed"
+      ],
+      "test_procedure": [
+        "Reproduce crash in the specific app",
+        "Test same operation in other apps",
+        "Check if crash disappears after iOS update"
+      ],
+      "models_affected": [
+        "iPhone*"
+      ],
+      "related_patterns": [
+        "jetsam_memory_pressure"
+      ]
+    },
+    {
+      "id": "app_crash_sigabrt",
+      "keywords": [
+        "SIGABRT",
+        "EXC_CRASH (SIGABRT)",
+        "abort() called",
+        "Assertion failed"
+      ],
+      "category": "appCrash",
+      "component": "software",
+      "severity": "software",
+      "confidence": 80,
+      "title": "App crash — assertion failure (SIGABRT)",
+      "diagnosis": "The app called abort() due to an assertion failure or unhandled exception. This is almost always a software issue in the app itself.",
+      "probabilities": [
+        {
+          "cause": "App bug — unhandled exception or failed assertion",
+          "percent": 85,
+          "description": "Developer error. Update or reinstall the app."
+        },
+        {
+          "cause": "Corrupted app data/cache",
+          "percent": 15,
+          "description": "App state corrupted. Offload and reinstall the app."
+        }
+      ],
+      "repair_steps": [
+        "1. Update the app to latest version",
+        "2. Offload and reinstall the app (Settings > General > iPhone Storage)",
+        "3. Contact app developer if issue persists"
+      ],
+      "test_procedure": [
+        "Check App Store for updates",
+        "Reproduce with fresh app install"
+      ],
+      "models_affected": [
+        "iPhone*"
+      ],
+      "related_patterns": []
+    },
+    {
+      "id": "app_crash_out_of_memory",
+      "keywords": [
+        "Jetsam: OOM",
+        "exceeded memory limit",
+        "memory limit exceeded",
+        "per-process-limit",
+        "EXC_RESOURCE (MEMORY)"
+      ],
+      "category": "appCrash",
+      "component": "ram_chip",
+      "severity": "informational",
+      "confidence": 70,
+      "title": "App terminated — memory limit exceeded",
+      "diagnosis": "The app was killed by iOS because it exceeded its memory allocation. Normal for memory-heavy apps; persistent cases may indicate a memory leak.",
+      "probabilities": [
+        {
+          "cause": "App memory leak",
+          "percent": 60,
+          "description": "The app is consuming too much RAM. Update or reinstall."
+        },
+        {
+          "cause": "Device under memory pressure (too many apps open)",
+          "percent": 30,
+          "description": "Close background apps and test again."
+        },
+        {
+          "cause": "Underpowered device for this app",
+          "percent": 10,
+          "description": "App requires more RAM than available on this model."
+        }
+      ],
+      "repair_steps": [
+        "1. Update the app",
+        "2. Close background apps before using it",
+        "3. Restart iPhone before testing",
+        "4. Offload and reinstall the app"
+      ],
+      "test_procedure": [
+        "Open app after fresh restart with no background apps",
+        "Monitor if crash still occurs"
+      ],
+      "models_affected": [
+        "iPhone*"
+      ],
+      "related_patterns": [
+        "jetsam_memory_pressure"
+      ]
+    },
+    {
+      "id": "jetsam_repeated_pressure",
+      "keywords": [
+        "JetsamEvent",
+        "highwater",
+        "vm-pageshortage",
+        "pageShortage",
+        "jettisoned"
+      ],
+      "category": "jetsam",
+      "component": "ram_chip",
+      "severity": "informational",
+      "confidence": 60,
+      "title": "Memory pressure — system killed background apps (Jetsam)",
+      "diagnosis": "iOS killed background apps to free RAM. This is normal behavior. Very frequent events may indicate insufficient RAM for the workload or an app with a memory leak.",
+      "probabilities": [
+        {
+          "cause": "Normal iOS memory management",
+          "percent": 70,
+          "description": "iOS kills background apps when foreground apps need RAM. Not a problem."
+        },
+        {
+          "cause": "Memory-hungry foreground app",
+          "percent": 20,
+          "description": "A specific app is consuming too much RAM. Identify and update it."
+        },
+        {
+          "cause": "RAM chip degradation (rare, older devices)",
+          "percent": 10,
+          "description": "Very old iPhones may show degraded RAM performance over time."
+        }
+      ],
+      "repair_steps": [
+        "1. Check which app triggers most jetsam events (Largest Process field)",
+        "2. Update or reinstall that app",
+        "3. Restart iPhone periodically"
+      ],
+      "test_procedure": [
+        "Note the 'largest process' in the crash details",
+        "Test device performance after closing that app"
+      ],
+      "models_affected": [
+        "iPhone*"
+      ],
+      "related_patterns": [
+        "app_crash_out_of_memory"
+      ]
+    },
+    {
+      "id": "gpu_hang_repeated",
+      "keywords": [
+        "GPUEvent",
+        "gpu hang",
+        "GPU Hang",
+        "AGXFirmware",
+        "firmware-detected lockup",
+        "gpuRestartReason"
+      ],
+      "category": "gpuEvent",
+      "component": "gpu_chip",
+      "severity": "hardware",
+      "confidence": 75,
+      "title": "GPU hang — graphics processor lockup",
+      "diagnosis": "The GPU locked up and required a forced restart. Isolated events may be software-related; repeated events suggest a hardware GPU or thermal issue.",
+      "probabilities": [
+        {
+          "cause": "GPU driver bug / app pushing GPU too hard",
+          "percent": 50,
+          "description": "Update iOS and the app causing GPU stress."
+        },
+        {
+          "cause": "Thermal throttling causing GPU instability",
+          "percent": 30,
+          "description": "Device overheating causes GPU errors. Check thermal events."
+        },
+        {
+          "cause": "GPU hardware fault",
+          "percent": 20,
+          "description": "GPU silicon defect or solder joint failure. Board repair required."
+        }
+      ],
+      "repair_steps": [
+        "1. Update iOS to latest version",
+        "2. Update the app triggering GPU events",
+        "3. Ensure device is not overheating during use",
+        "4. If frequent: professional board-level GPU repair"
+      ],
+      "test_procedure": [
+        "Test GPU-intensive tasks (games, video) after cooling device",
+        "Check for thermal events in the same time period"
+      ],
+      "models_affected": [
+        "iPhone*"
+      ],
+      "related_patterns": [
+        "thermal_shutdown",
+        "gpu_hang"
+      ]
+    },
+    {
+      "id": "ota_failure_hardware",
+      "keywords": [
+        "OTAEvent",
+        "restore_error",
+        "Error 4013",
+        "Error 4014",
+        "Error 9",
+        "Error 4005"
+      ],
+      "category": "otaUpdate",
+      "component": "nand_chip",
+      "severity": "hardware",
+      "confidence": 70,
+      "title": "OTA/restore failure — possible hardware issue",
+      "diagnosis": "The device failed during an OTA update or restore. Error 4013/4014/9 typically indicate a hardware problem with the dock connector, NAND chip, or logic board.",
+      "probabilities": [
+        {
+          "cause": "Dock connector / USB-C cable issue (Error 4013)",
+          "percent": 45,
+          "description": "Faulty cable or dock connector causing communication failure. Try original cable."
+        },
+        {
+          "cause": "NAND storage failure (Error 4014)",
+          "percent": 30,
+          "description": "NAND chip or controller failing. Board repair required."
+        },
+        {
+          "cause": "Baseband/cellular chip issue (Error 9)",
+          "percent": 15,
+          "description": "Baseband firmware update failed. Board repair."
+        },
+        {
+          "cause": "Software/connection issue",
+          "percent": 10,
+          "description": "Try different USB port, cable, and computer."
+        }
+      ],
+      "repair_steps": [
+        "1. Try with original Apple cable on a different USB port",
+        "2. Update iTunes/Finder to latest version",
+        "3. If Error 4013: inspect/replace dock connector",
+        "4. If Error 4014: professional NAND repair/replacement"
+      ],
+      "test_procedure": [
+        "Verify cable and computer connection",
+        "Check error code in OTA log",
+        "Attempt DFU restore"
+      ],
+      "models_affected": [
+        "iPhone*"
+      ],
+      "related_patterns": [
+        "ans2_panic",
+        "baseband_crash",
+        "tristar_failure"
+      ]
+    },
+    {
+      "id": "thermal_event_informational",
+      "keywords": [
+        "ThermalEvent",
+        "thermalState",
+        "thermalLevel"
+      ],
+      "category": "thermal",
+      "component": "thermal_management",
+      "severity": "informational",
+      "confidence": 55,
+      "title": "Thermal event — device temperature management",
+      "diagnosis": "iOS logged a thermal event to manage device temperature. Isolated events are normal during heavy workloads. Frequent events at idle may indicate a hardware thermal issue.",
+      "probabilities": [
+        {
+          "cause": "Normal thermal management under load",
+          "percent": 65,
+          "description": "Expected during gaming, video recording, charging. Not a problem."
+        },
+        {
+          "cause": "Specific app causing CPU/GPU overload",
+          "percent": 25,
+          "description": "Identify the process in thermal logs and update/replace it."
+        },
+        {
+          "cause": "Thermal sensor or cooling system fault",
+          "percent": 10,
+          "description": "Defective thermal sensor or damaged heat spreader. Hardware repair."
+        }
+      ],
+      "repair_steps": [
+        "1. Identify if thermal events occur during specific activities",
+        "2. Ensure device is not in a case that traps heat",
+        "3. Check for app consuming high CPU in the background",
+        "4. If device is hot at idle: suspect hardware thermal sensor issue"
+      ],
+      "test_procedure": [
+        "Monitor device temperature during idle vs load",
+        "Check which process is listed in thermal logs"
+      ],
+      "models_affected": [
+        "iPhone*"
+      ],
+      "related_patterns": [
+        "thermal_shutdown",
+        "thermalmonitord_watchdog"
+      ]
+    },
+    {
+      "id": "watchdog_daemon_generic",
+      "keywords": [
+        "no successful checkins from",
+        "watchdog timeout",
+        "CommCenter",
+        "nsurlsessiond"
+      ],
+      "category": "watchdog",
+      "component": "software",
+      "severity": "software",
+      "confidence": 60,
+      "title": "Watchdog timeout — system daemon did not respond",
+      "diagnosis": "A critical iOS system daemon failed to respond within the watchdog timeout, forcing a reboot. The specific daemon indicates which subsystem failed.",
+      "probabilities": [
+        {
+          "cause": "Software bug in the daemon",
+          "percent": 55,
+          "description": "iOS software issue. Update iOS."
+        },
+        {
+          "cause": "Hardware component served by that daemon is failing",
+          "percent": 35,
+          "description": "If the daemon manages hardware (audio, display, WiFi), the underlying hardware may be failing."
+        },
+        {
+          "cause": "Resource exhaustion (RAM, CPU)",
+          "percent": 10,
+          "description": "Device running too many processes. Restart and reduce load."
+        }
+      ],
+      "repair_steps": [
+        "1. Update iOS to latest version",
+        "2. Backup and restore iPhone via Finder/iTunes",
+        "3. Check the specific daemon — it indicates the failing subsystem"
+      ],
+      "test_procedure": [
+        "Note which daemon timed out",
+        "Cross-reference with other crash types in same time period"
+      ],
+      "models_affected": [
+        "iPhone*"
+      ],
+      "related_patterns": [
+        "watchdog_backboardd",
+        "watchdog_wifid",
+        "watchdog_mediaserverd",
+        "watchdog_springboard"
+      ]
     }
   ]
 }

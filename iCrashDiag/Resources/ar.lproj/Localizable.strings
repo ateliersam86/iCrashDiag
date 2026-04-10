@@ -1,0 +1,85 @@
+/* SidebarView */
+"Import Folder…" = "استيراد المجلد…";
+"Pull from iPhone" = "الحصول من iPhone";
+"Connected" = "متصل";
+"No logs loaded" = "لا توجد سجلات محملة";
+"Categories" = "الفئات";
+"Severity" = "الخطورة";
+"Devices" = "الأجهزة";
+"Stats" = "الإحصائيات";
+"Period" = "الفترة الزمنية";
+"Avg/day" = "المتوسط/اليوم";
+"History" = "السجل";
+"Recent Sessions" = "الجلسات الأخيرة";
+"All Crashes" = "جميع الأعطال";
+
+/* WelcomeView */
+"iPhone Crash Log Analyzer" = "محلل سجل أعطال iPhone";
+"Parse all .ips crash types" = "تحليل جميع أنواع أعطال .ips";
+"Kernel panics, Jetsam, watchdogs, GPU events, OTA failures" = "حالات الذعر في kernel، Jetsam، watchdogs، أحداث GPU، أعطال OTA";
+"Hardware vs software diagnosis" = "التشخيص الذي يفصل بين الأجهزة والبرامج";
+"Confidence scores, repair steps, test procedures" = "درجات الثقة، خطوات الإصلاح، إجراءات الاختبار";
+"Timeline & export" = "الجدول الزمني والتصدير";
+"Full report as Markdown or JSON for further analysis" = "تقرير كامل بصيغة Markdown أو JSON لمزيد من التحليل";
+"Import Crash Logs Folder…" = "استيراد مجلد السجلات…";
+"Pull from iPhone via USB" = "الحصول من iPhone عبر USB";
+"USB unavailable — install via: brew install libimobiledevice" = "USB غير متاح — التثبيت عبر: brew install libimobiledevice";
+"Tip: On your iPhone, go to Settings → Privacy → Analytics & Improvements → Analytics Data, then copy .ips files to a folder." = "نصيحة: على iPhone، انتقل إلى الإعدادات → الخصوصية → التحليلات والتحسينات → بيانات التحليلات، ثم انسخ ملفات .ips إلى مجلد.";
+
+/* WhatsNewView */
+"What's New in iCrashDiag" = "ما الجديد في iCrashDiag";
+"Continue" = "متابعة";
+"iCrashDiag 1.0" = "iCrashDiag 1.0";
+"Native macOS crash log analyzer for repair technicians." = "محلل سجل أعطال macOS الأصلي لفنيي الإصلاح.";
+"32 diagnostic patterns" = "32 نمط تشخيصي";
+"Covers kernel panics, watchdogs, sensor failures, GPU, NAND, audio IC, Face ID, NFC, UWB, and more." = "يغطي حالات الذعر في kernel، watchdogs، أعطال المستشعرات، GPU، NAND، IC الصوت، Face ID، NFC، UWB والمزيد.";
+"Progressive analysis" = "التحليل التدريجي";
+"Crash logs appear in real-time as they're parsed. Hardware vs software verdict with confidence score." = "تظهر سجلات الأعطال في الوقت الفعلي عند تحليلها. الحكم على الأجهزة مقابل البرامج مع درجة الثقة.";
+"USB extraction" = "استخراج USB";
+"Pull crash logs directly from a connected iPhone via libimobiledevice." = "احصل على سجلات الأعطال مباشرة من جهاز iPhone المتصل عبر libimobiledevice.";
+"Export Markdown & JSON" = "تصدير Markdown و JSON";
+"Full diagnosis report for clipboard, file, or AI analysis tools." = "تقرير تشخيص كامل للحافظة أو الملف أو أدوات تحليل الذكاء الاصطناعي.";
+"Auto-updating KB" = "قاعدة المعرفة ذات التحديث التلقائي";
+"New iPhone models and patterns fetched from GitHub without an app update." = "نماذج وأنماط iPhone جديدة تم جلبها من GitHub بدون تحديث التطبيق.";
+
+/* SettingsView */
+"General" = "عام";
+"Notifications" = "الإشعارات";
+"Knowledge Base" = "قاعدة المعرفة";
+"Export" = "تصدير";
+"About" = "حول";
+"Appearance" = "المظهر";
+"System" = "النظام";
+"Light" = "فاتح";
+"Dark" = "داكن";
+"Language" = "اللغة";
+"Restart the app to fully apply the language change." = "أعد تشغيل التطبيق لتطبيق تغيير اللغة بالكامل.";
+"USB Detection" = "الكشف عن USB";
+"Auto-detect iPhone via USB" = "الكشف التلقائي عن iPhone عبر USB";
+"Polls for connected devices every 3 seconds." = "يستطلع الأجهزة المتصلة كل 3 ثوان.";
+"System Notifications" = "إشعارات النظام";
+"iPhone connected" = "iPhone متصل";
+"Analysis complete" = "اكتمل التحليل";
+"Request Notification Permission" = "طلب إذن الإشعارات";
+"Permissions" = "الأذونات";
+"Updates" = "التحديثات";
+"Auto-update knowledge base on launch" = "تحديث قاعدة المعرفة تلقائياً عند البدء";
+"Current version" = "الإصدار الحالي";
+"Check for Updates Now" = "التحقق من التحديثات الآن";
+"Manual" = "يدويًا";
+"Checking…" = "جاري الفحص…";
+"Done — restart to apply." = "تم — أعد التشغيل للتطبيق.";
+"JSON Export" = "تصدير JSON";
+"Include raw .ips body in JSON export" = "تضمين نص .ips الخام في تصدير JSON";
+"Markdown and PDF exports always include the full diagnosis report." = "تصدير Markdown و PDF يتضمن دائماً تقرير التشخيص الكامل.";
+
+/* LoadingView */
+"Scanning…" = "جاري المسح…";
+"Parsing crash logs…" = "جاري تحليل سجلات الأعطال…";
+"Building analysis report…" = "جاري بناء تقرير التحليل…";
+"Complete" = "مكتمل";
+
+/* Notifications */
+"iPhone Connected" = "iPhone متصل";
+" is ready. Tap to pull crash logs." = " جاهز. اضغط لسحب سجلات الأعطال.";
+"Analysis Complete — %lld logs" = "اكتمل التحليل — %lld سجل";

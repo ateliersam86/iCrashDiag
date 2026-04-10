@@ -1,0 +1,85 @@
+/* SidebarView */
+"Import Folder…" = "Importar pasta…";
+"Pull from iPhone" = "Extrair do iPhone";
+"Connected" = "Conectado";
+"No logs loaded" = "Nenhum registro carregado";
+"Categories" = "Categorias";
+"Severity" = "Gravidade";
+"Devices" = "Dispositivos";
+"Stats" = "Estatísticas";
+"Period" = "Período";
+"Avg/day" = "Média/dia";
+"History" = "Histórico";
+"Recent Sessions" = "Sessões recentes";
+"All Crashes" = "Todos os travamentos";
+
+/* WelcomeView */
+"iPhone Crash Log Analyzer" = "Analisador de registro de falhas do iPhone";
+"Parse all .ips crash types" = "Analisar todos os tipos de falha .ips";
+"Kernel panics, Jetsam, watchdogs, GPU events, OTA failures" = "Pânico do kernel, Jetsam, watchdogs, eventos de GPU, falhas de OTA";
+"Hardware vs software diagnosis" = "Diagnóstico de hardware vs software";
+"Confidence scores, repair steps, test procedures" = "Pontuações de confiança, etapas de reparo, procedimentos de teste";
+"Timeline & export" = "Cronograma e exportação";
+"Full report as Markdown or JSON for further analysis" = "Relatório completo em Markdown ou JSON para análise posterior";
+"Import Crash Logs Folder…" = "Importar pasta de registros de falhas…";
+"Pull from iPhone via USB" = "Extrair do iPhone via USB";
+"USB unavailable — install via: brew install libimobiledevice" = "USB indisponível – instale via: brew install libimobiledevice";
+"Tip: On your iPhone, go to Settings → Privacy → Analytics & Improvements → Analytics Data, then copy .ips files to a folder." = "Dica: no seu iPhone, vá para Configurações → Privacidade → Análise e melhorias → Dados de análise e copie os arquivos .ips para uma pasta.";
+
+/* WhatsNewView */
+"What's New in iCrashDiag" = "Novidades no iCrashDiag";
+"Continue" = "Continuar";
+"iCrashDiag 1.0" = "iCrashDiag 1.0";
+"Native macOS crash log analyzer for repair technicians." = "Analisador nativo de registro de falhas macOS para técnicos de reparo.";
+"32 diagnostic patterns" = "32 padrões de diagnóstico";
+"Covers kernel panics, watchdogs, sensor failures, GPU, NAND, audio IC, Face ID, NFC, UWB, and more." = "Cobre pânico do kernel, watchdogs, falhas de sensor, GPU, NAND, CI de áudio, Face ID, NFC, UWB e muito mais.";
+"Progressive analysis" = "Análise progressiva";
+"Crash logs appear in real-time as they're parsed. Hardware vs software verdict with confidence score." = "Os registros de falha aparecem em tempo real conforme são analisados. Veredicto de hardware vs software com pontuação de confiança.";
+"USB extraction" = "Extração USB";
+"Pull crash logs directly from a connected iPhone via libimobiledevice." = "Extraia registros de falha diretamente de um iPhone conectado via libimobiledevice.";
+"Export Markdown & JSON" = "Exportar Markdown e JSON";
+"Full diagnosis report for clipboard, file, or AI analysis tools." = "Relatório de diagnóstico completo para área de transferência, arquivo ou ferramentas de análise de IA.";
+"Auto-updating KB" = "Base de conhecimento atualizada automaticamente";
+"New iPhone models and patterns fetched from GitHub without an app update." = "Novos modelos e padrões de iPhone obtidos do GitHub sem atualizar o aplicativo.";
+
+/* SettingsView */
+"General" = "Geral";
+"Notifications" = "Notificações";
+"Knowledge Base" = "Base de conhecimento";
+"Export" = "Exportar";
+"About" = "Sobre";
+"Appearance" = "Aparência";
+"System" = "Sistema";
+"Light" = "Claro";
+"Dark" = "Escuro";
+"Language" = "Idioma";
+"Restart the app to fully apply the language change." = "Reinicie o aplicativo para aplicar completamente a mudança de idioma.";
+"USB Detection" = "Detecção USB";
+"Auto-detect iPhone via USB" = "Detectar iPhone automaticamente via USB";
+"Polls for connected devices every 3 seconds." = "Pesquisa dispositivos conectados a cada 3 segundos.";
+"System Notifications" = "Notificações do sistema";
+"iPhone connected" = "iPhone conectado";
+"Analysis complete" = "Análise concluída";
+"Request Notification Permission" = "Solicitar permissão de notificação";
+"Permissions" = "Permissões";
+"Updates" = "Atualizações";
+"Auto-update knowledge base on launch" = "Atualizar base de conhecimento automaticamente ao iniciar";
+"Current version" = "Versão atual";
+"Check for Updates Now" = "Verificar atualizações agora";
+"Manual" = "Manual";
+"Checking…" = "Verificando…";
+"Done — restart to apply." = "Pronto – reinicie para aplicar.";
+"JSON Export" = "Exportação JSON";
+"Include raw .ips body in JSON export" = "Incluir corpo .ips bruto na exportação JSON";
+"Markdown and PDF exports always include the full diagnosis report." = "As exportações Markdown e PDF sempre incluem o relatório de diagnóstico completo.";
+
+/* LoadingView */
+"Scanning…" = "Digitalizando…";
+"Parsing crash logs…" = "Analisando registros de falha…";
+"Building analysis report…" = "Construindo relatório de análise…";
+"Complete" = "Completo";
+
+/* Notifications */
+"iPhone Connected" = "iPhone conectado";
+" is ready. Tap to pull crash logs." = " está pronto. Toque para extrair registros de falha.";
+"Analysis Complete — %lld logs" = "Análise concluída – %lld registros";

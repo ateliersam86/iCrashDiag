@@ -9,11 +9,40 @@ final class DiagnosisEngine: Sendable {
 
     func diagnose(crash: CrashLog) -> Diagnosis? {
         var searchText = ""
-        if let ps = crash.panicString { searchText += ps }
-        if let gpr = crash.gpuRestartReason { searchText += " " + gpr }
-        if !crash.missingSensors.isEmpty { searchText += " Missing sensor: " + crash.missingSensors.joined(separator: ", ") }
-        if let fs = crash.faultingService { searchText += " " + fs }
-        if crash.category == .jetsam { searchText += " JetsamEvent" }
+
+        // Common fields
+        if let ps = crash.panicString { searchText += ps + " " }
+        if !crash.missingSensors.isEmpty {
+            searchText += "Missing sensor: " + crash.missingSensors.joined(separator: ", ") + " "
+        }
+        if let fs = crash.faultingService { searchText += fs + " " }
+        if let gpr = crash.gpuRestartReason { searchText += gpr + " " }
+
+        // Category-specific enrichment
+        switch crash.category {
+        case .appCrash:
+            if let exc = crash.exceptionType { searchText += exc + " " }
+            if let term = crash.terminationReason { searchText += term + " " }
+            if let proc = crash.processName { searchText += proc + " " }
+        case .jetsam:
+            searchText += "JetsamEvent "
+            if let reason = crash.faultingService { searchText += reason + " jettisoned " }
+        case .gpuEvent:
+            searchText += "GPUEvent gpu hang "
+            if let proc = crash.processName { searchText += proc + " " }
+        case .thermal:
+            searchText += "ThermalEvent thermalState "
+            if let level = crash.faultingService { searchText += level + " " }
+        case .otaUpdate:
+            searchText += "OTAEvent "
+            if let err = crash.restoreError { searchText += "restore_error Error \(err) " }
+            if let stage = crash.faultingService { searchText += stage + " " }
+        case .watchdog:
+            searchText += "watchdog timeout "
+            if let proc = crash.faultingService { searchText += "no successful checkins from \(proc) " }
+        case .kernelPanic, .diskResource, .unknown:
+            break
+        }
 
         guard !searchText.isEmpty else { return nil }
 
@@ -35,9 +64,11 @@ final class DiagnosisEngine: Sendable {
     }
 
     func analyzeAll(crashes: [CrashLog]) -> AnalysisReport {
-        var diagnosedCrashes = crashes
-        for i in diagnosedCrashes.indices {
-            diagnosedCrashes[i].diagnosis = diagnose(crash: diagnosedCrashes[i])
+        // Skip re-diagnosis for crashes already diagnosed during streaming
+        var diagnosedCrashes = crashes.map { crash in
+            var c = crash
+            if c.diagnosis == nil { c.diagnosis = diagnose(crash: c) }
+            return c
         }
 
         let total = diagnosedCrashes.count

@@ -54,16 +54,32 @@ struct SidebarView: View {
             Divider()
 
             if viewModel.crashLogs.isEmpty {
-                Spacer()
-                VStack(spacing: 8) {
-                    Image(systemName: "tray")
-                        .font(.title2)
-                        .foregroundStyle(.tertiary)
-                    Text("No logs loaded")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
+                if viewModel.sessionHistory.isEmpty {
+                    Spacer()
+                    VStack(spacing: 8) {
+                        Image(systemName: "tray")
+                            .font(.title2)
+                            .foregroundStyle(.tertiary)
+                        Text("No logs loaded")
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
+                    }
+                    Spacer()
+                } else {
+                    List {
+                        Section("Recent Sessions") {
+                            ForEach(viewModel.sessionHistory) { session in
+                                SessionHistoryRow(session: session)
+                            }
+                            .onDelete { offsets in
+                                for i in offsets {
+                                    viewModel.deleteSession(id: viewModel.sessionHistory[i].id)
+                                }
+                            }
+                        }
+                    }
+                    .listStyle(.sidebar)
                 }
-                Spacer()
             } else {
                 List {
                     Section("Categories") {
@@ -71,10 +87,27 @@ struct SidebarView: View {
                             label: "All Crashes",
                             icon: "tray.full.fill",
                             count: viewModel.crashLogs.count,
-                            isSelected: viewModel.selectedCategory == nil && viewModel.selectedSeverity == nil
+                            isSelected: viewModel.selectedCategory == nil && viewModel.selectedSeverity == nil && !viewModel.showRebootsOnly
                         ) {
                             viewModel.selectedCategory = nil
                             viewModel.selectedSeverity = nil
+                            viewModel.showRebootsOnly = false
+                        }
+
+                        if viewModel.rebootCount > 0 {
+                            FilterRow(
+                                label: "Reboots Only",
+                                icon: "arrow.clockwise.circle.fill",
+                                count: viewModel.rebootCount,
+                                isSelected: viewModel.showRebootsOnly,
+                                accentColor: .red
+                            ) {
+                                viewModel.showRebootsOnly.toggle()
+                                if viewModel.showRebootsOnly {
+                                    viewModel.selectedCategory = nil
+                                    viewModel.selectedSeverity = nil
+                                }
+                            }
                         }
 
                         ForEach(viewModel.categoryCounters, id: \.0) { category, count in
@@ -173,6 +206,19 @@ struct SidebarView: View {
                             }
                         }
                     }
+
+                    if !viewModel.sessionHistory.isEmpty {
+                        Section("History") {
+                            ForEach(viewModel.sessionHistory.prefix(5)) { session in
+                                SessionHistoryRow(session: session)
+                            }
+                            .onDelete { offsets in
+                                for i in offsets {
+                                    viewModel.deleteSession(id: viewModel.sessionHistory[i].id)
+                                }
+                            }
+                        }
+                    }
                 }
                 .listStyle(.sidebar)
             }
@@ -183,7 +229,10 @@ struct SidebarView: View {
             allowedContentTypes: [.folder]
         ) { result in
             if case .success(let url) = result {
-                Task { await viewModel.importFolder(url: url) }
+                Task {
+                    await viewModel.importFolder(url: url)
+                    viewModel.startWatching(folder: url)
+                }
             }
         }
         .onAppear {
@@ -260,6 +309,45 @@ private struct DeviceCard: View {
     }
 }
 
+// MARK: - SessionHistoryRow
+
+private struct SessionHistoryRow: View {
+    let session: AnalysisSession
+
+    private static let dateFmt: RelativeDateTimeFormatter = {
+        let f = RelativeDateTimeFormatter()
+        f.unitsStyle = .abbreviated
+        return f
+    }()
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            HStack {
+                Text(session.sourceLabel)
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .lineLimit(1)
+                Spacer()
+                Text(Self.dateFmt.localizedString(for: session.date, relativeTo: .now))
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
+            HStack(spacing: 4) {
+                if let cat = session.topCategory {
+                    Image(systemName: cat.systemImage)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                Text(session.severitySummary)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+        }
+        .padding(.vertical, 2)
+    }
+}
+
 // MARK: - FilterRow
 
 private struct FilterRow: View {
@@ -267,6 +355,7 @@ private struct FilterRow: View {
     let icon: String
     let count: Int
     let isSelected: Bool
+    var accentColor: Color = .accentColor
     let action: () -> Void
 
     var body: some View {
@@ -274,12 +363,11 @@ private struct FilterRow: View {
             HStack(spacing: 8) {
                 Image(systemName: icon)
                     .font(.caption)
-                    .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
+                    .foregroundStyle(isSelected ? accentColor : Color.secondary)
                     .frame(width: 14)
                 Text(label)
                     .font(.callout)
                     .lineLimit(1)
-                    .foregroundStyle(isSelected ? .primary : .primary)
                 Spacer()
                 Text("\(count)")
                     .font(.caption)

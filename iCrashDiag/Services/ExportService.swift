@@ -81,6 +81,92 @@ struct ExportService: Sendable {
         return md
     }
 
+    func generateHTML(crashes: [CrashLog], report: AnalysisReport) -> String {
+        let md = generateMarkdown(crashes: crashes, report: report)
+        let body = mdToHTMLBody(md)
+        return """
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8">
+        <style>
+          body { font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 12px;
+                 line-height: 1.6; color: #1a1a1a; margin: 40px; }
+          h1 { font-size: 20px; color: #1a1a1a; border-bottom: 2px solid #e85d04; padding-bottom: 6px; }
+          h2 { font-size: 15px; color: #333; margin-top: 24px; }
+          h3 { font-size: 13px; color: #555; }
+          table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+          th { background: #f0f0f0; text-align: left; padding: 5px 8px; font-size: 11px; }
+          td { padding: 4px 8px; border-bottom: 1px solid #e0e0e0; font-size: 11px; }
+          code { background: #f6f6f6; padding: 1px 4px; border-radius: 3px; font-size: 11px; }
+          hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
+          strong { font-weight: 600; }
+          li { margin: 2px 0; }
+          .footer { color: #999; font-size: 10px; margin-top: 24px; }
+        </style>
+        </head>
+        <body>
+        \(body)
+        </body>
+        </html>
+        """
+    }
+
+    private func mdToHTMLBody(_ md: String) -> String {
+        var html = ""
+        let lines = md.components(separatedBy: "\n")
+        var inTable = false
+        var tableHeaderDone = false
+
+        for line in lines {
+            if line.hasPrefix("# ") {
+                html += "<h1>\(escapeHTML(String(line.dropFirst(2))))</h1>\n"
+            } else if line.hasPrefix("## ") {
+                html += "<h2>\(escapeHTML(String(line.dropFirst(3))))</h2>\n"
+            } else if line.hasPrefix("### ") {
+                html += "<h3>\(escapeHTML(String(line.dropFirst(4))))</h3>\n"
+            } else if line.hasPrefix("- **") || line.hasPrefix("- ") {
+                let content = String(line.dropFirst(2))
+                html += "<li>\(inlineMD(content))</li>\n"
+            } else if line.hasPrefix("**") {
+                html += "<p><strong>\(inlineMD(String(line.dropFirst(2).dropLast(2))))</strong></p>\n"
+            } else if line.hasPrefix("|") {
+                if !inTable { html += "<table>\n"; inTable = true; tableHeaderDone = false }
+                if line.contains("---") { tableHeaderDone = true; continue }
+                let cells = line.split(separator: "|").map { String($0).trimmingCharacters(in: .whitespaces) }
+                let tag = tableHeaderDone ? "td" : "th"
+                html += "<tr>" + cells.map { "<\(tag)>\(escapeHTML($0))</\(tag)>" }.joined() + "</tr>\n"
+                if !tableHeaderDone { tableHeaderDone = true }
+            } else if line == "---" {
+                if inTable { html += "</table>\n"; inTable = false }
+                html += "<hr>\n"
+            } else if line.trimmingCharacters(in: .whitespaces).isEmpty {
+                if inTable { html += "</table>\n"; inTable = false }
+                html += "<br>\n"
+            } else {
+                html += "<p>\(inlineMD(line))</p>\n"
+            }
+        }
+        if inTable { html += "</table>\n" }
+        return html
+    }
+
+    private func inlineMD(_ text: String) -> String {
+        var result = escapeHTML(text)
+        // Bold: **text**
+        while let r = result.range(of: #"\*\*(.+?)\*\*"#, options: .regularExpression) {
+            let inner = String(result[r]).dropFirst(2).dropLast(2)
+            result.replaceSubrange(r, with: "<strong>\(inner)</strong>")
+        }
+        return result
+    }
+
+    private func escapeHTML(_ text: String) -> String {
+        text.replacingOccurrences(of: "&", with: "&amp;")
+            .replacingOccurrences(of: "<", with: "&lt;")
+            .replacingOccurrences(of: ">", with: "&gt;")
+    }
+
     func generateJSON(crashes: [CrashLog], report: AnalysisReport) throws -> Data {
         let export = ExportPayload(generatedAt: Date(), appVersion: "1.0", report: report, crashes: crashes)
         let encoder = JSONEncoder()

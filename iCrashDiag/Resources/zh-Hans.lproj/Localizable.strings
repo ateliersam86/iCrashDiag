@@ -1,0 +1,85 @@
+/* SidebarView */
+"Import Folder…" = "导入文件夹…";
+"Pull from iPhone" = "从iPhone提取";
+"Connected" = "已连接";
+"No logs loaded" = "未加载日志";
+"Categories" = "类别";
+"Severity" = "严重程度";
+"Devices" = "设备";
+"Stats" = "统计";
+"Period" = "时期";
+"Avg/day" = "平均/天";
+"History" = "历史记录";
+"Recent Sessions" = "最近的会话";
+"All Crashes" = "所有崩溃";
+
+/* WelcomeView */
+"iPhone Crash Log Analyzer" = "iPhone崩溃日志分析器";
+"Parse all .ips crash types" = "分析所有.ips崩溃类型";
+"Kernel panics, Jetsam, watchdogs, GPU events, OTA failures" = "内核崩溃、Jetsam、看门狗、GPU事件、OTA故障";
+"Hardware vs software diagnosis" = "硬件vs软件诊断";
+"Confidence scores, repair steps, test procedures" = "置信度评分、修复步骤、测试程序";
+"Timeline & export" = "时间线和导出";
+"Full report as Markdown or JSON for further analysis" = "以Markdown或JSON格式的完整报告供进一步分析";
+"Import Crash Logs Folder…" = "导入崩溃日志文件夹…";
+"Pull from iPhone via USB" = "通过USB从iPhone提取";
+"USB unavailable — install via: brew install libimobiledevice" = "USB不可用 — 通过以下方式安装:brew install libimobiledevice";
+"Tip: On your iPhone, go to Settings → Privacy → Analytics & Improvements → Analytics Data, then copy .ips files to a folder." = "提示:在iPhone上,前往设置 → 隐私 → 分析和改进 → 分析数据,然后将.ips文件复制到文件夹。";
+
+/* WhatsNewView */
+"What's New in iCrashDiag" = "iCrashDiag中的新增功能";
+"Continue" = "继续";
+"iCrashDiag 1.0" = "iCrashDiag 1.0";
+"Native macOS crash log analyzer for repair technicians." = "为维修技术人员提供的本机macOS崩溃日志分析器。";
+"32 diagnostic patterns" = "32种诊断模式";
+"Covers kernel panics, watchdogs, sensor failures, GPU, NAND, audio IC, Face ID, NFC, UWB, and more." = "涵盖内核崩溃、看门狗、传感器故障、GPU、NAND、音频IC、Face ID、NFC、UWB等。";
+"Progressive analysis" = "渐进分析";
+"Crash logs appear in real-time as they're parsed. Hardware vs software verdict with confidence score." = "崩溃日志在解析时实时显示。硬件vs软件判决,带有置信度评分。";
+"USB extraction" = "USB提取";
+"Pull crash logs directly from a connected iPhone via libimobiledevice." = "通过libimobiledevice直接从连接的iPhone提取崩溃日志。";
+"Export Markdown & JSON" = "导出Markdown和JSON";
+"Full diagnosis report for clipboard, file, or AI analysis tools." = "用于剪贴板、文件或AI分析工具的完整诊断报告。";
+"Auto-updating KB" = "自动更新知识库";
+"New iPhone models and patterns fetched from GitHub without an app update." = "从GitHub获取的新iPhone型号和模式,无需应用更新。";
+
+/* SettingsView */
+"General" = "一般";
+"Notifications" = "通知";
+"Knowledge Base" = "知识库";
+"Export" = "导出";
+"About" = "关于";
+"Appearance" = "外观";
+"System" = "系统";
+"Light" = "浅色";
+"Dark" = "深色";
+"Language" = "语言";
+"Restart the app to fully apply the language change." = "重新启动应用以完全应用语言更改。";
+"USB Detection" = "USB检测";
+"Auto-detect iPhone via USB" = "通过USB自动检测iPhone";
+"Polls for connected devices every 3 seconds." = "每3秒轮询一次连接的设备。";
+"System Notifications" = "系统通知";
+"iPhone connected" = "iPhone已连接";
+"Analysis complete" = "分析完成";
+"Request Notification Permission" = "请求通知权限";
+"Permissions" = "权限";
+"Updates" = "更新";
+"Auto-update knowledge base on launch" = "启动时自动更新知识库";
+"Current version" = "当前版本";
+"Check for Updates Now" = "立即检查更新";
+"Manual" = "手动";
+"Checking…" = "检查中…";
+"Done — restart to apply." = "完成 — 重新启动以应用。";
+"JSON Export" = "JSON导出";
+"Include raw .ips body in JSON export" = "在JSON导出中包含原始.ips正文";
+"Markdown and PDF exports always include the full diagnosis report." = "Markdown和PDF导出始终包含完整诊断报告。";
+
+/* LoadingView */
+"Scanning…" = "扫描中…";
+"Parsing crash logs…" = "正在解析崩溃日志…";
+"Building analysis report…" = "正在构建分析报告…";
+"Complete" = "完成";
+
+/* Notifications */
+"iPhone Connected" = "iPhone已连接";
+" is ready. Tap to pull crash logs." = " 已准备好。点击以提取崩溃日志。";
+"Analysis Complete — %lld logs" = "分析完成 — %lld条日志";

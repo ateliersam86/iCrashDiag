@@ -1,0 +1,85 @@
+/* SidebarView */
+"Import Folder…" = "Import Folder…";
+"Pull from iPhone" = "Pull from iPhone";
+"Connected" = "Connected";
+"No logs loaded" = "No logs loaded";
+"Categories" = "Categories";
+"Severity" = "Severity";
+"Devices" = "Devices";
+"Stats" = "Stats";
+"Period" = "Period";
+"Avg/day" = "Avg/day";
+"History" = "History";
+"Recent Sessions" = "Recent Sessions";
+"All Crashes" = "All Crashes";
+
+/* WelcomeView */
+"iPhone Crash Log Analyzer" = "iPhone Crash Log Analyzer";
+"Parse all .ips crash types" = "Parse all .ips crash types";
+"Kernel panics, Jetsam, watchdogs, GPU events, OTA failures" = "Kernel panics, Jetsam, watchdogs, GPU events, OTA failures";
+"Hardware vs software diagnosis" = "Hardware vs software diagnosis";
+"Confidence scores, repair steps, test procedures" = "Confidence scores, repair steps, test procedures";
+"Timeline & export" = "Timeline & export";
+"Full report as Markdown or JSON for further analysis" = "Full report as Markdown or JSON for further analysis";
+"Import Crash Logs Folder…" = "Import Crash Logs Folder…";
+"Pull from iPhone via USB" = "Pull from iPhone via USB";
+"USB unavailable — install via: brew install libimobiledevice" = "USB unavailable — install via: brew install libimobiledevice";
+"Tip: On your iPhone, go to Settings → Privacy → Analytics & Improvements → Analytics Data, then copy .ips files to a folder." = "Tip: On your iPhone, go to Settings → Privacy → Analytics & Improvements → Analytics Data, then copy .ips files to a folder.";
+
+/* WhatsNewView */
+"What's New in iCrashDiag" = "What's New in iCrashDiag";
+"Continue" = "Continue";
+"iCrashDiag 1.0" = "iCrashDiag 1.0";
+"Native macOS crash log analyzer for repair technicians." = "Native macOS crash log analyzer for repair technicians.";
+"32 diagnostic patterns" = "32 diagnostic patterns";
+"Covers kernel panics, watchdogs, sensor failures, GPU, NAND, audio IC, Face ID, NFC, UWB, and more." = "Covers kernel panics, watchdogs, sensor failures, GPU, NAND, audio IC, Face ID, NFC, UWB, and more.";
+"Progressive analysis" = "Progressive analysis";
+"Crash logs appear in real-time as they're parsed. Hardware vs software verdict with confidence score." = "Crash logs appear in real-time as they're parsed. Hardware vs software verdict with confidence score.";
+"USB extraction" = "USB extraction";
+"Pull crash logs directly from a connected iPhone via libimobiledevice." = "Pull crash logs directly from a connected iPhone via libimobiledevice.";
+"Export Markdown & JSON" = "Export Markdown & JSON";
+"Full diagnosis report for clipboard, file, or AI analysis tools." = "Full diagnosis report for clipboard, file, or AI analysis tools.";
+"Auto-updating KB" = "Auto-updating KB";
+"New iPhone models and patterns fetched from GitHub without an app update." = "New iPhone models and patterns fetched from GitHub without an app update.";
+
+/* SettingsView */
+"General" = "General";
+"Notifications" = "Notifications";
+"Knowledge Base" = "Knowledge Base";
+"Export" = "Export";
+"About" = "About";
+"Appearance" = "Appearance";
+"System" = "System";
+"Light" = "Light";
+"Dark" = "Dark";
+"Language" = "Language";
+"Restart the app to fully apply the language change." = "Restart the app to fully apply the language change.";
+"USB Detection" = "USB Detection";
+"Auto-detect iPhone via USB" = "Auto-detect iPhone via USB";
+"Polls for connected devices every 3 seconds." = "Polls for connected devices every 3 seconds.";
+"System Notifications" = "System Notifications";
+"iPhone connected" = "iPhone connected";
+"Analysis complete" = "Analysis complete";
+"Request Notification Permission" = "Request Notification Permission";
+"Permissions" = "Permissions";
+"Updates" = "Updates";
+"Auto-update knowledge base on launch" = "Auto-update knowledge base on launch";
+"Current version" = "Current version";
+"Check for Updates Now" = "Check for Updates Now";
+"Manual" = "Manual";
+"Checking…" = "Checking…";
+"Done — restart to apply." = "Done — restart to apply.";
+"JSON Export" = "JSON Export";
+"Include raw .ips body in JSON export" = "Include raw .ips body in JSON export";
+"Markdown and PDF exports always include the full diagnosis report." = "Markdown and PDF exports always include the full diagnosis report.";
+
+/* LoadingView */
+"Scanning…" = "Scanning…";
+"Parsing crash logs…" = "Parsing crash logs…";
+"Building analysis report…" = "Building analysis report…";
+"Complete" = "Complete";
+
+/* Notifications */
+"iPhone Connected" = "iPhone Connected";
+" is ready. Tap to pull crash logs." = " is ready. Tap to pull crash logs.";
+"Analysis Complete — %lld logs" = "Analysis Complete — %lld logs";

@@ -31,11 +31,17 @@ struct CrashRowView: View {
                             .font(.system(size: 11))
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
-                    } else if let proc = crash.processName {
-                        Text(proc)
-                            .font(.system(size: 11))
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
+                    } else {
+                        // Show process name OR device model as subtitle
+                        let subtitle = crash.processName
+                            ?? crash.deviceName
+                            ?? (crash.deviceModel == "Unknown" ? nil : crash.deviceModel)
+                        if let subtitle {
+                            Text(subtitle)
+                                .font(.system(size: 11))
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                        }
                     }
 
                     Spacer()

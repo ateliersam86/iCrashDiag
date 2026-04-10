@@ -51,35 +51,71 @@ struct CrashDetailView: View {
                         .font(.subheadline)
                         .fontWeight(.semibold)
 
-                    LabeledContent("Model", value: crash.deviceName ?? crash.deviceModel)
+                    let modelLabel = crash.deviceName
+                        ?? (crash.deviceModel == "Unknown" ? nil : crash.deviceModel)
+                        ?? "Unknown"
+                    LabeledContent("Model", value: modelLabel)
                     LabeledContent("iOS", value: crash.osVersion)
+                    if let build = crash.buildVersion {
+                        LabeledContent("Build", value: build)
+                    }
                     LabeledContent("Date", value: crash.timestamp.formatted(date: .abbreviated, time: .shortened))
                     LabeledContent("File", value: crash.fileName)
-                    LabeledContent("Bug Type", value: "\(crash.bugType)")
-
-                    if !crash.missingSensors.isEmpty {
-                        LabeledContent("Missing Sensors", value: crash.missingSensors.joined(separator: ", "))
-                    }
-                    if let fs = crash.faultingService {
-                        LabeledContent("Faulting Service", value: fs)
-                    }
-                    if let proc = crash.processName {
-                        LabeledContent("Process", value: proc)
-                    }
-                    if let exc = crash.exceptionType {
-                        LabeledContent("Exception", value: exc)
-                    }
-                    if let gpu = crash.gpuRestartReason {
-                        LabeledContent("GPU Reason", value: gpu)
-                    }
-                    if let err = crash.restoreError {
-                        LabeledContent("Restore Error", value: "\(err)")
-                    }
-                    if let lp = crash.largestProcess {
-                        LabeledContent("Largest Process", value: lp)
-                    }
+                    LabeledContent("Category", value: crash.category.rawValue)
                 }
                 .font(.caption)
+
+                // Category-specific details
+                let hasCategoryDetails = !crash.missingSensors.isEmpty
+                    || crash.faultingService != nil
+                    || crash.processName != nil
+                    || crash.exceptionType != nil
+                    || crash.terminationReason != nil
+                    || crash.gpuRestartReason != nil
+                    || crash.restoreError != nil
+                    || crash.largestProcess != nil
+                    || crash.freePages != nil
+
+                if hasCategoryDetails {
+                    Divider()
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Crash Details")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+
+                        if let proc = crash.processName {
+                            LabeledContent(crash.category == .jetsam ? "Killed Process" : "Process", value: proc)
+                        }
+                        if let exc = crash.exceptionType {
+                            LabeledContent("Exception", value: exc)
+                        }
+                        if let term = crash.terminationReason {
+                            LabeledContent("Termination", value: term)
+                        }
+                        if !crash.missingSensors.isEmpty {
+                            LabeledContent("Missing Sensors", value: crash.missingSensors.joined(separator: ", "))
+                        }
+                        if let fs = crash.faultingService {
+                            let label = crash.category == .jetsam ? "Jetsam Reason"
+                                : crash.category == .thermal ? "Thermal State"
+                                : "Faulting Service"
+                            LabeledContent(label, value: fs)
+                        }
+                        if let gpu = crash.gpuRestartReason {
+                            LabeledContent("GPU Reason", value: gpu)
+                        }
+                        if let err = crash.restoreError {
+                            LabeledContent("Restore Error", value: "\(err)")
+                        }
+                        if let lp = crash.largestProcess {
+                            LabeledContent("Largest Process", value: lp)
+                        }
+                        if let fp = crash.freePages {
+                            LabeledContent("Free Memory Pages", value: "\(fp)")
+                        }
+                    }
+                    .font(.caption)
+                }
 
                 Divider()
 

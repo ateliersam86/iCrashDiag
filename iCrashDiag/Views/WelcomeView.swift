@@ -143,7 +143,10 @@ struct WelcomeView: View {
             allowedContentTypes: [.folder]
         ) { result in
             if case .success(let url) = result {
-                Task { await viewModel.importFolder(url: url) }
+                Task {
+                    await viewModel.importFolder(url: url)
+                    viewModel.startWatching(folder: url)
+                }
             }
         }
     }
