@@ -3575,48 +3575,6 @@
       ]
     },
     {
-      "id": "jetsam_zone_map",
-      "keywords": [
-        "zone_map_exhaustion",
-        "zone_map",
-        "zinit exhausted"
-      ],
-      "category": "jetsam",
-      "component": "kernel_zones",
-      "severity": "software",
-      "confidence": 82,
-      "title": "Jetsam: kernel zone map exhaustion",
-      "diagnosis": "Kernel memory zone map (used for kernel object allocation) ran out of space. Can cause cascading panics or jetsam.",
-      "probabilities": [
-        {
-          "cause": "Kernel memory leak (driver)",
-          "percent": 55,
-          "description": "Driver allocating from a zone without freeing."
-        },
-        {
-          "cause": "App opening too many file descriptors",
-          "percent": 25,
-          "description": "vnode/socket zone exhausted by many open files."
-        },
-        {
-          "cause": "Mach port leak",
-          "percent": 20,
-          "description": "App creating Mach ports without releasing them."
-        }
-      ],
-      "repair_steps": [
-        "Restart device",
-        "Update iOS",
-        "Identify and update leaking app"
-      ],
-      "test_procedure": [
-        "Restart device",
-        "Identify app consuming zone entries"
-      ],
-      "models_affected": [],
-      "related_patterns": []
-    },
-    {
       "id": "jetsam_memorystatus_kill",
       "keywords": [
         "memorystatus_kill",
@@ -6290,49 +6248,6 @@
       ]
     },
     {
-      "id": "restore_sep_update",
-      "keywords": [
-        "SEP firmware update failed",
-        "SEPROM update",
-        "Secure Enclave restore"
-      ],
-      "category": "otaUpdate",
-      "component": "sep",
-      "severity": "hardware",
-      "confidence": 88,
-      "title": "SEP firmware restore failed — Secure Enclave update error",
-      "diagnosis": "DFU restore successfully wrote iOS but failed to update SEP (Secure Enclave Processor) firmware. Device may not boot or lose biometric functionality.",
-      "probabilities": [
-        {
-          "cause": "SEP NVM flash error",
-          "percent": 50,
-          "description": "SEP internal NVM cannot be written during restore."
-        },
-        {
-          "cause": "Power interruption during SEP flash",
-          "percent": 30,
-          "description": "Critical phase of SEP programming was interrupted."
-        },
-        {
-          "cause": "SEP hardware fault",
-          "percent": 20,
-          "description": "SEP hardware failure preventing firmware write."
-        }
-      ],
-      "repair_steps": [
-        "Retry DFU restore with full battery and stable USB",
-        "If persistent: SEP hardware fault — logic board replacement"
-      ],
-      "test_procedure": [
-        "Retry DFU restore 3 times",
-        "Each time: full charge, stable cable, direct USB port"
-      ],
-      "models_affected": [],
-      "related_patterns": [
-        "sep_update_failure"
-      ]
-    },
-    {
       "id": "restore_error_4002",
       "keywords": [
         "error 4002",
@@ -7911,53 +7826,6 @@
       ]
     },
     {
-      "id": "ota_error_4013",
-      "keywords": [
-        "4013",
-        "error 4013",
-        "restore error 4013",
-        "iTunes error 4013"
-      ],
-      "category": "otaUpdate",
-      "component": "restore_usb",
-      "severity": "hardware",
-      "confidence": 85,
-      "title": "Restore error 4013 — USB communication failure during restore",
-      "diagnosis": "iTunes/Finder restore error 4013 indicates the device lost USB connection during firmware restoration, preventing successful restore. Common with hardware-level connectivity issues.",
-      "probabilities": [
-        {
-          "cause": "Lightning/USB-C port hardware fault",
-          "percent": 45,
-          "description": "Damaged charging port causing intermittent USB data connection."
-        },
-        {
-          "cause": "USB cable/hub fault",
-          "percent": 30,
-          "description": "Faulty USB cable or hub causing dropped connection during restore."
-        },
-        {
-          "cause": "Tristar/Hydra chip fault",
-          "percent": 25,
-          "description": "USB multiplexer IC failing during high-bandwidth restore transfer."
-        }
-      ],
-      "repair_steps": [
-        "Try different Apple Lightning/USB-C to USB-A cable",
-        "Connect directly to Mac USB-A port (no hub)",
-        "Try different Mac/PC",
-        "If persists: port or Tristar IC replacement"
-      ],
-      "test_procedure": [
-        "Use Apple-original cable directly in Mac USB-A port",
-        "Check if iPhone recognised in Finder before starting restore"
-      ],
-      "models_affected": [],
-      "related_patterns": [
-        "tristar_failure",
-        "ota_failure_hardware"
-      ]
-    },
-    {
       "id": "ota_error_4014",
       "keywords": [
         "4014",
@@ -8048,53 +7916,6 @@
       "models_affected": [],
       "related_patterns": [
         "ota_failure_hardware"
-      ]
-    },
-    {
-      "id": "ota_error_9",
-      "keywords": [
-        "error 9",
-        "restore error 9",
-        "iTunes error 9",
-        "device timeout error 9"
-      ],
-      "category": "otaUpdate",
-      "component": "restore_dfu",
-      "severity": "hardware",
-      "confidence": 83,
-      "title": "Restore error 9 — device timeout during DFU restore",
-      "diagnosis": "Error 9 indicates the device timed out or the USB connection was interrupted during the critical DFU firmware flash phase, failing the restore.",
-      "probabilities": [
-        {
-          "cause": "USB connection instability during restore",
-          "percent": 50,
-          "description": "Device lost USB connection during firmware transfer."
-        },
-        {
-          "cause": "Logic board hardware fault causing reset during flash",
-          "percent": 30,
-          "description": "Device hardware fault causing it to reset mid-restore."
-        },
-        {
-          "cause": "Security software interrupting restore",
-          "percent": 20,
-          "description": "Antivirus or MDM software interrupted USB communication."
-        }
-      ],
-      "repair_steps": [
-        "Use Apple-original cable, connect directly to Mac USB-A port",
-        "Disable antivirus during restore",
-        "Try DFU mode instead of normal recovery mode",
-        "If hardware fault: board-level diagnosis"
-      ],
-      "test_procedure": [
-        "Enter DFU mode (not recovery mode) for restore attempt",
-        "Verify cable firmly connected throughout entire restore"
-      ],
-      "models_affected": [],
-      "related_patterns": [
-        "ota_failure_hardware",
-        "ota_error_4013"
       ]
     },
     {
@@ -8860,98 +8681,6 @@
       "models_affected": [],
       "related_patterns": [
         "camera_isp_panic"
-      ]
-    },
-    {
-      "id": "kernel_bus_error_alignment",
-      "keywords": [
-        "BUS_ADRALN",
-        "EXC_BAD_ACCESS (SIGBUS)",
-        "unaligned memory access",
-        "alignment fault"
-      ],
-      "category": "kernelPanic",
-      "component": "kernel_memory",
-      "severity": "software",
-      "confidence": 82,
-      "title": "Unaligned memory access (BUS_ADRALN)",
-      "diagnosis": "A kernel or app-level access occurred at a misaligned address. ARM strictly requires aligned loads/stores for certain instruction types; misaligned access triggers a SIGBUS.",
-      "probabilities": [
-        {
-          "cause": "C struct packed without proper alignment",
-          "percent": 50,
-          "description": "__attribute__((packed)) struct member accessed directly."
-        },
-        {
-          "cause": "Misaligned DMA buffer",
-          "percent": 30,
-          "description": "Driver sets up DMA to a non-aligned memory region."
-        },
-        {
-          "cause": "Inter-operability with unaligned C data",
-          "percent": 20,
-          "description": "Deserialised binary data at odd address cast to pointer."
-        }
-      ],
-      "repair_steps": [
-        "Update iOS and affected app",
-        "Developer: use memcpy() for unaligned reads",
-        "Report crash to developer with full log"
-      ],
-      "test_procedure": [
-        "Check faulting address for alignment (odd address for 16/32-bit type)",
-        "Note SIGBUS code BUS_ADRALN in crash header"
-      ],
-      "models_affected": [],
-      "related_patterns": [
-        "kernel_data_abort"
-      ]
-    },
-    {
-      "id": "kernel_synchronous_external_abort",
-      "keywords": [
-        "synchronous external abort",
-        "SEA",
-        "serror",
-        "system error abort",
-        "external abort"
-      ],
-      "category": "kernelPanic",
-      "component": "kernel_bus",
-      "severity": "hardware",
-      "confidence": 80,
-      "title": "Synchronous External Abort (hardware bus fault)",
-      "diagnosis": "An ARM Synchronous External Abort (SEA) was raised, indicating a hardware-level error on the system bus — often memory controller, fabric interconnect, or cache error.",
-      "probabilities": [
-        {
-          "cause": "DRAM / LPDDR integrity error",
-          "percent": 45,
-          "description": "Memory subsystem returned an uncorrectable error."
-        },
-        {
-          "cause": "MMIO access to unpowered peripheral",
-          "percent": 35,
-          "description": "Driver accessed a memory-mapped register while peripheral was powered off."
-        },
-        {
-          "cause": "PCIe / fabric interconnect transient",
-          "percent": 20,
-          "description": "Transient error on Apple internal high-speed bus fabric."
-        }
-      ],
-      "repair_steps": [
-        "Update iOS",
-        "If hardware error: check for physical damage",
-        "Apple service / component-level repair if recurring"
-      ],
-      "test_procedure": [
-        "Look for 'synchronous external abort' or 'SEA' in panic text",
-        "Check if panic correlates with specific app or thermal condition"
-      ],
-      "models_affected": [],
-      "related_patterns": [
-        "kernel_data_abort",
-        "smc_panic_assertion"
       ]
     },
     {
@@ -9747,53 +9476,6 @@
       ]
     },
     {
-      "id": "gpu_iosurface_fault",
-      "keywords": [
-        "IOSurface",
-        "IOSurfaceRoot",
-        "IOSurface mach port",
-        "IOSurfaceAccelerator",
-        "surface alloc failed"
-      ],
-      "category": "gpuEvent",
-      "component": "iosurface",
-      "severity": "software",
-      "confidence": 80,
-      "title": "IOSurface GPU memory allocation fault",
-      "diagnosis": "IOSurface (the shared GPU/CPU memory buffer system) encountered an allocation failure or memory fault, impacting rendering pipeline and causing crash.",
-      "probabilities": [
-        {
-          "cause": "GPU memory exhausted — IOSurface alloc failed",
-          "percent": 55,
-          "description": "Too many large IOSurface buffers allocated simultaneously."
-        },
-        {
-          "cause": "IOSurface port leaked — Mach port exhaustion",
-          "percent": 25,
-          "description": "IOSurface Mach ports leaked until task port limit reached."
-        },
-        {
-          "cause": "IOSurface cross-process access violation",
-          "percent": 20,
-          "description": "App attempted to access another process's IOSurface without permission."
-        }
-      ],
-      "repair_steps": [
-        "Update app and iOS",
-        "Force quit memory-heavy apps",
-        "Restart iPhone to clear GPU memory state"
-      ],
-      "test_procedure": [
-        "Check crash log for 'IOSurface' in faulting thread",
-        "Test with fewer simultaneous apps using GPU"
-      ],
-      "models_affected": [],
-      "related_patterns": [
-        "gpu_hang",
-        "gpu_agx_firmware_hang"
-      ]
-    },
-    {
       "id": "gpu_metal_shader_compile",
       "keywords": [
         "MTLCompileShader",
@@ -10079,64 +9761,6 @@
       ]
     },
     {
-      "id": "baseband_qualcomm_x55_x65",
-      "keywords": [
-        "Qualcomm",
-        "X55",
-        "X65",
-        "QCom modem",
-        "MDM9250",
-        "SDX55",
-        "SDX65"
-      ],
-      "category": "kernelPanic",
-      "component": "qualcomm_modem",
-      "severity": "hardware",
-      "confidence": 80,
-      "title": "Qualcomm X55/X65 5G baseband fault",
-      "diagnosis": "The Qualcomm X55 (iPhone 12 series) or X65 (iPhone 13-14 series) 5G modem encountered a firmware crash or hardware fault, causing cellular connectivity loss or device crash.",
-      "probabilities": [
-        {
-          "cause": "5G mmWave sub-6 state machine fault",
-          "percent": 40,
-          "description": "5G band switching caused modem state machine to enter undefined state."
-        },
-        {
-          "cause": "Modem overheating under sustained data",
-          "percent": 30,
-          "description": "Qualcomm modem thermal throttle causing firmware timeout."
-        },
-        {
-          "cause": "SIM APDU communication error",
-          "percent": 30,
-          "description": "SIM card interface error causing modem authentication failure."
-        }
-      ],
-      "repair_steps": [
-        "Toggle Airplane mode, update carrier settings",
-        "Disable 5G (Settings > Cellular > Voice & Data > LTE) temporarily",
-        "Update iOS, DFU restore if persistent"
-      ],
-      "test_procedure": [
-        "Test with 5G disabled to isolate 5G band switching issue",
-        "Check if crash correlates with switching between 5G and LTE"
-      ],
-      "models_affected": [
-        "iPhone13,1",
-        "iPhone13,2",
-        "iPhone13,3",
-        "iPhone13,4",
-        "iPhone14,2",
-        "iPhone14,3",
-        "iPhone14,4",
-        "iPhone14,5"
-      ],
-      "related_patterns": [
-        "baseband_crash",
-        "kernel_wmr_panic"
-      ]
-    },
-    {
       "id": "baseband_sim_error",
       "keywords": [
         "SIM",
@@ -10180,53 +9804,6 @@
       "models_affected": [],
       "related_patterns": [
         "baseband_crash"
-      ]
-    },
-    {
-      "id": "baseband_no_service",
-      "keywords": [
-        "no service",
-        "radio frequency",
-        "RF calibration",
-        "RFFE",
-        "antenna switch"
-      ],
-      "category": "kernelPanic",
-      "component": "rf_frontend",
-      "severity": "hardware",
-      "confidence": 78,
-      "title": "RF frontend / antenna fault causing no service",
-      "diagnosis": "The RF front-end (antenna switch, PA module, or RFFE interface) has a hardware fault, resulting in persistent 'No Service' and potentially baseband crashes.",
-      "probabilities": [
-        {
-          "cause": "Antenna flex cable damaged (drop damage)",
-          "percent": 50,
-          "description": "Cellular antenna flex cable damaged from impact or bending."
-        },
-        {
-          "cause": "RF power amplifier IC failure",
-          "percent": 30,
-          "description": "RFFE PA module failed — common after liquid damage."
-        },
-        {
-          "cause": "Baseband RF calibration data corrupted",
-          "percent": 20,
-          "description": "NVM RF calibration data corrupted requiring reflash."
-        }
-      ],
-      "repair_steps": [
-        "Test in area with strong signal coverage",
-        "DFU restore to attempt RF calibration recovery",
-        "Board-level repair: RF PA module or antenna flex replacement"
-      ],
-      "test_procedure": [
-        "Check signal bar count and Field Test mode (*3001#12345#*)",
-        "Test outdoors with clear line of sight to cell tower"
-      ],
-      "models_affected": [],
-      "related_patterns": [
-        "baseband_crash",
-        "kernel_wmr_panic"
       ]
     },
     {
@@ -10371,61 +9948,6 @@
       ]
     },
     {
-      "id": "sep_touchid_failure",
-      "keywords": [
-        "TouchID",
-        "Touch ID",
-        "BKSBiometricKit",
-        "fingerprint sensor",
-        "touch id failed"
-      ],
-      "category": "kernelPanic",
-      "component": "touchid_sensor",
-      "severity": "hardware",
-      "confidence": 87,
-      "title": "Touch ID sensor failure / SEP communication fault",
-      "diagnosis": "Touch ID fingerprint recognition failed permanently. Either the sensor hardware is damaged, or the SEP pairing between the home button and main logic board is broken.",
-      "probabilities": [
-        {
-          "cause": "Home button sensor hardware damaged",
-          "percent": 45,
-          "description": "Touch ID sensor damaged by drop, water, or unauthorized repair."
-        },
-        {
-          "cause": "SEP pairing invalidated after screen/board repair",
-          "percent": 35,
-          "description": "Home button is paired to its original logic board; transplant breaks Touch ID."
-        },
-        {
-          "cause": "Touch ID flex cable fault",
-          "percent": 20,
-          "description": "Connector or flex cable between home button and logic board damaged."
-        }
-      ],
-      "repair_steps": [
-        "Test with original home button if available",
-        "Note: Touch ID component is paired — only Apple or official partner can restore",
-        "Disable Touch ID and use passcode only if hardware replacement not possible"
-      ],
-      "test_procedure": [
-        "Settings > Touch ID & Passcode — attempt fingerprint enrollment",
-        "Check if 'Touch ID is not available' error appears"
-      ],
-      "models_affected": [
-        "iPhone8,1",
-        "iPhone8,2",
-        "iPhone8,4",
-        "iPhone9,1",
-        "iPhone9,2",
-        "iPhone9,3",
-        "iPhone9,4"
-      ],
-      "related_patterns": [
-        "face_id_failure",
-        "sep_panic"
-      ]
-    },
-    {
       "id": "sep_amfi_violation",
       "keywords": [
         "AMFI",
@@ -10519,68 +10041,6 @@
       ]
     },
     {
-      "id": "sep_biometric_hardware",
-      "keywords": [
-        "biometric",
-        "FaceID",
-        "BiometricKit",
-        "flood illuminator",
-        "dot projector",
-        "infrared camera"
-      ],
-      "category": "kernelPanic",
-      "component": "truedepth_camera",
-      "severity": "hardware",
-      "confidence": 87,
-      "title": "Face ID TrueDepth hardware component failure",
-      "diagnosis": "One or more TrueDepth camera components (flood illuminator, dot projector, or IR camera) have failed, making Face ID permanently unavailable.",
-      "probabilities": [
-        {
-          "cause": "TrueDepth module damaged by drop/repair",
-          "percent": 55,
-          "description": "Physical impact or unauthorized screen replacement damaged TrueDepth module."
-        },
-        {
-          "cause": "TrueDepth flex cable connection fault",
-          "percent": 25,
-          "description": "Flex cable connector between TrueDepth and board loosened or damaged."
-        },
-        {
-          "cause": "TrueDepth component aging/delamination",
-          "percent": 20,
-          "description": "VCSEL array or structured light projector component failed from aging."
-        }
-      ],
-      "repair_steps": [
-        "Test Face ID in Settings > Face ID & Passcode",
-        "Only Apple or authorized service provider can replace TrueDepth module (paired component)",
-        "Use passcode as alternative"
-      ],
-      "test_procedure": [
-        "Settings > Face ID & Passcode > Set Up Face ID — check for hardware error",
-        "Note 'Face ID is not available' message"
-      ],
-      "models_affected": [
-        "iPhone10,3",
-        "iPhone10,6",
-        "iPhone11,2",
-        "iPhone11,4",
-        "iPhone11,6",
-        "iPhone12,1",
-        "iPhone12,3",
-        "iPhone13,2",
-        "iPhone13,3",
-        "iPhone14,2",
-        "iPhone14,3",
-        "iPhone15,2",
-        "iPhone15,3"
-      ],
-      "related_patterns": [
-        "face_id_failure",
-        "sep_applysep_panic"
-      ]
-    },
-    {
       "id": "pmu_spmi_fault",
       "keywords": [
         "SPMI",
@@ -10619,100 +10079,6 @@
       "test_procedure": [
         "Check for random shutdowns and charging issues alongside crash",
         "Monitor battery percentage stability"
-      ],
-      "models_affected": [],
-      "related_patterns": [
-        "pmu_failure",
-        "smc_panic_assertion"
-      ]
-    },
-    {
-      "id": "pmu_charging_fault",
-      "keywords": [
-        "AppleCharger",
-        "chgr",
-        "ACOK",
-        "vbus",
-        "charging fault",
-        "BMIC"
-      ],
-      "category": "kernelPanic",
-      "component": "charging_ic",
-      "severity": "hardware",
-      "confidence": 85,
-      "title": "Charging IC / BMIC hardware fault",
-      "diagnosis": "The battery management IC (BMIC/charger IC) reported a fault condition: VBUS anomaly, ACOK failure, or charger IC hardware fault preventing safe charging.",
-      "probabilities": [
-        {
-          "cause": "Charging IC (BQ25 / SN2671 / Hammerhead) hardware fault",
-          "percent": 50,
-          "description": "Charger IC failed — phone may not charge or charges erratically."
-        },
-        {
-          "cause": "Connector contamination / liquid damage",
-          "percent": 30,
-          "description": "Liquid in Lightning/USB-C port causing VBUS anomalies."
-        },
-        {
-          "cause": "Charger/cable supplying incorrect voltage",
-          "percent": 20,
-          "description": "Non-compliant charger triggering ACOK fault in charging IC."
-        }
-      ],
-      "repair_steps": [
-        "Clean Lightning/USB-C port with isopropyl alcohol",
-        "Test with Apple-certified cable and charger",
-        "If phone doesn't charge: charging IC replacement required"
-      ],
-      "test_procedure": [
-        "Test charging with Apple original cable and 20W adapter",
-        "Check if 'Charging Not Supported' alert appears with non-Apple accessories"
-      ],
-      "models_affected": [],
-      "related_patterns": [
-        "pmu_failure",
-        "tristar_failure"
-      ]
-    },
-    {
-      "id": "pmu_nopmi_fault",
-      "keywords": [
-        "nopmi",
-        "no PMI",
-        "PMI missing",
-        "power management interrupt missing"
-      ],
-      "category": "kernelPanic",
-      "component": "pmi_interrupt",
-      "severity": "hardware",
-      "confidence": 80,
-      "title": "Power Management Interrupt (PMI) missing fault",
-      "diagnosis": "The Power Management Interrupt (PMI) signal from the PMIC to the AP is missing or not asserted, preventing the kernel from receiving power state change notifications.",
-      "probabilities": [
-        {
-          "cause": "PMU/PMIC hardware fault — interrupt line dead",
-          "percent": 55,
-          "description": "PMU chip failed or interrupt pin open-circuit."
-        },
-        {
-          "cause": "PCB trace fault on PMI line",
-          "percent": 30,
-          "description": "Broken PCB trace carrying PMI interrupt signal."
-        },
-        {
-          "cause": "Firmware bug masking PMI",
-          "percent": 15,
-          "description": "iOS driver accidentally masking PMI interrupt."
-        }
-      ],
-      "repair_steps": [
-        "DFU restore to rule out firmware cause",
-        "Apple service / board-level PMU repair",
-        "Micro-soldering on PMI trace if trace fault confirmed"
-      ],
-      "test_procedure": [
-        "Check if random shutdowns accompany this crash",
-        "Test battery percentage reading stability"
       ],
       "models_affected": [],
       "related_patterns": [
@@ -10918,52 +10284,6 @@
       ]
     },
     {
-      "id": "sensor_accelerometer_fault",
-      "keywords": [
-        "accelerometer",
-        "STMicro",
-        "LIS3DH",
-        "LIS2DH",
-        "accelerometer not responding"
-      ],
-      "category": "kernelPanic",
-      "component": "accelerometer",
-      "severity": "hardware",
-      "confidence": 82,
-      "title": "Accelerometer sensor failure (STMicro / LIS series)",
-      "diagnosis": "The accelerometer (typically STMicroelectronics LIS2DH or similar) stopped responding on the I2C/SPI bus, causing motion sensing to fail and potentially triggering a kernel panic in the sensor stack.",
-      "probabilities": [
-        {
-          "cause": "Accelerometer IC damaged by drop",
-          "percent": 55,
-          "description": "Impact damage dislodged or cracked the accelerometer IC."
-        },
-        {
-          "cause": "I2C bus fault / solder joint failure",
-          "percent": 30,
-          "description": "I2C bus solder joint under accelerometer failed."
-        },
-        {
-          "cause": "Accelerometer firmware/configuration lost",
-          "percent": 15,
-          "description": "Power cycle corrupted IC configuration registers."
-        }
-      ],
-      "repair_steps": [
-        "Test rotation/auto-rotate functionality",
-        "Test motion in Compass app — accelerometer drives it",
-        "Board-level: accelerometer IC replacement under microscope"
-      ],
-      "test_procedure": [
-        "Open Compass app — should show level indicator responding to tilt",
-        "Open a game using tilt controls — verify response"
-      ],
-      "models_affected": [],
-      "related_patterns": [
-        "i2c_bus_failure"
-      ]
-    },
-    {
       "id": "sensor_gyroscope_fault",
       "keywords": [
         "gyroscope",
@@ -11007,52 +10327,6 @@
       "models_affected": [],
       "related_patterns": [
         "sensor_accelerometer_fault",
-        "i2c_bus_failure"
-      ]
-    },
-    {
-      "id": "sensor_magnetometer_fault",
-      "keywords": [
-        "magnetometer",
-        "Compass failure",
-        "AK09911",
-        "magnetic sensor",
-        "compass not working"
-      ],
-      "category": "kernelPanic",
-      "component": "magnetometer",
-      "severity": "hardware",
-      "confidence": 78,
-      "title": "Magnetometer / Compass sensor failure",
-      "diagnosis": "The magnetometer (compass sensor, typically AKM AK09911) failed or is severely miscalibrated, causing the Compass app and magnetic heading in Maps to be unavailable.",
-      "probabilities": [
-        {
-          "cause": "Magnetometer IC damaged (often near magnetic accessories)",
-          "percent": 45,
-          "description": "Strong magnets (cases, mounts) permanently magnetised or damaged the sensor."
-        },
-        {
-          "cause": "I2C bus fault",
-          "percent": 30,
-          "description": "I2C communication failure between magnetometer and AP."
-        },
-        {
-          "cause": "Compass calibration data corrupted",
-          "percent": 25,
-          "description": "NVM calibration data corrupted, requiring factory reset to recalibrate."
-        }
-      ],
-      "repair_steps": [
-        "Calibrate compass: Settings > Privacy > Location Services > Compass Calibration > On",
-        "Move away from magnetic cases/accessories and recalibrate",
-        "If still failing: magnetometer IC replacement"
-      ],
-      "test_procedure": [
-        "Open Compass app — should show heading and prompt calibration if needed",
-        "Rotate phone through figure-8 motion to calibrate"
-      ],
-      "models_affected": [],
-      "related_patterns": [
         "i2c_bus_failure"
       ]
     },
@@ -11155,100 +10429,6 @@
       ]
     },
     {
-      "id": "sensor_haptic_fault",
-      "keywords": [
-        "taptic engine",
-        "haptic",
-        "Taptic",
-        "DRV2624",
-        "haptic actuator",
-        "vibration motor"
-      ],
-      "category": "kernelPanic",
-      "component": "taptic_engine",
-      "severity": "hardware",
-      "confidence": 80,
-      "title": "Taptic Engine / haptic actuator failure",
-      "diagnosis": "The Taptic Engine (linear resonant actuator) failed or is producing abnormal haptic patterns. Can cause kernel panics if the haptic driver detects a fault condition.",
-      "probabilities": [
-        {
-          "cause": "Taptic Engine physically damaged (drop)",
-          "percent": 50,
-          "description": "Linear actuator mass displaced or coil damaged by impact."
-        },
-        {
-          "cause": "Taptic Engine flex cable fault",
-          "percent": 30,
-          "description": "Cable to Taptic Engine damaged or connector loose."
-        },
-        {
-          "cause": "Haptic driver IC fault",
-          "percent": 20,
-          "description": "DRV2624 or equivalent haptic driver IC failed."
-        }
-      ],
-      "repair_steps": [
-        "Test in Settings > Sounds & Haptics — Haptic Preview slider",
-        "Taptic Engine replacement (standalone or with battery assembly depending on model)"
-      ],
-      "test_procedure": [
-        "Settings > Sounds & Haptics > System Haptics — toggle on/off and feel",
-        "3D Touch / Haptic Touch long-press on app icon"
-      ],
-      "models_affected": [],
-      "related_patterns": [
-        "i2c_bus_failure"
-      ]
-    },
-    {
-      "id": "sensor_stk3310_als",
-      "keywords": [
-        "STK3310",
-        "STK3335",
-        "ambient light sensor",
-        "Ambient Light",
-        "proximity sensor IC"
-      ],
-      "category": "kernelPanic",
-      "component": "als_proximity_ic",
-      "severity": "hardware",
-      "confidence": 83,
-      "title": "STK3310/STK3335 ALS+Proximity IC failure",
-      "diagnosis": "The Sensortek STK3310 or STK3335 combined ambient light and proximity sensor IC is not responding, causing both auto-brightness and screen-off-during-call to fail.",
-      "probabilities": [
-        {
-          "cause": "STK33xx IC damaged (drop or liquid)",
-          "percent": 55,
-          "description": "Sensor IC on front flex assembly damaged."
-        },
-        {
-          "cause": "Front panel flex cable connector fault",
-          "percent": 30,
-          "description": "Connector carrying ALS/prox signals to logic board loose or broken."
-        },
-        {
-          "cause": "Sensor window blocked (third-party screen)",
-          "percent": 15,
-          "description": "Aftermarket screen has opaque material over sensor window."
-        }
-      ],
-      "repair_steps": [
-        "Check auto-brightness (Settings > Accessibility > Display > Auto-Brightness)",
-        "Test proximity: call yourself, put phone to ear — screen should go dark",
-        "Front assembly replacement if IC confirmed failed"
-      ],
-      "test_procedure": [
-        "Cover the top front sensor area during a call — screen should stay off",
-        "Settings > Accessibility > Display & Text Size > Auto-Brightness — toggle and test"
-      ],
-      "models_affected": [],
-      "related_patterns": [
-        "als_missing",
-        "prox_missing",
-        "i2c_bus_failure"
-      ]
-    },
-    {
       "id": "sensor_arkit_crash",
       "keywords": [
         "ARKit",
@@ -11293,110 +10473,6 @@
       "related_patterns": [
         "sensor_lidar_fault",
         "camera_isp_panic"
-      ]
-    },
-    {
-      "id": "sensor_meson_touch",
-      "keywords": [
-        "Meson",
-        "touch IC",
-        "Azalea",
-        "Rumba",
-        "SPI touch",
-        "touch controller"
-      ],
-      "category": "kernelPanic",
-      "component": "touch_ic",
-      "severity": "hardware",
-      "confidence": 85,
-      "title": "Touch IC (Meson/Azalea/Rumba) failure or panic",
-      "diagnosis": "Apple's custom touch controller (codenames Meson, Azalea, Rumba depending on generation) encountered a firmware crash or hardware fault, causing touch input to stop working.",
-      "probabilities": [
-        {
-          "cause": "Touch IC hardware damaged (screen impact)",
-          "percent": 50,
-          "description": "Cracked or hard-impact display damaged the touch IC on the screen assembly."
-        },
-        {
-          "cause": "Touch IC firmware fault — iOS update required",
-          "percent": 25,
-          "description": "Touch IC firmware bug exposed by iOS version."
-        },
-        {
-          "cause": "SPI bus communication fault",
-          "percent": 25,
-          "description": "SPI bus between touch IC and AP experiencing errors."
-        }
-      ],
-      "repair_steps": [
-        "Test touchscreen: open a note and draw across entire screen",
-        "If areas unresponsive: screen assembly replacement",
-        "Update iOS — touch IC firmware updates included"
-      ],
-      "test_procedure": [
-        "Draw diagonals in Notes app across full screen",
-        "Test all four corners and edges for responsiveness"
-      ],
-      "models_affected": [],
-      "related_patterns": [
-        "i2c_bus_failure",
-        "display_backlight_failure"
-      ]
-    },
-    {
-      "id": "sensor_ultra_wideband_fault",
-      "keywords": [
-        "UWB",
-        "U1 chip",
-        "ultra-wideband",
-        "AirDrop precision",
-        "FindMy direction"
-      ],
-      "category": "kernelPanic",
-      "component": "uwb_u1",
-      "severity": "hardware",
-      "confidence": 78,
-      "title": "Ultra Wideband (U1) chip fault",
-      "diagnosis": "The Apple U1 ultra-wideband chip experienced a hardware or firmware fault, disabling precision FindMy direction, directional AirDrop, and CarKey functionality.",
-      "probabilities": [
-        {
-          "cause": "U1 chip hardware fault",
-          "percent": 50,
-          "description": "U1 silicon failure — may be related to impact damage."
-        },
-        {
-          "cause": "U1 antenna connection fault",
-          "percent": 30,
-          "description": "UWB antenna flex connection broken."
-        },
-        {
-          "cause": "U1 firmware bug — iOS fix available",
-          "percent": 20,
-          "description": "U1 firmware issue resolved in later iOS version."
-        }
-      ],
-      "repair_steps": [
-        "Update iOS",
-        "Test Precision Finding in Find My app with another U1 device nearby",
-        "Apple service if U1 hardware confirmed failed"
-      ],
-      "test_procedure": [
-        "Use Find My app with another iPhone 11+ nearby — Precision Finding arrow should appear",
-        "Test directional AirDrop with another U1 iPhone"
-      ],
-      "models_affected": [
-        "iPhone12,1",
-        "iPhone12,3",
-        "iPhone12,5",
-        "iPhone13,1",
-        "iPhone13,2",
-        "iPhone13,3",
-        "iPhone13,4",
-        "iPhone14,2",
-        "iPhone14,3"
-      ],
-      "related_patterns": [
-        "uwb_failure"
       ]
     },
     {
