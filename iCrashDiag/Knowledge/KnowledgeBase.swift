@@ -40,7 +40,7 @@ final class KnowledgeBase: Sendable {
            let file = try? JSONDecoder().decode(PatternsFile.self, from: data) {
             return file.patterns
         }
-        guard let url = Bundle.main.url(forResource: "panic-patterns", withExtension: "json", subdirectory: "knowledge"),
+        guard let url = Bundle.module.url(forResource: "panic-patterns", withExtension: "json", subdirectory: "knowledge"),
               let data = try? Data(contentsOf: url),
               let file = try? JSONDecoder().decode(PatternsFile.self, from: data) else {
             return []
@@ -53,7 +53,7 @@ final class KnowledgeBase: Sendable {
            let file = try? JSONDecoder().decode(ModelsFile.self, from: data) {
             return file.models
         }
-        guard let url = Bundle.main.url(forResource: "iphone-models", withExtension: "json", subdirectory: "knowledge"),
+        guard let url = Bundle.module.url(forResource: "iphone-models", withExtension: "json", subdirectory: "knowledge"),
               let data = try? Data(contentsOf: url),
               let file = try? JSONDecoder().decode(ModelsFile.self, from: data) else {
             return [:]
@@ -66,7 +66,7 @@ final class KnowledgeBase: Sendable {
            let file = try? JSONDecoder().decode(ComponentsFile.self, from: data) {
             return file.components
         }
-        guard let url = Bundle.main.url(forResource: "components", withExtension: "json", subdirectory: "knowledge"),
+        guard let url = Bundle.module.url(forResource: "components", withExtension: "json", subdirectory: "knowledge"),
               let data = try? Data(contentsOf: url),
               let file = try? JSONDecoder().decode(ComponentsFile.self, from: data) else {
             return [:]
@@ -79,7 +79,7 @@ final class KnowledgeBase: Sendable {
            let file = try? JSONDecoder().decode(VersionFile.self, from: data) {
             return file.version
         }
-        guard let url = Bundle.main.url(forResource: "version", withExtension: "json", subdirectory: "knowledge"),
+        guard let url = Bundle.module.url(forResource: "version", withExtension: "json", subdirectory: "knowledge"),
               let data = try? Data(contentsOf: url),
               let file = try? JSONDecoder().decode(VersionFile.self, from: data) else {
             return "unknown"
