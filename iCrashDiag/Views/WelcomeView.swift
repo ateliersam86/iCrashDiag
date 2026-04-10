@@ -7,6 +7,10 @@ struct WelcomeView: View {
     @State private var isDragOver = false
 
     var body: some View {
+        Group {
+        if let device = viewModel.connectedDevice, viewModel.crashLogs.isEmpty {
+            DeviceDashboardView(device: device)
+        } else {
         VStack(spacing: 32) {
             Spacer()
 
@@ -185,6 +189,8 @@ struct WelcomeView: View {
                 }
             }
         }
+        } // else
+        } // Group
     }
 }
 
