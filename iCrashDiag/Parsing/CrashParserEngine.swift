@@ -1,9 +1,21 @@
 import Foundation
 
+// MARK: - ParseEvent
+
+enum ParseEvent: Sendable {
+    case total(Int)
+    case progress(index: Int, total: Int, percent: Double, fileName: String, crash: CrashLog?)
+    case empty
+}
+
+// MARK: - CrashParser Protocol
+
 protocol CrashParser: Sendable {
     func canParse(bugType: Int) -> Bool
     func parse(fileName: String, bugType: Int, metadata: [String: Any], metadataRaw: String, body: String, knowledgeBase: KnowledgeBase) -> CrashLog?
 }
+
+// MARK: - CrashParserEngine
 
 final class CrashParserEngine: Sendable {
     let parsers: [CrashParser]
@@ -27,7 +39,6 @@ final class CrashParserEngine: Sendable {
         do {
             content = try String(contentsOf: url, encoding: .utf8)
         } catch {
-            // Try latin1 for non-UTF8 files
             guard let data = try? Data(contentsOf: url),
                   let str = String(data: data, encoding: .isoLatin1) else { return nil }
             content = str
@@ -78,30 +89,49 @@ final class CrashParserEngine: Sendable {
         )
     }
 
-    nonisolated func parseDirectory(url: URL, progress: @Sendable @escaping (Double, String) -> Void) async -> [CrashLog] {
-        let fm = FileManager.default
-        guard let enumerator = fm.enumerator(at: url, includingPropertiesForKeys: nil) else { return [] }
+    /// Progressive streaming parser — emits each crash as it's parsed.
+    nonisolated func parseDirectoryStream(url: URL) -> AsyncStream<ParseEvent> {
+        AsyncStream { continuation in
+            Task {
+                let fm = FileManager.default
+                guard let enumerator = fm.enumerator(at: url, includingPropertiesForKeys: nil) else {
+                    continuation.finish()
+                    return
+                }
 
-        var ipsFiles: [URL] = []
-        while let fileURL = enumerator.nextObject() as? URL {
-            if fileURL.pathExtension.lowercased() == "ips" {
-                ipsFiles.append(fileURL)
+                var ipsFiles: [URL] = []
+                while let fileURL = enumerator.nextObject() as? URL {
+                    if fileURL.pathExtension.lowercased() == "ips" {
+                        ipsFiles.append(fileURL)
+                    }
+                }
+
+                let total = ipsFiles.count
+                guard total > 0 else {
+                    continuation.yield(.empty)
+                    continuation.finish()
+                    return
+                }
+
+                continuation.yield(.total(total))
+
+                for (index, fileURL) in ipsFiles.enumerated() {
+                    let crash = try? self.parseFile(url: fileURL)
+                    let pct = Double(index + 1) / Double(total)
+                    continuation.yield(.progress(
+                        index: index + 1,
+                        total: total,
+                        percent: pct,
+                        fileName: fileURL.lastPathComponent,
+                        crash: crash
+                    ))
+                }
+                continuation.finish()
             }
         }
-
-        let total = ipsFiles.count
-        guard total > 0 else { return [] }
-
-        var results: [CrashLog] = []
-        for (index, fileURL) in ipsFiles.enumerated() {
-            if let crash = try? self.parseFile(url: fileURL) {
-                results.append(crash)
-            }
-            let pct = Double(index + 1) / Double(total)
-            progress(pct, "Parsing \(index + 1)/\(total): \(fileURL.lastPathComponent)")
-        }
-        return results.sorted { $0.timestamp > $1.timestamp }
     }
+
+    // MARK: - Static Helpers
 
     static func parseTimestamp(_ str: String?) -> Date? {
         guard let str else { return nil }
@@ -118,7 +148,6 @@ final class CrashParserEngine: Sendable {
             return []
         }
         let matched = String(text[range])
-        // Extract the part after the colon
         guard let colonIdx = matched.firstIndex(of: ":") else { return [] }
         let sensorsStr = String(matched[matched.index(after: colonIdx)...])
         return sensorsStr.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }

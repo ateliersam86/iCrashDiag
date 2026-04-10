@@ -17,6 +17,9 @@ final class AppViewModel {
     var isLoading = false
     var loadingProgress: Double = 0
     var loadingMessage = ""
+    var loadingCurrentFile = ""
+    var loadingTotal = 0
+    var loadingParsed = 0
     var usbAvailable = false
     var connectedDevice: DeviceInfo?
     var errorMessage: String?
@@ -57,7 +60,7 @@ final class AppViewModel {
 
         switch sortOrder {
         case .dateDescending: logs.sort { $0.timestamp > $1.timestamp }
-        case .dateAscending: logs.sort { $0.timestamp < $1.timestamp }
+        case .dateAscending:  logs.sort { $0.timestamp < $1.timestamp }
         case .severity:
             let order: [Severity] = [.critical, .hardware, .software, .informational]
             logs.sort { a, b in
@@ -95,28 +98,58 @@ final class AppViewModel {
         }
     }
 
+    // MARK: - Import (Progressive Streaming)
+
     func importFolder(url: URL) async {
         isLoading = true
-        loadingMessage = "Scanning for .ips files..."
         loadingProgress = 0
+        loadingParsed = 0
+        loadingTotal = 0
+        loadingCurrentFile = ""
+        loadingMessage = "Scanning for .ips files…"
+        crashLogs = []
+        analysisReport = nil
 
         let engine = parserEngine
-        let results = await engine.parseDirectory(url: url) { [weak self] progress, message in
-            Task { @MainActor in
-                self?.loadingProgress = progress
-                self?.loadingMessage = message
+        let diag = diagnosisEngine
+
+        for await event in engine.parseDirectoryStream(url: url) {
+            switch event {
+            case .empty:
+                loadingMessage = "No .ips files found in this folder."
+
+            case .total(let n):
+                loadingTotal = n
+                loadingMessage = "Found \(n) crash logs"
+
+            case .progress(let index, let total, let pct, let fileName, let crash):
+                loadingProgress = pct
+                loadingParsed = index
+                loadingTotal = total
+                loadingCurrentFile = fileName
+                loadingMessage = "\(index) / \(total)"
+
+                if var c = crash {
+                    c.diagnosis = diag.diagnose(crash: c)
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        crashLogs.append(c)
+                    }
+                }
             }
         }
 
-        crashLogs = results
-        for i in crashLogs.indices {
-            crashLogs[i].diagnosis = diagnosisEngine.diagnose(crash: crashLogs[i])
+        // Final sort + report
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+            crashLogs.sort { $0.timestamp > $1.timestamp }
+            analysisReport = diag.analyzeAll(crashes: crashLogs)
         }
-        analysisReport = diagnosisEngine.analyzeAll(crashes: crashLogs)
 
         isLoading = false
         loadingMessage = "Loaded \(crashLogs.count) crash logs"
+        loadingCurrentFile = ""
     }
+
+    // MARK: - USB
 
     func pullFromUSB() async {
         guard usbService.isAvailable else {
@@ -132,9 +165,10 @@ final class AppViewModel {
 
         connectedDevice = usbService.deviceInfo(udid: udid, knowledgeBase: knowledgeBase)
         isLoading = true
-        loadingMessage = "Extracting crash logs from \(connectedDevice?.name ?? "iPhone")..."
+        loadingMessage = "Extracting crash logs from \(connectedDevice?.name ?? "iPhone")…"
 
-        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent("iCrashDiag-extract-\(UUID().uuidString)")
+        let tempDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("iCrashDiag-extract-\(UUID().uuidString)")
         try? FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
 
         let result = usbService.extractCrashLogs(to: tempDir)
@@ -146,12 +180,16 @@ final class AppViewModel {
         }
     }
 
+    // MARK: - Export
+
     func copyReportToClipboard() {
         guard let report = analysisReport else { return }
         let md = exportService.generateMarkdown(crashes: crashLogs, report: report)
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(md, forType: .string)
     }
+
+    // MARK: - USB Availability
 
     func checkUSBAvailability() {
         usbAvailable = usbService.isAvailable
