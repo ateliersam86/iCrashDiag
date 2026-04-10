@@ -12288,6 +12288,983 @@
       "related_patterns": [
         "kernel_mach_trap"
       ]
+    },
+    {
+      "id": "kernel_sp1_exception",
+      "keywords": [
+        "Synchronous exception taken while SP1 selected",
+        "Unexpected debugger trap while SP1 selected"
+      ],
+      "category": "kernelPanic",
+      "component": "arm64_exception_level",
+      "severity": "critical",
+      "confidence": 80,
+      "title": "ARM64 Kernel Stack Pointer SP1 Exception",
+      "diagnosis": "An exception occurred while the ARM64 SP1 (kernel stack pointer) was selected, which is only valid during exception entry/exit. This typically indicates a double-fault or nested exception in the kernel exception handler itself — a very serious kernel integrity failure.",
+      "probabilities": [
+        {
+          "cause": "Kernel stack overflow during exception handling",
+          "percent": 50,
+          "description": "Stack overflow corrupted the exception entry path."
+        },
+        {
+          "cause": "Corrupted kernel stack pointer",
+          "percent": 35,
+          "description": "Memory corruption altered the SP register before the exception."
+        },
+        {
+          "cause": "Hardware fault during IRQ handling",
+          "percent": 15,
+          "description": "Hardware error triggered during an existing interrupt handler."
+        }
+      ],
+      "repair_steps": [
+        "1. Check for iOS update addressing kernel stack handling",
+        "2. Run Apple Diagnostics for memory/SoC issues",
+        "3. DFU restore to rule out software corruption"
+      ],
+      "test_procedure": [
+        "DFU restore and test without restoring backup",
+        "Apple Diagnostics extended memory test"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "kernel_stack_overflow",
+        "kernel_data_abort"
+      ]
+    },
+    {
+      "id": "kernel_pc_alignment",
+      "keywords": [
+        "PC alignment exception from kernel",
+        "SP alignment exception from kernel"
+      ],
+      "category": "kernelPanic",
+      "component": "arm64_alignment",
+      "severity": "critical",
+      "confidence": 82,
+      "title": "Kernel PC/SP Alignment Exception",
+      "diagnosis": "The Program Counter (PC) or Stack Pointer (SP) was not properly aligned during kernel execution. On ARM64, PC must be 4-byte aligned and SP must be 16-byte aligned. This indicates severe memory or stack corruption in the kernel.",
+      "probabilities": [
+        {
+          "cause": "Kernel stack corruption (buffer overflow)",
+          "percent": 55,
+          "description": "A kernel buffer overflow misaligned the stack pointer."
+        },
+        {
+          "cause": "Corrupted function pointer in kernel",
+          "percent": 30,
+          "description": "A jump to a misaligned address via corrupt pointer."
+        },
+        {
+          "cause": "Hardware DRAM bit-flip",
+          "percent": 15,
+          "description": "Single-bit error in RAM corrupted a code or stack address."
+        }
+      ],
+      "repair_steps": [
+        "1. Apple Diagnostics to check RAM integrity",
+        "2. DFU restore to rule out software-level corruption",
+        "3. Logic board replacement if hardware memory fault confirmed"
+      ],
+      "test_procedure": [
+        "Apple Diagnostics extended test",
+        "DFU restore, check if panic recurs"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "kernel_bus_alignment",
+        "kernel_stack_overflow"
+      ]
+    },
+    {
+      "id": "kernel_physical_aperture_fault",
+      "keywords": [
+        "Unexpected fault in kernel physical aperture",
+        "Unexpected fault in kernel static region"
+      ],
+      "category": "kernelPanic",
+      "component": "xnu_vm_aperture",
+      "severity": "critical",
+      "confidence": 78,
+      "title": "Kernel Physical Aperture / Static Region Fault",
+      "diagnosis": "A memory fault occurred in the kernel's physical aperture or static kernel region. The physical aperture is a direct-mapped window to physical RAM in XNU. A fault here means either the physical RAM is bad, or the kernel's memory map is corrupted.",
+      "probabilities": [
+        {
+          "cause": "DRAM hardware defect",
+          "percent": 60,
+          "description": "Physical RAM bit error triggered a fault in the direct-mapped aperture."
+        },
+        {
+          "cause": "Kernel memory map corruption",
+          "percent": 30,
+          "description": "Corruption of kernel page tables or physical aperture mappings."
+        },
+        {
+          "cause": "DMA device writing to kernel region",
+          "percent": 10,
+          "description": "Misbehaving hardware DMA engine wrote into protected kernel memory."
+        }
+      ],
+      "repair_steps": [
+        "1. Run Apple Diagnostics (extended RAM test)",
+        "2. DFU restore to rule out corrupted kernel image",
+        "3. If hardware fault confirmed: logic board replacement"
+      ],
+      "test_procedure": [
+        "Apple Diagnostics extended memory test",
+        "Check for DRAM-related panic patterns in Analytics"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "kernel_dram_init_failure",
+        "kernel_data_abort"
+      ]
+    },
+    {
+      "id": "kernel_zone_element_modified_after_free",
+      "keywords": [
+        "element modified after free",
+        "element modified after free (off:",
+        "val:0x"
+      ],
+      "category": "kernelPanic",
+      "component": "xnu_zalloc",
+      "severity": "critical",
+      "confidence": 90,
+      "title": "Kernel Zone Element Modified After Free (Use-After-Free)",
+      "diagnosis": "XNU zone allocator detected that a freed kernel object was modified after deallocation. Exact string: \"element modified after free (off:%d, val:0x%016lx, sz:%d, ptr:%p)\" (osfmk/kern/zalloc.c). This is a use-after-free in the kernel, a critical memory safety violation.",
+      "probabilities": [
+        {
+          "cause": "Kernel use-after-free bug",
+          "percent": 70,
+          "description": "A kernel subsystem wrote to memory after freeing it."
+        },
+        {
+          "cause": "Race condition / TOCTOU bug",
+          "percent": 20,
+          "description": "Concurrent access led to write on freed object."
+        },
+        {
+          "cause": "Hardware memory corruption",
+          "percent": 10,
+          "description": "DRAM bit-flip modified the freed element's content."
+        }
+      ],
+      "repair_steps": [
+        "1. Update iOS/macOS to latest version",
+        "2. DFU restore",
+        "3. Apple Diagnostics if hardware cause suspected"
+      ],
+      "test_procedure": [
+        "Track if panic occurs under specific workload (memory pressure, networking, etc.)"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "kernel_use_after_free",
+        "kernel_zone_double_free",
+        "kernel_zone_metadata_corruption"
+      ]
+    },
+    {
+      "id": "kernel_zone_require_failed",
+      "keywords": [
+        "zone_require failed: address not in a zone",
+        "zone_require failed: invalid zone index"
+      ],
+      "category": "kernelPanic",
+      "component": "xnu_zalloc",
+      "severity": "critical",
+      "confidence": 85,
+      "title": "Kernel zone_require() Validation Failure",
+      "diagnosis": "XNU's zone_require() check detected a kernel pointer that does not belong to the expected memory zone. This is a zone hardening feature (osfmk/kern/zalloc.c) that triggers a panic when a kernel object pointer is inconsistent with its expected zone — indicating type confusion, memory corruption, or an attack.",
+      "probabilities": [
+        {
+          "cause": "Type confusion / wrong zone access",
+          "percent": 55,
+          "description": "An object was allocated from zone A but used as if from zone B."
+        },
+        {
+          "cause": "Memory corruption (pointer overwrite)",
+          "percent": 35,
+          "description": "A kernel buffer overflow or UAF corrupted the object pointer."
+        },
+        {
+          "cause": "Security exploit attempt",
+          "percent": 10,
+          "description": "A userspace-triggered privilege escalation was blocked by zone_require."
+        }
+      ],
+      "repair_steps": [
+        "1. Update iOS/macOS immediately (may be security patch)",
+        "2. DFU restore",
+        "3. Check for jailbreak artifacts or unauthorized modifications"
+      ],
+      "test_procedure": [
+        "Verify device is not jailbroken",
+        "DFU restore and monitor"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "kernel_zone_metadata_corruption",
+        "kernel_use_after_free"
+      ]
+    },
+    {
+      "id": "app_crash_zombie_object",
+      "keywords": [
+        "Possible zombie",
+        "zombie exception",
+        "NOTE: This exception has been deallocated",
+        "Stack trace is crash from attempting to access this zombie exception"
+      ],
+      "category": "appCrash",
+      "component": "objc_runtime",
+      "severity": "software",
+      "confidence": 87,
+      "title": "Objective-C Zombie Object Access (EXC_BAD_ACCESS on Deallocated Object)",
+      "diagnosis": "The crash occurred when accessing a deallocated Objective-C object (zombie). KSCrash diagnosis string: \"Possible zombie in call: %@\" (KSCrashDoctor.m). The crash report may include: \"NOTE: This exception has been deallocated! Stack trace is crash from attempting to access this zombie exception.\"",
+      "probabilities": [
+        {
+          "cause": "Delegate not set to nil on dealloc",
+          "percent": 45,
+          "description": "A delegate pointer was not zeroed when the delegate object was deallocated."
+        },
+        {
+          "cause": "Unsafe unretained reference",
+          "percent": 35,
+          "description": "An __unsafe_unretained or assign property outlived its object."
+        },
+        {
+          "cause": "Notification observer not removed",
+          "percent": 20,
+          "description": "An NSNotification observer was not removed before the observing object was deallocated."
+        }
+      ],
+      "repair_steps": [
+        "1. Enable Zombie Objects in Xcode scheme diagnostics to identify the zombie",
+        "2. Use Address Sanitizer in Xcode to catch the use-after-free",
+        "3. Review weak/unsafe_unretained delegate patterns",
+        "4. Ensure NSNotificationCenter observers are removed in dealloc"
+      ],
+      "test_procedure": [
+        "Enable Zombie Objects: Xcode > Edit Scheme > Diagnostics > Zombie Objects",
+        "Reproduce crash — Xcode will identify the specific deallocated class",
+        "Review the named class's lifecycle and reference patterns"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "app_crash_exc_bad_access",
+        "app_crash_kern_invalid_address"
+      ]
+    },
+    {
+      "id": "app_crash_autorelease_corruption",
+      "keywords": [
+        "autorelease pool page",
+        "corrupted",
+        "free_list_checksum_botch",
+        "szone_malloc_should_clear",
+        "incorrect checksum for freed object",
+        "objc_autoreleasePoolPush"
+      ],
+      "category": "appCrash",
+      "component": "objc_runtime",
+      "severity": "software",
+      "confidence": 83,
+      "title": "Autorelease Pool Page Corruption",
+      "diagnosis": "The Objective-C autorelease pool internal structure is corrupted. KSCrashDoctor.m identifies this via: \"autorelease pool page\", \"free_list_checksum_botch\", \"incorrect checksum for freed object\". This often indicates heap corruption that propagated to the autorelease pool metadata.",
+      "probabilities": [
+        {
+          "cause": "Heap buffer overflow corrupting pool metadata",
+          "percent": 50,
+          "description": "A C array write-past-end or unsafe memory operation corrupted the pool."
+        },
+        {
+          "cause": "Double-release of an Objective-C object",
+          "percent": 30,
+          "description": "An object was over-released, corrupting the pool's internal linked list."
+        },
+        {
+          "cause": "Thread-safety violation on pool",
+          "percent": 20,
+          "description": "An autorelease pool was accessed from multiple threads without synchronization."
+        }
+      ],
+      "repair_steps": [
+        "1. Enable Address Sanitizer in Xcode scheme (finds the corruption origin)",
+        "2. Run with MallocScribble=1 environment variable",
+        "3. Review all manual memory management code (C arrays, unsafe Swift buffers)",
+        "4. Check for @autoreleasepool usage across thread boundaries"
+      ],
+      "test_procedure": [
+        "Build with Address Sanitizer enabled",
+        "Run with environment variable MallocScribble=1 MallocGuardEdges=1",
+        "Use Instruments > Leaks to identify double-releases"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "app_crash_exc_bad_access",
+        "app_crash_abort_assertion",
+        "app_crash_zombie_object"
+      ]
+    },
+    {
+      "id": "app_crash_main_thread_deadlock",
+      "keywords": [
+        "Application main thread deadlocked",
+        "Main thread deadlocked in",
+        "App hung for",
+        "Terminated by watchdog"
+      ],
+      "category": "appCrash",
+      "component": "runloop_main_thread",
+      "severity": "software",
+      "confidence": 90,
+      "title": "Main Thread Deadlock / Watchdog Termination",
+      "diagnosis": "The application's main thread deadlocked or became unresponsive. KSCrashDoctor.m diagnosis: \"Main thread deadlocked in %@\" and \"App hung for %@. Terminated by watchdog.\" This is distinct from the 0x8badf00d watchdog — it specifically indicates a mutex/lock deadlock on the main thread.",
+      "probabilities": [
+        {
+          "cause": "Synchronous network/disk call on main thread",
+          "percent": 40,
+          "description": "A blocking I/O call on the main thread caused deadlock with another thread holding a lock."
+        },
+        {
+          "cause": "Mutex lock inversion between main and background thread",
+          "percent": 35,
+          "description": "Thread A holds Lock 1, waits for Lock 2; Thread B holds Lock 2, waits for Lock 1."
+        },
+        {
+          "cause": "NSOperationQueue deadlock",
+          "percent": 25,
+          "description": "An operation waiting for another operation on the same serial queue (barrier deadlock)."
+        }
+      ],
+      "repair_steps": [
+        "1. Move all network, disk, and database calls off the main thread",
+        "2. Use async/await or DispatchQueue.global().async for blocking operations",
+        "3. Audit lock acquisition order — always acquire in the same order",
+        "4. Use Instruments > Time Profiler to identify the blocking call"
+      ],
+      "test_procedure": [
+        "Instruments > Time Profiler: look for main thread blocked >250ms",
+        "Enable Thread Sanitizer in Xcode to detect lock order violations",
+        "Check crash log for the deadlocking frame in the main thread backtrace"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "app_crash_watchdog_springboard_0x8badf00d",
+        "watchdog_springboard"
+      ]
+    },
+    {
+      "id": "app_crash_rogue_memory_write",
+      "keywords": [
+        "Rogue memory write has corrupted memory",
+        "Rogue memory write"
+      ],
+      "category": "appCrash",
+      "component": "memory_safety",
+      "severity": "software",
+      "confidence": 85,
+      "title": "Rogue Memory Write — Heap Corruption Detected",
+      "diagnosis": "KSCrashDoctor.m detected a rogue memory write: \"Rogue memory write has corrupted memory.\" This diagnosis is triggered when a crash's registers or backtrace suggest memory was written outside of its intended bounds, corrupting adjacent heap metadata or other allocations.",
+      "probabilities": [
+        {
+          "cause": "C/C++ buffer overflow (unsafe pointer arithmetic)",
+          "percent": 50,
+          "description": "An unsafe buffer write exceeded the allocated size."
+        },
+        {
+          "cause": "Swift unsafe buffer pointer misuse",
+          "percent": 25,
+          "description": "UnsafeMutablePointer or UnsafeRawPointer written past buffer end."
+        },
+        {
+          "cause": "Third-party C library vulnerability",
+          "percent": 25,
+          "description": "A linked C/C++ library wrote out-of-bounds."
+        }
+      ],
+      "repair_steps": [
+        "1. Enable Address Sanitizer in Xcode",
+        "2. Review all UnsafePointer usage in Swift code",
+        "3. Audit C/C++ code for sprintf/strcpy/memcpy with insufficient bounds checking",
+        "4. Update third-party libraries"
+      ],
+      "test_procedure": [
+        "Build with Address Sanitizer (ASan) and reproduce the crash",
+        "ASan will report exact location of the out-of-bounds write"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "app_crash_exc_bad_access",
+        "app_crash_autorelease_corruption",
+        "kernel_zone_element_modified_after_free"
+      ]
+    },
+    {
+      "id": "app_crash_exc_emulation",
+      "keywords": [
+        "EXC_EMULATION",
+        "Emulation instruction"
+      ],
+      "category": "appCrash",
+      "component": "mach_exception",
+      "severity": "software",
+      "confidence": 70,
+      "title": "EXC_EMULATION — Instruction Emulation Exception",
+      "diagnosis": "Mach exception EXC_EMULATION (type 4) was raised. This exception is generated when the CPU encounters an instruction that requires software emulation. Rare on iOS/ARM64 — typically only seen in emulator environments or when executing code compiled for a different architecture.",
+      "probabilities": [
+        {
+          "cause": "Running non-native binary (wrong architecture slice)",
+          "percent": 50,
+          "description": "App binary does not contain an arm64 slice and emulation failed."
+        },
+        {
+          "cause": "Rosetta / translation layer issue (macOS)",
+          "percent": 30,
+          "description": "On Apple Silicon Mac, x86_64 instruction not supported by Rosetta."
+        },
+        {
+          "cause": "Corrupt app binary",
+          "percent": 20,
+          "description": "App binary has a corrupted instruction sequence."
+        }
+      ],
+      "repair_steps": [
+        "1. Reinstall the app from App Store",
+        "2. Verify app supports current device architecture",
+        "3. Contact app developer if problem persists"
+      ],
+      "test_procedure": [
+        "Delete and reinstall app",
+        "Check app's App Store listing for compatibility notes"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "app_crash_sigill",
+        "kernel_undefined_instruction"
+      ]
+    },
+    {
+      "id": "app_crash_exc_corpse_notify_userspace",
+      "keywords": [
+        "EXC_CORPSE_NOTIFY",
+        "Abnormal process exited to corpse state",
+        "Failed to send exception EXC_CORPSE_NOTIFY"
+      ],
+      "category": "appCrash",
+      "component": "mach_exception",
+      "severity": "software",
+      "confidence": 78,
+      "title": "EXC_CORPSE_NOTIFY — Process Corpse Exception",
+      "diagnosis": "Mach exception EXC_CORPSE_NOTIFY (type 13) indicates a process exited abnormally and entered 'corpse' state for post-mortem inspection. The XNU kernel logs: \"Failed to send exception EXC_CORPSE_NOTIFY\" when the delivery fails. Corpse state preserves crash-time memory for tools like Apple CrashReporter.",
+      "probabilities": [
+        {
+          "cause": "App crashed and CrashReporter is collecting corpse",
+          "percent": 70,
+          "description": "Normal crash handling — the corpse notification is part of the crash report pipeline."
+        },
+        {
+          "cause": "CrashReporter daemon overloaded or failing",
+          "percent": 20,
+          "description": "Too many concurrent crashes prevented corpse notification delivery."
+        },
+        {
+          "cause": "Memory pressure preventing corpse creation",
+          "percent": 10,
+          "description": "System under heavy memory pressure could not create process corpse."
+        }
+      ],
+      "repair_steps": [
+        "1. This pattern is secondary — investigate the primary crash cause",
+        "2. Check for repeated crashes of the same process",
+        "3. Restart device to clear corpse state if system is unresponsive"
+      ],
+      "test_procedure": [
+        "Look for the accompanying EXC_BAD_ACCESS or other primary exception in the crash log",
+        "Check Analytics for multiple crashes from the same bundle ID"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "exc_corpse_notify",
+        "app_crash_exc_bad_access"
+      ]
+    },
+    {
+      "id": "app_crash_decrypt_fail_termination",
+      "keywords": [
+        "P_LTERM_DECRYPTFAIL",
+        "key failure to decrypt",
+        "decryption failed"
+      ],
+      "category": "appCrash",
+      "component": "fairplay_drm",
+      "severity": "software",
+      "confidence": 80,
+      "title": "Process Terminated Due to FairPlay Decryption Failure",
+      "diagnosis": "The process was terminated due to failure to decrypt its binary — flag P_LTERM_DECRYPTFAIL in proc_internal.h. On iOS, this means FairPlay DRM failed to decrypt the app binary. Common causes: hardware-locked apps running on a different device, revoked App Store licenses, or corrupted app bundles.",
+      "probabilities": [
+        {
+          "cause": "App re-signed or sideloaded (revoked certificate)",
+          "percent": 45,
+          "description": "The app was signed with a certificate that has been revoked."
+        },
+        {
+          "cause": "Corrupted app download",
+          "percent": 30,
+          "description": "App binary was partially downloaded or corrupted, FairPlay cannot decrypt."
+        },
+        {
+          "cause": "Device Apple ID mismatch (Family Sharing issue)",
+          "percent": 25,
+          "description": "App purchased on different Apple ID, license verification failed."
+        }
+      ],
+      "repair_steps": [
+        "1. Delete and reinstall the app from App Store",
+        "2. Sign out and back into App Store account",
+        "3. Check purchase history — ensure app is licensed for this Apple ID",
+        "4. If enterprise/sideloaded app: renew certificate and re-sign"
+      ],
+      "test_procedure": [
+        "Try launching app after fresh install",
+        "Verify Apple ID in Settings > [Name] > Media & Purchases"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "sep_amfi_codesign",
+        "sep_secure_boot"
+      ]
+    },
+    {
+      "id": "kernel_text_page_corruption",
+      "keywords": [
+        "Text page corruption detected in dying process",
+        "Text page corruption detected"
+      ],
+      "category": "kernelPanic",
+      "component": "code_signing",
+      "severity": "critical",
+      "confidence": 88,
+      "title": "Text Page Corruption Detected in Process",
+      "diagnosis": "The kernel detected corruption in a process's executable code pages during its exit (kern_exit.c: \"Text page corruption detected in dying process %d\"). This is a code signing violation — the executable's text pages were modified at runtime, which should be impossible on a properly secured iOS device. Indicates potential jailbreak, security exploit, or hardware memory corruption.",
+      "probabilities": [
+        {
+          "cause": "Jailbreak or unauthorized system modification",
+          "percent": 45,
+          "description": "A tweak or injection framework modified the app's code pages."
+        },
+        {
+          "cause": "Security exploit / memory corruption attack",
+          "percent": 35,
+          "description": "A vulnerability was exploited that allowed writing to code pages."
+        },
+        {
+          "cause": "DRAM hardware defect causing code page bit-flip",
+          "percent": 20,
+          "description": "Physical RAM error flipped bits in the executable's code pages."
+        }
+      ],
+      "repair_steps": [
+        "1. Check for jailbreak artifacts (unauthorized tweaks, Cydia, Sileo)",
+        "2. DFU restore to factory iOS",
+        "3. Apple Diagnostics if hardware memory fault suspected",
+        "4. Logic board replacement if DRAM defect confirmed"
+      ],
+      "test_procedure": [
+        "Verify device integrity: Settings > Privacy & Security > check for unauthorized profiles",
+        "DFU restore and monitor for recurrence",
+        "Apple Diagnostics extended memory test"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "sep_amfi_codesign",
+        "kernel_pac_failure",
+        "kernel_zone_element_modified_after_free"
+      ]
+    },
+    {
+      "id": "app_crash_exc_resource_wakeups",
+      "keywords": [
+        "SENDING_NOTIFICATION__THIS_PROCESS_IS_CAUSING_TOO_MANY_WAKEUPS",
+        "task_wakeups_rate_exceeded",
+        "EXC_RESOURCE RESOURCE_TYPE_WAKEUPS"
+      ],
+      "category": "appCrash",
+      "component": "exc_resource",
+      "severity": "software",
+      "confidence": 88,
+      "title": "EXC_RESOURCE — Excessive CPU Wakeups (Battery Drain)",
+      "diagnosis": "The process exceeded its allowed CPU wakeup rate and received EXC_RESOURCE. XNU logs: \"SENDING_NOTIFICATION__THIS_PROCESS_IS_CAUSING_TOO_MANY_WAKEUPS\" (osfmk/kern/task.c). This is a battery-drain issue — the app is waking the CPU too frequently, typically >150 wakeups/sec over a 300-second window.",
+      "probabilities": [
+        {
+          "cause": "Tight polling loop or Timer firing too frequently",
+          "percent": 50,
+          "description": "App using DispatchSource or Timer with very short intervals."
+        },
+        {
+          "cause": "Network keepalive or background fetch too aggressive",
+          "percent": 30,
+          "description": "Background network activity generating excessive wakeups."
+        },
+        {
+          "cause": "Audio session with continuous low-latency I/O",
+          "percent": 20,
+          "description": "Audio processing callback running at too high a rate in background."
+        }
+      ],
+      "repair_steps": [
+        "1. Profile with Instruments > Energy Diagnostics",
+        "2. Reduce timer/polling frequency — use coalesced timers",
+        "3. Move background work to BGTaskScheduler instead of timers",
+        "4. Review network keepalive intervals"
+      ],
+      "test_procedure": [
+        "Instruments > Energy Log: count CPU wakeups per second for the app",
+        "Target: <50 wakeups/sec during active use, <5 in background"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "app_crash_exc_resource_cpu",
+        "cpu_wakeup_rate_panic"
+      ]
+    },
+    {
+      "id": "app_crash_exc_resource_io",
+      "keywords": [
+        "SENDING_NOTIFICATION__THIS_PROCESS_IS_CAUSING_TOO_MUCH_IO",
+        "task_io_rate_exceeded",
+        "EXC_RESOURCE RESOURCE_TYPE_IO"
+      ],
+      "category": "appCrash",
+      "component": "exc_resource",
+      "severity": "software",
+      "confidence": 85,
+      "title": "EXC_RESOURCE — Excessive I/O Rate",
+      "diagnosis": "The process exceeded its I/O rate limit and received EXC_RESOURCE. XNU notifies via: \"SENDING_NOTIFICATION__THIS_PROCESS_IS_CAUSING_TOO_MUCH_IO\" (osfmk/kern/task.c). The app is performing excessive read/write operations to flash storage, which can cause both thermal issues and wear on NAND.",
+      "probabilities": [
+        {
+          "cause": "Database write loop (SQLite, Core Data)",
+          "percent": 45,
+          "description": "App performing high-frequency database commits."
+        },
+        {
+          "cause": "Log file writing without throttling",
+          "percent": 30,
+          "description": "App writing verbose logs to disk at high rate."
+        },
+        {
+          "cause": "Cache or temp file thrashing",
+          "percent": 25,
+          "description": "App creating and deleting large numbers of temp files."
+        }
+      ],
+      "repair_steps": [
+        "1. Profile with Instruments > File Activity",
+        "2. Batch database writes — avoid per-item commits",
+        "3. Use os_log instead of file-based logging",
+        "4. Implement write coalescing for cache operations"
+      ],
+      "test_procedure": [
+        "Instruments > File Activity template: measure bytes written per second",
+        "Check for repeated small writes (< 4KB) which are I/O-inefficient"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "app_crash_exc_resource_cpu",
+        "diskResource"
+      ]
+    },
+    {
+      "id": "kernel_halt_restart_timeout",
+      "keywords": [
+        "Halt/Restart Timed Out",
+        "halt restart timed out"
+      ],
+      "category": "kernelPanic",
+      "component": "ioplatform_power",
+      "severity": "critical",
+      "confidence": 82,
+      "title": "Halt/Restart Timed Out — Platform Driver Deadlock",
+      "diagnosis": "The IOPlatformExpert detected that a shutdown or restart notification exceeded its timeout threshold: \"Halt/Restart Timed Out\" (iokit/Kernel/IOPlatformExpert.cpp). A driver or kernel extension failed to complete its shutdown sequence in time, causing the platform to force-panic rather than hang indefinitely.",
+      "probabilities": [
+        {
+          "cause": "Power management driver deadlock",
+          "percent": 50,
+          "description": "A hardware driver's setPowerState or systemWillShutdown callback hung."
+        },
+        {
+          "cause": "Third-party kext/DriverKit blocking shutdown",
+          "percent": 30,
+          "description": "An extension registered for shutdown notifications but never responded."
+        },
+        {
+          "cause": "Storage controller flush timeout",
+          "percent": 20,
+          "description": "ANS2/NVMe controller could not flush write cache before deadline."
+        }
+      ],
+      "repair_steps": [
+        "1. Update iOS/macOS — driver-level shutdown bugs are typically patched by Apple",
+        "2. Remove any third-party DriverKit extensions",
+        "3. If occurring at shutdown: try Settings > General > Shut Down (graceful) vs. power button",
+        "4. DFU restore if panic is frequent"
+      ],
+      "test_procedure": [
+        "Check if panic occurs specifically during shutdown/restart",
+        "Compare behavior with and without accessories connected"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "sleep_wake_hang",
+        "ans2_panic",
+        "watchdog_powerd"
+      ]
+    },
+    {
+      "id": "kernel_sw_step_debug_exception",
+      "keywords": [
+        "SW_STEP_DEBUG exception from kernel",
+        "Software Step Debug exception from kernel. Panic (by design)"
+      ],
+      "category": "kernelPanic",
+      "component": "arm64_debug",
+      "severity": "critical",
+      "confidence": 75,
+      "title": "Kernel Software Step Debug Exception (Panic by Design)",
+      "diagnosis": "A Software Step (single-step) debug exception occurred in kernel mode. XNU's sleh.c intentionally panics on this: \"Software Step Debug exception from kernel. Panic (by design)\". This should only occur when a kernel debugger is attached — seeing it in production means debug hardware features were triggered unexpectedly, potentially by a security exploit.",
+      "probabilities": [
+        {
+          "cause": "Security exploit triggering debug exception in kernel",
+          "percent": 55,
+          "description": "A vulnerability exploit attempted to use ARM64 debug step in kernel context."
+        },
+        {
+          "cause": "Kernel debug mode accidentally enabled",
+          "percent": 30,
+          "description": "Debug boot-args or JTAG left kernel in debug mode."
+        },
+        {
+          "cause": "Hardware debug register corruption",
+          "percent": 15,
+          "description": "DRAM error or hardware fault set ARM64 MDSCR.SS bit unexpectedly."
+        }
+      ],
+      "repair_steps": [
+        "1. Update iOS immediately — this may be an active security exploit",
+        "2. Check for jailbreak or unauthorized modifications",
+        "3. DFU restore",
+        "4. If hardware-related: Apple Diagnostics and logic board evaluation"
+      ],
+      "test_procedure": [
+        "Check Apple Security advisories for CVEs related to kernel debug exceptions",
+        "DFU restore and monitor"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "kernel_pac_failure",
+        "kernel_bti_failure",
+        "sep_amfi_codesign"
+      ]
+    },
+    {
+      "id": "kernel_panic_lockdown_initiated",
+      "keywords": [
+        "Panic lockdown initiated"
+      ],
+      "category": "kernelPanic",
+      "component": "xnu_security",
+      "severity": "critical",
+      "confidence": 80,
+      "title": "Kernel Panic Lockdown Initiated",
+      "diagnosis": "XNU initiated a \"Panic lockdown\" — a security-hardened panic mode where the kernel limits information disclosure during the panic (sleh.c: \"Panic lockdown initiated\"). This is triggered after certain critical exceptions to prevent panic-based information leaks. The underlying cause is another kernel exception (PAC failure, BTI, data abort, etc.).",
+      "probabilities": [
+        {
+          "cause": "Security-sensitive kernel exception (PAC/BTI)",
+          "percent": 60,
+          "description": "A PAC or BTI failure triggered lockdown to prevent information disclosure."
+        },
+        {
+          "cause": "Exploit attempt detected by kernel",
+          "percent": 30,
+          "description": "The kernel detected a security violation and locked down the panic path."
+        },
+        {
+          "cause": "Multiple cascading kernel exceptions",
+          "percent": 10,
+          "description": "A panic cascade triggered lockdown mode."
+        }
+      ],
+      "repair_steps": [
+        "1. Update iOS — this pattern requires the primary exception to be fixed",
+        "2. Look for co-occurring PAC/BTI panic strings in the same log",
+        "3. DFU restore"
+      ],
+      "test_procedure": [
+        "Examine full panic log for the primary exception that triggered lockdown",
+        "Check for PAC failure or BTI failure strings in same report"
+      ],
+      "models_affected": [
+        "iPhone14,*",
+        "iPhone15,*",
+        "iPhone16,*"
+      ],
+      "related_patterns": [
+        "kernel_pac_failure",
+        "kernel_bti_failure",
+        "kernel_data_abort"
+      ]
+    },
+    {
+      "id": "app_crash_sigbus",
+      "keywords": [
+        "SIGBUS",
+        "EXC_BAD_ACCESS (SIGBUS)",
+        "BUS_ADRALN",
+        "BUS_ADRERR",
+        "BUS_OBJERR"
+      ],
+      "category": "appCrash",
+      "component": "memory_access",
+      "severity": "software",
+      "confidence": 85,
+      "title": "SIGBUS — Bus Error (Memory Alignment / Unmapped Memory)",
+      "diagnosis": "SIGBUS (bus error) was delivered to the process. Unlike SIGSEGV which is a permissions violation, SIGBUS typically indicates: unaligned memory access (BUS_ADRALN), accessing physical memory that no longer exists (BUS_ADRERR), or a POSIX object access error (BUS_OBJERR). On iOS, BUS_ADRALN is common with improper use of packed structs or type punning.",
+      "probabilities": [
+        {
+          "cause": "Unaligned memory access in C/C++ code",
+          "percent": 45,
+          "description": "Dereferencing a misaligned pointer (e.g., int* pointing to odd address)."
+        },
+        {
+          "cause": "mmap'd file truncated under access",
+          "percent": 30,
+          "description": "A memory-mapped file was accessed after the file was truncated."
+        },
+        {
+          "cause": "Stack corruption causing misaligned stack frame",
+          "percent": 25,
+          "description": "Stack buffer overflow misaligned a stack-allocated variable."
+        }
+      ],
+      "repair_steps": [
+        "1. Enable Address Sanitizer and UBSan (Undefined Behavior Sanitizer) in Xcode",
+        "2. Review all packed struct access and pointer casts in C/C++ code",
+        "3. For mmap: validate file size before accessing mapped region",
+        "4. Enable -Wcast-align compiler warning"
+      ],
+      "test_procedure": [
+        "Build with UBSan (CLANG_UNDEFINED_BEHAVIOR_SANITIZER=YES in Xcode)",
+        "UBSan will report exact misaligned access location"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "app_crash_exc_bad_access",
+        "kernel_bus_alignment"
+      ]
+    },
+    {
+      "id": "app_crash_sigtrap",
+      "keywords": [
+        "SIGTRAP",
+        "EXC_BREAKPOINT (SIGTRAP)",
+        "EXC_BREAKPOINT",
+        "Trace/BPT trap"
+      ],
+      "category": "appCrash",
+      "component": "debugger_trap",
+      "severity": "software",
+      "confidence": 87,
+      "title": "SIGTRAP / EXC_BREAKPOINT — Breakpoint or Swift Runtime Trap",
+      "diagnosis": "SIGTRAP / EXC_BREAKPOINT was raised. On iOS in production (no debugger), this is almost always a Swift runtime trap: forced unwrap of nil Optional (fatalError, preconditionFailure), failed array bounds check, integer overflow in debug builds, or __builtin_trap(). PLCrashReporter captures this as EXC_MASK_BREAKPOINT.",
+      "probabilities": [
+        {
+          "cause": "Swift forced unwrap of nil (! operator)",
+          "percent": 45,
+          "description": "Optional value was nil when force-unwrapped with !."
+        },
+        {
+          "cause": "Swift array/collection bounds check failure",
+          "percent": 25,
+          "description": "Index out of bounds on Array, String, or Collection."
+        },
+        {
+          "cause": "fatalError() / preconditionFailure() called",
+          "percent": 20,
+          "description": "Programmer explicitly called a fatal error function."
+        },
+        {
+          "cause": "Integer overflow with -O optimization (overflow trap)",
+          "percent": 10,
+          "description": "Arithmetic overflow in Swift with overflow-checking enabled."
+        }
+      ],
+      "repair_steps": [
+        "1. Examine crash backtrace for the Swift file/line (look for .swift source files)",
+        "2. Replace ! force-unwraps with guard let or if let",
+        "3. Add bounds checking before collection index access",
+        "4. Review fatalError/preconditionFailure call sites for incorrect assumptions"
+      ],
+      "test_procedure": [
+        "Reproduce crash — check Xcode debugger console for 'Fatal error: ...' message",
+        "Search codebase for forced unwraps (!) near the crashing stack frame",
+        "Add guard statements for optionals in the crash path"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "app_crash_swift_fatal",
+        "app_crash_exc_breakpoint",
+        "app_crash_abort_assertion"
+      ]
+    },
+    {
+      "id": "app_crash_sigsys",
+      "keywords": [
+        "SIGSYS",
+        "SYS_EXIT",
+        "bad system call",
+        "EXC_SOFTWARE (SIGSYS)"
+      ],
+      "category": "appCrash",
+      "component": "syscall_sandbox",
+      "severity": "software",
+      "confidence": 80,
+      "title": "SIGSYS — Illegal System Call / Sandbox Violation",
+      "diagnosis": "SIGSYS indicates a forbidden system call was attempted. On iOS, this is primarily triggered by the sandbox (Sandbox SIGSYS = syscall blocked by policy). The app attempted to call a syscall that is not permitted by its sandbox profile. Also raised by seccomp-like filtering or when calling deprecated/removed syscalls.",
+      "probabilities": [
+        {
+          "cause": "App calling unauthorized syscall (sandbox violation)",
+          "percent": 60,
+          "description": "App attempted a syscall not permitted by iOS sandbox policy."
+        },
+        {
+          "cause": "Using private/deprecated low-level BSD syscall",
+          "percent": 25,
+          "description": "Code using a syscall number that no longer exists or was removed."
+        },
+        {
+          "cause": "JIT / dynamic code generation attempt",
+          "percent": 15,
+          "description": "App attempted to execute dynamically generated code without entitlement."
+        }
+      ],
+      "repair_steps": [
+        "1. Check crash log for the blocked syscall number",
+        "2. Review app entitlements — ensure required entitlements are present",
+        "3. Remove private API usage (check with MachOView or class-dump)",
+        "4. For JIT: add com.apple.security.cs.allow-jit entitlement"
+      ],
+      "test_procedure": [
+        "Check crash log Exception Subtype for the syscall number",
+        "Use sandbox-exec or Console.app to see sandbox violation logs"
+      ],
+      "models_affected": [],
+      "related_patterns": [
+        "sep_amfi_codesign",
+        "app_crash_sigabrt"
+      ]
     }
   ]
 }
