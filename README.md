@@ -30,8 +30,16 @@ Native macOS app for iPhone crash log analysis. Built for repair technicians.
 
 ## Build
 
+Build and package as a proper `.app` bundle:
+
 ```bash
-swift build
+bash make-app.sh          # debug build → iCrashDiag.app
+bash make-app.sh release  # release build
+open iCrashDiag.app
+```
+
+Or run directly (command-line, no dock icon):
+```bash
 swift run
 ```
 
