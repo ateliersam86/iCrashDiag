@@ -4,7 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>iCrashDiag — iPhone Crash Log Analyzer for Repair Technicians</title>
-  <meta name="description" content="Diagnose iPhone hardware issues in seconds. Import crash logs, get instant AI-powered diagnostics, identify hardware vs software failures." />
+  <meta name="description" content="Diagnose iPhone hardware issues in seconds. Import .ips crash logs, get instant diagnosis — hardware vs software, confidence scores, repair steps. Native macOS app." />
+
+  <!-- Open Graph / Social -->
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://icrashdiag.pages.dev/"/>
+  <meta property="og:title" content="iCrashDiag — iPhone Crash Log Analyzer"/>
+  <meta property="og:description" content="Import iPhone .ips crash logs and get instant hardware vs software diagnosis. 267-pattern offline knowledge base. Native macOS, no subscription."/>
+  <meta property="og:image" content="https://icrashdiag.pages.dev/og-image.svg"/>
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="iCrashDiag — iPhone Crash Log Analyzer"/>
+  <meta name="twitter:description" content="Diagnose iPhone hardware issues from crash logs. Native macOS app, offline, no subscription."/>
+  <meta name="twitter:image" content="https://icrashdiag.pages.dev/og-image.svg"/>
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -162,8 +176,9 @@
         <a href="#how-it-works" class="hover:text-white transition-colors">How it works</a>
         <a href="#pricing" class="hover:text-white transition-colors">Pricing</a>
       </div>
-      <a href="#pricing" class="bg-brand hover:bg-brand-dark text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
-        Get iCrashDiag
+      <!-- TODO: Replace with your Gumroad product URL -->
+      <a href="https://ateliersam.gumroad.com/l/icrashdiag" class="bg-brand hover:bg-brand-dark text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+        Get iCrashDiag Pro
       </a>
     </div>
   </nav>
@@ -186,8 +201,9 @@
       </p>
 
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <a href="#pricing" class="bg-brand hover:bg-brand-dark text-white font-semibold px-8 py-3.5 rounded-xl transition-colors shadow-lg shadow-orange-500/20">
-          Download — $9.99 one-time
+        <!-- TODO: Replace with your Gumroad product URL -->
+        <a href="https://ateliersam.gumroad.com/l/icrashdiag" class="bg-brand hover:bg-brand-dark text-white font-semibold px-8 py-3.5 rounded-xl transition-colors shadow-lg shadow-orange-500/20">
+          Get Pro — $9.99 one-time
         </a>
         <a href="#how-it-works" class="border border-white/10 hover:border-white/20 text-gray-300 hover:text-white font-medium px-8 py-3.5 rounded-xl transition-colors">
           See how it works
@@ -517,8 +533,8 @@
         <div class="flex gap-6 items-start">
           <div class="w-10 h-10 rounded-full bg-orange-500/20 border border-orange-500/40 flex items-center justify-center flex-shrink-0 text-orange-400 font-bold">2</div>
           <div>
-            <h3 class="font-semibold text-white mb-1">AI pattern matching</h3>
-            <p class="text-gray-400 text-sm leading-relaxed">The diagnosis engine matches each log against 40+ hardware and software failure signatures — kernel panics, jetsam events, GPU hangs, thermal shutdowns, OTA failures, and more.</p>
+            <h3 class="font-semibold text-white mb-1">267-pattern knowledge base</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">The diagnosis engine matches each log against 267 hardware and software failure signatures — sourced from XNU kernel source, KSCrash, and real-world repair data. Runs entirely offline, nothing sent to the cloud.</p>
           </div>
         </div>
         <div class="flex gap-6 items-start">
@@ -537,7 +553,8 @@
     <div class="max-w-4xl mx-auto">
       <div class="text-center mb-14">
         <h2 class="text-3xl font-bold text-white mb-3">Simple, honest pricing</h2>
-        <p class="text-gray-400">No subscription. No account required. One payment, yours forever.</p>
+        <p class="text-gray-400 mb-3">No subscription. No account required. One payment, yours forever.</p>
+        <p class="text-sm text-gray-500">Used by iOS technicians, repair shops, and developers worldwide.</p>
       </div>
 
       <div class="grid md:grid-cols-2 gap-6">
@@ -550,11 +567,11 @@
             <p class="text-sm text-gray-500">Forever free, no card required</p>
           </div>
           <ul class="space-y-3 text-sm text-gray-300 mb-8">
-            <li class="flex gap-3"><span class="text-green-400">✓</span>Up to 50 crash log files</li>
+            <li class="flex gap-3"><span class="text-green-400">✓</span>Up to 10 crash log files</li>
             <li class="flex gap-3"><span class="text-green-400">✓</span>Full diagnosis engine</li>
             <li class="flex gap-3"><span class="text-green-400">✓</span>USB device detection</li>
-            <li class="flex gap-3"><span class="text-green-400">✓</span>Markdown export</li>
-            <li class="flex gap-3"><span class="text-gray-600">✗</span><span class="text-gray-500">PDF export</span></li>
+            <li class="flex gap-3"><span class="text-gray-600">✗</span><span class="text-gray-500">Export PDF / Markdown reports</span></li>
+            <li class="flex gap-3"><span class="text-gray-600">✗</span><span class="text-gray-500">Crash share links</span></li>
             <li class="flex gap-3"><span class="text-gray-600">✗</span><span class="text-gray-500">Unlimited files</span></li>
           </ul>
           <a href="https://github.com/ateliersam86/iCrashDiag/releases" class="block text-center border border-white/15 hover:border-white/30 text-gray-300 hover:text-white font-medium py-3 rounded-xl transition-colors">
@@ -567,26 +584,34 @@
           <div class="absolute top-4 right-4 badge rounded-full px-3 py-1 text-xs text-orange-400 font-medium">Popular</div>
           <div class="mb-6">
             <h3 class="text-xl font-semibold text-white mb-1">Pro</h3>
-            <div class="text-4xl font-bold text-white mb-1">$9.99</div>
-            <p class="text-sm text-gray-500">One-time payment · 1 Mac</p>
+            <div class="flex items-baseline gap-2 mb-1">
+              <span class="text-gray-500 line-through text-lg">$19.99</span>
+              <span class="text-4xl font-bold text-white">$9.99</span>
+              <span class="text-xs text-orange-400 font-medium bg-orange-500/10 px-2 py-0.5 rounded-full">launch price</span>
+            </div>
+            <p class="text-sm text-gray-500">One-time payment · 1 Mac · yours forever</p>
           </div>
           <ul class="space-y-3 text-sm text-gray-300 mb-8">
-            <li class="flex gap-3"><span class="text-orange-400">✓</span>Unlimited crash log files</li>
-            <li class="flex gap-3"><span class="text-orange-400">✓</span>Full diagnosis engine</li>
-            <li class="flex gap-3"><span class="text-orange-400">✓</span>USB direct pull</li>
-            <li class="flex gap-3"><span class="text-orange-400">✓</span>PDF + JSON export</li>
-            <li class="flex gap-3"><span class="text-orange-400">✓</span>Priority knowledge base updates</li>
-            <li class="flex gap-3"><span class="text-orange-400">✓</span>All future features</li>
+            <li class="flex gap-3"><span class="text-orange-400">✓</span><strong class="text-white">Unlimited crash log files</strong></li>
+            <li class="flex gap-3"><span class="text-orange-400">✓</span>Export PDF &amp; Markdown reports</li>
+            <li class="flex gap-3"><span class="text-orange-400">✓</span>Crash share links (full or diagnosis-only)</li>
+            <li class="flex gap-3"><span class="text-orange-400">✓</span>Full session history per device</li>
+            <li class="flex gap-3"><span class="text-orange-400">✓</span>267-pattern offline knowledge base</li>
+            <li class="flex gap-3"><span class="text-orange-400">✓</span>All future updates included</li>
           </ul>
-          <a href="#pricing" class="block text-center bg-brand hover:bg-brand-dark text-white font-semibold py-3 rounded-xl transition-colors shadow-lg shadow-orange-500/20">
+          <!-- TODO: Replace with your Gumroad product URL -->
+          <a href="https://ateliersam.gumroad.com/l/icrashdiag" class="block text-center bg-brand hover:bg-brand-dark text-white font-semibold py-3 rounded-xl transition-colors shadow-lg shadow-orange-500/20">
             Buy Pro — $9.99
           </a>
+          <p class="text-center text-xs text-gray-600 mt-3">
+            ✓ 30-day money-back guarantee · No questions asked
+          </p>
         </div>
 
       </div>
 
       <p class="text-center text-sm text-gray-600 mt-6">
-        License is tied to your Mac. Contact us to transfer to a new machine.
+        License is tied to your Mac. Need to transfer? Just reach out.
       </p>
     </div>
   </section>
@@ -600,6 +625,11 @@
         <div class="border-b border-white/8 pb-6">
           <h3 class="font-medium text-white mb-2">Does iCrashDiag send data to the cloud?</h3>
           <p class="text-sm text-gray-400">No. All crash log parsing and diagnosis runs 100% locally on your Mac. The only network call is to validate your license key on launch.</p>
+        </div>
+
+        <div class="border-b border-white/8 pb-6">
+          <h3 class="font-medium text-white mb-2">macOS says "cannot be opened because the developer cannot be verified" — what do I do?</h3>
+          <p class="text-sm text-gray-400">This is macOS Gatekeeper protecting you from unsigned apps. iCrashDiag is safe but currently distributed outside the Mac App Store. To open it: <strong class="text-gray-300">right-click the app → Open → Open</strong>. You only need to do this once. Alternatively, go to System Settings → Privacy &amp; Security → scroll down → click "Open Anyway".</p>
         </div>
 
         <div class="border-b border-white/8 pb-6">
