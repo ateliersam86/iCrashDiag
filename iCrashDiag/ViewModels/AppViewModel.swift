@@ -15,7 +15,6 @@ enum LoadingStage: Equatable {
 @Observable
 @MainActor
 final class AppViewModel {
-    static weak var current: AppViewModel?
     var crashLogs: [CrashLog] = []
     var selectedCrashID: UUID?
     var selectedCategory: CrashCategory?
@@ -87,7 +86,14 @@ final class AppViewModel {
         self.parserEngine = CrashParserEngine(knowledgeBase: kb)
         self.diagnosisEngine = DiagnosisEngine(knowledgeBase: kb)
         self.sessionHistory = historyStore.load()
-        AppViewModel.current = self
+        // Observer pour l'activation licence
+        NotificationCenter.default.addObserver(
+            forName: .licenseActivated,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.unlockAllCrashes()
+        }
     }
 
     var rebootEvents: [CrashLog] {
@@ -172,8 +178,8 @@ final class AppViewModel {
 
     // MARK: - Import (Batched Progressive Streaming)
 
-    let freeFileCap = 50
-    // IDs of crash logs locked behind Pro (beyond the 50-file cap)
+    let freeFileCap = 10
+    // IDs of crash logs locked behind Pro (beyond the 10-file cap)
     private(set) var lockedCrashIDs: Set<UUID> = []
 
     func isLocked(_ crash: CrashLog) -> Bool {
@@ -182,7 +188,7 @@ final class AppViewModel {
 
     var lockedCount: Int { lockedCrashIDs.count }
 
-    func importFolder(url: URL, sourceLabel: String? = nil) async {
+    func importFolder(url: URL, sourceLabel: String? = nil, saveToHistory: Bool = true) async {
         isLoading = true
         loadingStage = .scanning
         crashLogs = []
@@ -260,19 +266,78 @@ final class AppViewModel {
         loadingStage = .done(count: crashLogs.count)
         isLoading = false
 
-        // Persist session to history (use free cap count for history, not total)
-        if !crashLogs.isEmpty {
+        // Persist session to history + copy .ips files for later restore
+        if !crashLogs.isEmpty && saveToHistory {
             let label = sourceLabel ?? url.lastPathComponent
+            let sessionId = UUID()
+            let storageURL = historyStore.sessionStorageURL(for: sessionId)
+
+            // Copy source .ips files into App Support session folder
+            if let files = try? FileManager.default.contentsOfDirectory(
+                at: url, includingPropertiesForKeys: nil
+            ) {
+                for file in files where file.pathExtension == "ips" || file.pathExtension == "log" {
+                    let dest = storageURL.appendingPathComponent(file.lastPathComponent)
+                    try? FileManager.default.copyItem(at: file, to: dest)
+                }
+            }
+
+            // Cache parsed results so restore skips re-parsing
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .secondsSince1970
+            if let data = try? encoder.encode(crashLogs) {
+                try? data.write(to: storageURL.appendingPathComponent("crashlogs.json"))
+            }
+            if let reportData = try? encoder.encode(analysisReport) {
+                try? reportData.write(to: storageURL.appendingPathComponent("report.json"))
+            }
+
             let session = AnalysisSession(
+                date: .now,
                 sourceLabel: label,
                 deviceName: connectedDevice?.name,
                 deviceModel: connectedDevice?.modelName,
                 iosVersion: connectedDevice?.osVersion,
-                crashes: crashLogs
+                crashes: crashLogs,
+                storedFolderPath: storageURL.path,
+                sourceFolderPath: url.path
             )
             historyStore.save(session)
             sessionHistory = historyStore.load()
         }
+    }
+
+    /// Restore a previous session — loads from cache if available, re-parses only if needed
+    func loadSession(_ session: AnalysisSession) async {
+        guard let folderURL = session.storedFolderURL else { return }
+
+        let crashCache  = folderURL.appendingPathComponent("crashlogs.json")
+        let reportCache = folderURL.appendingPathComponent("report.json")
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .secondsSince1970
+
+        if let cd = try? Data(contentsOf: crashCache),
+           let rd = try? Data(contentsOf: reportCache),
+           let logs   = try? decoder.decode([CrashLog].self, from: cd),
+           let report = try? decoder.decode(AnalysisReport.self, from: rd) {
+            // Instant restore — no re-parsing
+            crashLogs      = logs
+            analysisReport = report
+            selectedCrashID = nil
+            sessionHistory = historyStore.load()
+            return
+        }
+
+        // Fallback: re-parse (old sessions without cache, or corrupted cache)
+        // saveToHistory: false to avoid creating a duplicate session entry
+        await importFolder(url: folderURL, sourceLabel: session.sourceLabel, saveToHistory: false)
+    }
+
+    /// Re-link a grayed-out session to a folder the user located manually
+    func locateSession(_ session: AnalysisSession, at url: URL) async {
+        historyStore.updateSourcePath(id: session.id, path: url.path)
+        sessionHistory = historyStore.load()
+        await importFolder(url: url, sourceLabel: session.sourceLabel, saveToHistory: false)
     }
 
     func dismissLicenseGate() {
@@ -280,6 +345,7 @@ final class AppViewModel {
     }
 
     func unlockAllCrashes() {
+        guard licenseService.isPro else { return }
         lockedCrashIDs = []
         showLicenseGate = false
     }
@@ -379,6 +445,7 @@ final class AppViewModel {
     // MARK: - Export
 
     func copyReportToClipboard() {
+        guard licenseService.isPro else { showLicenseGate = true; return }
         guard let report = analysisReport else { return }
         let md = exportService.generateMarkdown(crashes: crashLogs, report: report)
         NSPasteboard.general.clearContents()
@@ -386,6 +453,7 @@ final class AppViewModel {
     }
 
     func saveReportAsFile() {
+        guard licenseService.isPro else { showLicenseGate = true; return }
         guard let report = analysisReport else { return }
         let panel = NSSavePanel()
         panel.nameFieldStringValue = "iCrashDiag-Report.md"
@@ -396,6 +464,7 @@ final class AppViewModel {
     }
 
     func exportPDF() {
+        guard licenseService.isPro else { showLicenseGate = true; return }
         guard let report = analysisReport else { return }
         let panel = NSSavePanel()
         panel.nameFieldStringValue = "iCrashDiag-Report.pdf"
@@ -412,6 +481,13 @@ final class AppViewModel {
                 errorMessage = "PDF export failed: \(error.localizedDescription)"
             }
         }
+    }
+
+    // MARK: - Sample Logs (demo / onboarding)
+
+    func loadSamples() async {
+        guard let samplesURL = Bundle.module.resourceURL?.appendingPathComponent("samples") else { return }
+        await importFolder(url: samplesURL, sourceLabel: "Sample Logs")
     }
 
     // MARK: - USB Availability

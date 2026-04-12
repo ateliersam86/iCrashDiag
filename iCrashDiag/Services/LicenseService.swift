@@ -79,9 +79,7 @@ final class LicenseService {
         UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: lastValidatedKey)
         state = .pro
         // Notify app to unlock blurred crashes
-        await MainActor.run {
-            AppViewModel.current?.unlockAllCrashes()
-        }
+        NotificationCenter.default.post(name: .licenseActivated, object: nil)
     }
 
     // MARK: - Deactivation
@@ -205,6 +203,12 @@ final class LicenseService {
         ]
         SecItemDelete(query as CFDictionary)
     }
+}
+
+// MARK: - Notification Names
+
+extension Notification.Name {
+    static let licenseActivated = Notification.Name("iCrashDiag.licenseActivated")
 }
 
 // MARK: - LicenseError
