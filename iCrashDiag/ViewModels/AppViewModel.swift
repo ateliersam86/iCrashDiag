@@ -38,6 +38,7 @@ final class AppViewModel {
 
     private let historyStore = SessionHistoryStore.shared
     private let folderWatcher = FolderWatcher()
+    nonisolated(unsafe) private var licenseObservers: [any NSObjectProtocol] = []
 
     // Derived loading values for the view
     var loadingProgress: Double {
@@ -87,13 +88,29 @@ final class AppViewModel {
         self.diagnosisEngine = DiagnosisEngine(knowledgeBase: kb)
         self.sessionHistory = historyStore.load()
         // Observer pour l'activation licence
-        NotificationCenter.default.addObserver(
+        let activatedToken = NotificationCenter.default.addObserver(
             forName: .licenseActivated,
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            self?.unlockAllCrashes()
+            Task { @MainActor [weak self] in
+                self?.unlockAllCrashes()
+            }
         }
+        let deactivatedToken = NotificationCenter.default.addObserver(
+            forName: .licenseDeactivated,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.relockCrashes()
+            }
+        }
+        licenseObservers = [activatedToken, deactivatedToken]
+    }
+
+    deinit {
+        licenseObservers.forEach { NotificationCenter.default.removeObserver($0) }
     }
 
     var rebootEvents: [CrashLog] {
@@ -344,10 +361,16 @@ final class AppViewModel {
         showLicenseGate = false
     }
 
-    func unlockAllCrashes() {
+    private func unlockAllCrashes() {
         guard licenseService.isPro else { return }
         lockedCrashIDs = []
         showLicenseGate = false
+    }
+
+    private func relockCrashes() {
+        guard !licenseService.isPro && crashLogs.count > freeFileCap else { return }
+        lockedCrashIDs = Set(crashLogs.dropFirst(freeFileCap).map(\.id))
+        showLicenseGate = true
     }
 
     func deleteSession(id: UUID) {

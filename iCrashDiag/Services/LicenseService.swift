@@ -88,6 +88,7 @@ final class LicenseService {
         deleteFromKeychain()
         licenseKey = nil
         state = .free
+        NotificationCenter.default.post(name: .licenseDeactivated, object: nil)
     }
 
     // MARK: - Network calls
@@ -208,7 +209,8 @@ final class LicenseService {
 // MARK: - Notification Names
 
 extension Notification.Name {
-    static let licenseActivated = Notification.Name("iCrashDiag.licenseActivated")
+    static let licenseActivated = Notification.Name("com.ateliersam.iCrashDiag.licenseActivated")
+    static let licenseDeactivated = Notification.Name("com.ateliersam.iCrashDiag.licenseDeactivated")
 }
 
 // MARK: - LicenseError
