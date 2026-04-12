@@ -25,7 +25,7 @@ final class LicenseService {
     private let workerURL = "https://icrashdiag-license.sam-muselet.workers.dev"
     private let keychainService = "com.ateliersam.iCrashDiag.license"
     private let keychainAccount = "licenseKey"
-    private let lastValidatedKey = "iCrashDiag.lastValidatedAt"
+    private let keychainAccountTimestamp = "lastValidatedAt"
     private let gracePeriodDays: Double = 7
 
     var isPro: Bool { state == .pro }
@@ -47,7 +47,7 @@ final class LicenseService {
             let valid = try await validateWithWorker(key: key, deviceId: deviceId)
             if valid {
                 state = .pro
-                UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: lastValidatedKey)
+                saveTimestamp(Date().timeIntervalSince1970)
             } else {
                 // Invalid / revoked
                 deleteFromKeychain()
@@ -76,7 +76,7 @@ final class LicenseService {
 
         saveToKeychain(key: trimmed)
         licenseKey = trimmed
-        UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: lastValidatedKey)
+        saveTimestamp(Date().timeIntervalSince1970)
         state = .pro
         // Notify app to unlock blurred crashes
         NotificationCenter.default.post(name: .licenseActivated, object: nil)
@@ -138,10 +138,9 @@ final class LicenseService {
     // MARK: - Grace period
 
     private func isWithinGracePeriod() -> Bool {
-        let ts = UserDefaults.standard.double(forKey: lastValidatedKey)
+        let ts = readTimestamp()
         guard ts > 0 else { return false }
-        let last = Date(timeIntervalSince1970: ts)
-        let elapsed = Date().timeIntervalSince(last)
+        let elapsed = Date().timeIntervalSince(Date(timeIntervalSince1970: ts))
         return elapsed < gracePeriodDays * 86400
     }
 
@@ -163,6 +162,36 @@ final class LicenseService {
     }
 
     // MARK: - Keychain
+
+    private func saveTimestamp(_ ts: Double) {
+        let data = withUnsafeBytes(of: ts) { Data($0) }
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: keychainAccountTimestamp,
+        ]
+        SecItemDelete(query as CFDictionary)
+        let addQuery: [String: Any] = query.merging([
+            kSecValueData as String: data,
+            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlocked,
+        ], uniquingKeysWith: { $1 })
+        SecItemAdd(addQuery as CFDictionary, nil)
+    }
+
+    private func readTimestamp() -> Double {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: keychainAccountTimestamp,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne,
+        ]
+        var result: AnyObject?
+        guard SecItemCopyMatching(query as CFDictionary, &result) == errSecSuccess,
+              let data = result as? Data, data.count == 8
+        else { return 0 }
+        return data.withUnsafeBytes { $0.load(as: Double.self) }
+    }
 
     private func saveToKeychain(key: String) {
         let data = key.data(using: .utf8)!
