@@ -1,6 +1,9 @@
 import SwiftUI
 import UserNotifications
 
+private let gumroadProductURL = URL(string: "https://ateliersam.gumroad.com/l/icrashdiag")
+private let githubRepoURL = URL(string: "https://github.com/ateliersam86/iCrashDiag")
+
 struct SettingsView: View {
     @State private var settings = AppSettings.shared
     @State private var selectedTab = "general"
@@ -45,12 +48,12 @@ private struct GeneralSettingsTab: View {
         Form {
             Section {
                 Picker("Appearance", selection: $settings.appearanceMode) {
-                    Text("System").tag("auto")
-                    Text("Light").tag("light")
-                    Text("Dark").tag("dark")
+                    Text("System", bundle: .module).tag("auto")
+                    Text("Light", bundle: .module).tag("light")
+                    Text("Dark", bundle: .module).tag("dark")
                 }
                 .pickerStyle(.segmented)
-            } header: { Text("Appearance") }
+            } header: { Text("Appearance", bundle: .module) }
 
             Section {
                 Picker("Language", selection: $settings.languageCode) {
@@ -64,19 +67,21 @@ private struct GeneralSettingsTab: View {
                         Image(systemName: "info.circle")
                             .foregroundStyle(.secondary)
                             .font(.caption)
-                        Text("Restart the app to fully apply the language change.")
+                        Text("Restart the app to fully apply the language change.", bundle: .module)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
-            } header: { Text("Language") }
+            } header: { Text("Language", bundle: .module) }
 
             Section {
                 Toggle("Auto-detect iPhone via USB", isOn: $settings.usbPollingEnabled)
+                Toggle("Auto-capture logs on connect", isOn: $settings.autoCaptureLogs)
+                    .disabled(!settings.usbPollingEnabled)
             } header: {
-                Text("USB Detection")
+                Text("USB Detection", bundle: .module)
             } footer: {
-                Text("Polls for connected devices every 3 seconds.")
+                Text("When auto-capture is on, crash logs are pulled automatically each time an iPhone is connected and saved for later review.", bundle: .module)
             }
         }
         .formStyle(.grouped)
@@ -94,13 +99,13 @@ private struct NotificationsSettingsTab: View {
             Section {
                 Toggle("iPhone connected", isOn: $settings.notifyOnDeviceConnect)
                 Toggle("Analysis complete", isOn: $settings.notifyOnAnalysisComplete)
-            } header: { Text("System Notifications") }
+            } header: { Text("System Notifications", bundle: .module) }
 
             Section {
                 Button("Request Notification Permission") {
                     requestPermission()
                 }
-            } header: { Text("Permissions") }
+            } header: { Text("Permissions", bundle: .module) }
         }
         .formStyle(.grouped)
         .padding()
@@ -125,9 +130,17 @@ private struct KnowledgeBaseSettingsTab: View {
     var body: some View {
         Form {
             Section {
-                Toggle("Auto-update knowledge base on launch", isOn: $settings.autoUpdateKB)
                 LabeledContent("Current version", value: viewModel.knowledgeBase.version)
-            } header: { Text("Updates") }
+                LabeledContent("Patterns loaded", value: "\(viewModel.knowledgeBase.patterns.count)")
+            } header: {
+                Text("Knowledge Base", bundle: .module)
+            } footer: {
+                Text("The knowledge base is an offline database of crash signatures and repair patterns. It maps crash log identifiers to known hardware and software causes — no internet connection required for analysis. Keeping it up to date improves diagnosis accuracy.", bundle: .module)
+            }
+
+            Section {
+                Toggle("Auto-update on launch", isOn: $settings.autoUpdateKB)
+            } header: { Text("Updates", bundle: .module) }
 
             Section {
                 HStack {
@@ -147,7 +160,7 @@ private struct KnowledgeBaseSettingsTab: View {
                         Text(updateStatus).font(.caption).foregroundStyle(.secondary)
                     }
                 }
-            } header: { Text("Manual") }
+            } header: { Text("Manual", bundle: .module) }
         }
         .formStyle(.grouped)
         .padding()
@@ -163,10 +176,10 @@ private struct ExportSettingsTab: View {
         Form {
             Section {
                 Toggle("Include raw .ips body in JSON export", isOn: $settings.exportIncludeRawBody)
-            } header: { Text("JSON Export") }
+            } header: { Text("JSON Export", bundle: .module) }
 
             Section {
-                Text("Markdown and PDF exports always include the full diagnosis report.")
+                Text("Markdown and PDF exports always include the full diagnosis report.", bundle: .module)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -193,15 +206,15 @@ private struct LicenseSettingsTab: View {
                     Text(licenseService.isPro ? "iCrashDiag Pro" : "Free Version")
                         .font(.headline)
                     if licenseService.state == .graceExpired {
-                        Text("Grace period expired — reconnect to validate")
+                        Text("Grace period expired — reconnect to validate", bundle: .module)
                             .font(.caption)
                             .foregroundStyle(.orange)
                     } else if licenseService.isPro {
-                        Text("Unlimited crash log analysis")
+                        Text("Unlimited crash log analysis", bundle: .module)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     } else {
-                        Text("50 crash log file limit")
+                        Text("10 crash log file limit", bundle: .module)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -216,7 +229,7 @@ private struct LicenseSettingsTab: View {
 
             if licenseService.isPro, let key = licenseService.licenseKey {
                 HStack {
-                    Text("License key:")
+                    Text("License key:", bundle: .module)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     Text(String(key.prefix(8)) + "•••••••••••••")
@@ -240,8 +253,8 @@ private struct LicenseSettingsTab: View {
                     }
                     .buttonStyle(.borderedProminent)
 
-                    Button("Get a License") {
-                        NSWorkspace.shared.open(URL(string: "https://icrashdiag.pages.dev/#pricing")!)
+                    Button("Get a License — $9.99") {
+                        if let url = gumroadProductURL { NSWorkspace.shared.open(url) }
                     }
                     .buttonStyle(.bordered)
                 }
@@ -269,18 +282,19 @@ private struct AboutTab: View {
             }
 
             VStack(spacing: 4) {
-                Text("iCrashDiag").font(.title2).fontWeight(.bold)
-                Text("Version 1.0").font(.caption).foregroundStyle(.secondary)
-                Text("iPhone crash log analyzer for repair technicians")
+                Text("iCrashDiag", bundle: .module).font(.title2).fontWeight(.bold)
+                Text("Version 1.0", bundle: .module).font(.caption).foregroundStyle(.secondary)
+                Text("iPhone crash log analyzer for repair technicians", bundle: .module)
                     .font(.caption).foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             }
 
             HStack(spacing: 16) {
-                Link("GitHub", destination: URL(string: "https://github.com/ateliersam86/iCrashDiag")!)
-                    .font(.caption)
-                Text("•").foregroundStyle(.tertiary)
-                Text("MIT License").font(.caption).foregroundStyle(.secondary)
+                if let url = githubRepoURL {
+                    Link("GitHub", destination: url).font(.caption)
+                }
+                Text("•", bundle: .module).foregroundStyle(.tertiary)
+                Text("MIT License", bundle: .module).font(.caption).foregroundStyle(.secondary)
             }
         }
         .padding()
