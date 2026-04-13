@@ -73,7 +73,7 @@ final class DiagnosisEngine: Sendable {
 
         let total = diagnosedCrashes.count
         let dates = diagnosedCrashes.map(\.timestamp).sorted()
-        let dateRange: DateRange? = dates.count >= 2 ? DateRange(start: dates.first!, end: dates.last!) : nil
+        let dateRange: DateRange? = (dates.count >= 2) ? DateRange(start: dates[0], end: dates[dates.count - 1]) : nil
 
         var deviceModels: [String: Int] = [:]
         for c in diagnosedCrashes {
@@ -112,10 +112,8 @@ final class DiagnosisEngine: Sendable {
             if let s = c.faultingService { serviceFrequency[s, default: 0] += 1 }
         }
 
-        let dayFormatter = DateFormatter()
-        dayFormatter.dateFormat = "yyyy-MM-dd"
         var crashesPerDay: [String: Int] = [:]
-        for c in diagnosedCrashes { crashesPerDay[dayFormatter.string(from: c.timestamp), default: 0] += 1 }
+        for c in diagnosedCrashes { crashesPerDay[Self.dayFormatter.string(from: c.timestamp), default: 0] += 1 }
 
         let dominant = topPatterns.first.flatMap { top in
             diagnosedCrashes.first(where: { $0.diagnosis?.patternID == top.patternID })?.diagnosis
@@ -152,6 +150,13 @@ final class DiagnosisEngine: Sendable {
             overallVerdict: Verdict(isHardware: isHardware, confidence: confidence, summary: verdictSummary)
         )
     }
+
+    private static let dayFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.dateFormat = "yyyy-MM-dd"
+        return f
+    }()
 
     private func applyConfidenceModifiers(baseConfidence: Int, totalCrashes: Int, topPattern: PatternFrequency?, totalPatterns: Int) -> Int {
         var confidence = baseConfidence

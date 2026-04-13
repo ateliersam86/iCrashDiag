@@ -44,7 +44,7 @@ struct DeviceDashboardView: View {
                                     .foregroundStyle(.white.opacity(0.75))
                             }
                             if let ios = device.osVersion {
-                                Text("·")
+                                Text("·", bundle: .module)
                                     .foregroundStyle(.white.opacity(0.4))
                                 Text("iOS \(ios)")
                                     .font(.subheadline)
@@ -54,7 +54,7 @@ struct DeviceDashboardView: View {
 
                         HStack(spacing: 4) {
                             Circle().fill(.green).frame(width: 6, height: 6)
-                            Text("Connected via USB")
+                            Text("Connected via USB", bundle: .module)
                                 .font(.caption)
                                 .foregroundStyle(.white.opacity(0.6))
                         }

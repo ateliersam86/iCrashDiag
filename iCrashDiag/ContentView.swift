@@ -3,6 +3,7 @@ import UniformTypeIdentifiers
 
 struct ContentView: View {
     @Environment(AppViewModel.self) private var viewModel
+    @Environment(\.openSettings) private var openSettings
 
     var body: some View {
         ZStack {
@@ -29,6 +30,15 @@ struct ContentView: View {
             .navigationSplitViewStyle(.balanced)
             .navigationTitle("iCrashDiag")
             .toolbar {
+                ToolbarItem(placement: .automatic) {
+                    Button {
+                        openSettings()
+                    } label: {
+                        Label("Settings", systemImage: "gearshape")
+                    }
+                    .help("Open Settings (⌘,)")
+                }
+
                 if viewModel.analysisReport != nil {
                     ToolbarItem(placement: .navigation) {
                         Button {
@@ -42,17 +52,24 @@ struct ContentView: View {
                     }
 
                     ToolbarItemGroup(placement: .primaryAction) {
+                        let isPro = viewModel.licenseService.isPro
                         Menu {
                             Button {
                                 viewModel.copyReportToClipboard()
                             } label: {
-                                Label("Copy as Markdown", systemImage: "doc.on.clipboard")
+                                Label(
+                                    isPro ? "Copy as Markdown" : "Copy as Markdown (Pro)",
+                                    systemImage: isPro ? "doc.on.clipboard" : "lock.fill"
+                                )
                             }
 
                             Button {
                                 viewModel.saveReportAsFile()
                             } label: {
-                                Label("Save as Markdown…", systemImage: "doc.text")
+                                Label(
+                                    isPro ? "Save as Markdown…" : "Save as Markdown… (Pro)",
+                                    systemImage: isPro ? "doc.text" : "lock.fill"
+                                )
                             }
 
                             Divider()
@@ -60,16 +77,16 @@ struct ContentView: View {
                             Button {
                                 viewModel.exportPDF()
                             } label: {
-                                Label("Export PDF…", systemImage: "doc.richtext")
+                                Label(
+                                    isPro ? "Export PDF…" : "Export PDF… (Pro)",
+                                    systemImage: isPro ? "doc.richtext" : "lock.fill"
+                                )
                             }
                         } label: {
-                            Label("Export", systemImage: "square.and.arrow.up")
+                            Label("Export", systemImage: isPro ? "square.and.arrow.up" : "square.and.arrow.up.trianglebadge.exclamationmark")
                         }
-                        .help("Export report")
+                        .help(isPro ? "Export report" : "Export report — requires Pro")
 
-                        Text("KB v\(viewModel.knowledgeBase.version)")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
                     }
                 }
             }

@@ -4,6 +4,10 @@ struct CrashDetailView: View {
     let crash: CrashLog
     @Environment(AppViewModel.self) private var viewModel
     @State private var showRaw = false
+    @State private var showShareSheet = false
+    @State private var isSubmittingUnknown = false
+    @State private var unknownSubmitted = false
+    @State private var feedbackSent: Bool? = nil   // nil=not sent, true=helpful, false=not helpful
 
     var body: some View {
         ScrollView {
@@ -13,7 +17,7 @@ struct CrashDetailView: View {
                     ProbabilityBarsView(probabilities: diag.probabilities)
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Repair Steps")
+                        Text("Repair Steps", bundle: .module)
                             .font(.subheadline)
                             .fontWeight(.semibold)
                         ForEach(diag.repairSteps, id: \.self) { step in
@@ -23,7 +27,7 @@ struct CrashDetailView: View {
                     }
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Test Procedure")
+                        Text("Test Procedure", bundle: .module)
                             .font(.subheadline)
                             .fontWeight(.semibold)
                         ForEach(diag.testProcedure, id: \.self) { test in
@@ -32,22 +36,66 @@ struct CrashDetailView: View {
                         }
                     }
                 } else {
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 10) {
                         Label("No known pattern detected", systemImage: "questionmark.circle")
                             .font(.headline)
-                        Text("Export the raw data for analysis with an AI tool.")
+                        Text("Export the raw data for analysis with an AI tool.", bundle: .module)
                             .font(.caption)
                             .foregroundStyle(.secondary)
+
+                        // Submit unknown button
+                        Button {
+                            Task { await submitUnknownPattern() }
+                        } label: {
+                            if isSubmittingUnknown {
+                                ProgressView().controlSize(.small)
+                            } else if unknownSubmitted {
+                                Label("Submitted — thanks!", systemImage: "checkmark.circle.fill")
+                                    .foregroundStyle(.green)
+                            } else {
+                                Label("Submit to improve the knowledge base", systemImage: "arrow.up.circle")
+                            }
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                        .disabled(isSubmittingUnknown || unknownSubmitted)
                     }
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(.quaternary, in: RoundedRectangle(cornerRadius: 10))
                 }
 
+                // Feedback row (only when diagnosis exists and confidence is meaningful)
+                if let diag = crash.diagnosis, diag.confidencePercent >= 20 {
+                    HStack(spacing: 6) {
+                        Text("Was this diagnosis helpful?", bundle: .module)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        if let sent = feedbackSent {
+                            Label(sent ? "Helpful" : "Not helpful", systemImage: sent ? "hand.thumbsup.fill" : "hand.thumbsdown.fill")
+                                .font(.caption2)
+                                .foregroundStyle(sent ? .green : .orange)
+                        } else {
+                            Button { Task { await sendFeedback(helpful: true) } } label: {
+                                Image(systemName: "hand.thumbsup")
+                            }
+                            .buttonStyle(.bordered)
+                            .controlSize(.mini)
+                            Button { Task { await sendFeedback(helpful: false) } } label: {
+                                Image(systemName: "hand.thumbsdown")
+                            }
+                            .buttonStyle(.bordered)
+                            .controlSize(.mini)
+                        }
+                    }
+                    .padding(.horizontal, 4)
+                }
+
                 Divider()
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Device Info")
+                    Text("Device Info", bundle: .module)
                         .font(.subheadline)
                         .fontWeight(.semibold)
 
@@ -79,7 +127,7 @@ struct CrashDetailView: View {
                 if hasCategoryDetails {
                     Divider()
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Crash Details")
+                        Text("Crash Details", bundle: .module)
                             .font(.subheadline)
                             .fontWeight(.semibold)
 
@@ -129,6 +177,18 @@ struct CrashDetailView: View {
                         showRaw.toggle()
                     }
                     .buttonStyle(.bordered)
+
+                    Spacer()
+
+                    Button {
+                        showShareSheet = true
+                    } label: {
+                        Label("Share", systemImage: "square.and.arrow.up")
+                    }
+                    .buttonStyle(.bordered)
+                }
+                .sheet(isPresented: $showShareSheet) {
+                    ShareCrashView(crash: crash)
                 }
 
                 if showRaw {
@@ -142,6 +202,21 @@ struct CrashDetailView: View {
             }
             .padding()
         }
+    }
+
+    private func submitUnknownPattern() async {
+        isSubmittingUnknown = true
+        let ok = await CommunityService.shared.submitUnknown(crash)
+        await MainActor.run {
+            isSubmittingUnknown = false
+            unknownSubmitted = ok
+        }
+    }
+
+    private func sendFeedback(helpful: Bool) async {
+        guard let patternID = crash.diagnosis?.patternID else { return }
+        await CommunityService.shared.submitFeedback(patternID: patternID, helpful: helpful, crash: crash)
+        await MainActor.run { feedbackSent = helpful }
     }
 
     private func copySingleCrashReport() {

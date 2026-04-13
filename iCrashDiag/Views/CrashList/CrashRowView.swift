@@ -18,7 +18,7 @@ struct CrashRowView: View {
                     Image(systemName: "lock.fill")
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundStyle(.secondary)
-                    Text("Pro")
+                    Text("Pro", bundle: .module)
                         .font(.system(size: 10, weight: .bold))
                         .foregroundStyle(.secondary)
                 }
@@ -44,6 +44,7 @@ struct CrashRowView: View {
             RoundedRectangle(cornerRadius: 2)
                 .fill(severityColor)
                 .frame(width: 3, height: 32)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 0) {

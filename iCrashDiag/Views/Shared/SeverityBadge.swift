@@ -33,5 +33,7 @@ struct SeverityBadge: View {
         .padding(.horizontal, 7)
         .padding(.vertical, 3)
         .background(severity.badgeColor.opacity(0.13), in: Capsule())
+        .accessibilityLabel(Text("\(severity.rawValue.capitalized) severity"))
+        .accessibilityElement(children: .ignore)
     }
 }

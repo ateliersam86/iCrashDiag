@@ -15,10 +15,10 @@ struct ActivateLicenseView: View {
                 Image(systemName: "key.fill")
                     .font(.system(size: 28))
                     .foregroundStyle(Color.accentColor)
-                Text("Activate iCrashDiag Pro")
+                Text("Activate iCrashDiag Pro", bundle: .module)
                     .font(.title3)
                     .fontWeight(.bold)
-                Text("Enter the license key from your purchase email.")
+                Text("Enter the license key from your purchase email.", bundle: .module)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -26,7 +26,7 @@ struct ActivateLicenseView: View {
 
             // Input field
             VStack(alignment: .leading, spacing: 6) {
-                Text("License Key")
+                Text("License Key", bundle: .module)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 TextField("XXXX-XXXX-XXXX-XXXX", text: $keyInput)
@@ -56,7 +56,7 @@ struct ActivateLicenseView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundStyle(.green)
-                    Text("License activated! Thank you for your support.")
+                    Text("License activated! Thank you for your support.", bundle: .module)
                         .font(.callout)
                         .fontWeight(.semibold)
                 }
@@ -81,12 +81,12 @@ struct ActivateLicenseView: View {
                     if isValidating {
                         HStack(spacing: 6) {
                             ProgressView().controlSize(.small)
-                            Text("Validating…")
+                            Text("Validating…", bundle: .module)
                         }
                     } else if success {
                         Label("Done", systemImage: "checkmark")
                     } else {
-                        Text("Activate")
+                        Text("Activate", bundle: .module)
                     }
                 }
                 .buttonStyle(.borderedProminent)

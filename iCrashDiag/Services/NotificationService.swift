@@ -4,9 +4,10 @@ enum NotificationService {
     @MainActor
     static func deviceConnected(name: String) {
         guard AppSettings.shared.notifyOnDeviceConnect else { return }
+        let suffix = NSLocalizedString(" is ready. Tap to pull crash logs.", bundle: .main, comment: "")
         send(
-            title: "iPhone Connected",
-            body: "\(name) is ready. Tap to pull crash logs.",
+            title: NSLocalizedString("iPhone Connected", bundle: .main, comment: ""),
+            body: name + suffix,
             id: "device-connected"
         )
     }
@@ -14,8 +15,9 @@ enum NotificationService {
     @MainActor
     static func analysisComplete(count: Int, verdict: String) {
         guard AppSettings.shared.notifyOnAnalysisComplete else { return }
+        let fmt = NSLocalizedString("Analysis Complete — %lld logs", bundle: .main, comment: "")
         send(
-            title: "Analysis Complete — \(count) logs",
+            title: String(format: fmt, count),
             body: verdict,
             id: "analysis-complete"
         )

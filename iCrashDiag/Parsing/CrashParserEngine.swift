@@ -133,14 +133,23 @@ final class CrashParserEngine: Sendable {
 
     // MARK: - Static Helpers
 
+    private static let tsFormatterMs: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.dateFormat = "yyyy-MM-dd HH:mm:ss.SS Z"
+        return f
+    }()
+    private static let tsFormatterSec: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
+        return f
+    }()
+
     static func parseTimestamp(_ str: String?) -> Date? {
         guard let str else { return nil }
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SS Z"
-        if let d = formatter.date(from: str) { return d }
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
-        return formatter.date(from: str)
+        if let d = tsFormatterMs.date(from: str) { return d }
+        return tsFormatterSec.date(from: str)
     }
 
     static func extractMissingSensors(from text: String) -> [String] {

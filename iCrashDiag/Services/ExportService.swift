@@ -55,7 +55,7 @@ struct ExportService: Sendable {
             md += "## Timeline\n"
             md += "| Date | Crashes |\n|------|--------|\n"
             for day in report.crashesPerDay.keys.sorted() {
-                md += "| \(day) | \(report.crashesPerDay[day]!) |\n"
+                md += "| \(day) | \(report.crashesPerDay[day, default: 0]) |\n"
             }
             md += "\n"
         }
@@ -167,12 +167,22 @@ struct ExportService: Sendable {
             .replacingOccurrences(of: ">", with: "&gt;")
     }
 
-    func generateJSON(crashes: [CrashLog], report: AnalysisReport) throws -> Data {
+    func generateJSON(crashes: [CrashLog], report: AnalysisReport, includeRawBody: Bool = true) throws -> Data {
         let export = ExportPayload(generatedAt: Date(), appVersion: "1.0", report: report, crashes: crashes)
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         encoder.dateEncodingStrategy = .iso8601
-        return try encoder.encode(export)
+        let data = try encoder.encode(export)
+
+        guard !includeRawBody else { return data }
+
+        // Strip rawBody from each crash entry
+        var json = (try? JSONSerialization.jsonObject(with: data) as? [String: Any]) ?? [:]
+        if var arr = json["crashes"] as? [[String: Any]] {
+            arr = arr.map { var c = $0; c.removeValue(forKey: "rawBody"); return c }
+            json["crashes"] = arr
+        }
+        return (try? JSONSerialization.data(withJSONObject: json, options: [.prettyPrinted, .sortedKeys])) ?? data
     }
 }
 

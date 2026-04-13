@@ -151,9 +151,8 @@ struct CrashLog: Identifiable, Codable, Hashable, Sendable {
     /// True if this event forces a full device reboot (kernel panic, watchdog, severe thermal shutdown).
     var isRebootEvent: Bool {
         category == .kernelPanic || category == .watchdog
-        || (category == .thermal && (panicString?.contains("thermal shutdown") == true
-                                      || panicString?.contains("Thermal shutdown") == true
-                                      || faultingService == "critical"))
+        || (category == .thermal && (panicString?.lowercased().contains("thermal shutdown") == true
+                                      || faultingService?.lowercased() == "critical"))
     }
 
     static func == (lhs: CrashLog, rhs: CrashLog) -> Bool { lhs.id == rhs.id }

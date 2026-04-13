@@ -15,7 +15,14 @@ enum LoadingStage: Equatable {
 @Observable
 @MainActor
 final class AppViewModel {
-    var crashLogs: [CrashLog] = []
+    var crashLogs: [CrashLog] = [] {
+        didSet {
+            _categoryCounters = nil
+            _severityCounters = nil
+        }
+    }
+    @ObservationIgnored private var _categoryCounters: [(CrashCategory, Int)]? = nil
+    @ObservationIgnored private var _severityCounters: [(Severity, Int)]? = nil
     var selectedCrashID: UUID?
     var selectedCategory: CrashCategory?
     var selectedSeverity: Severity?
@@ -75,9 +82,9 @@ final class AppViewModel {
         }
     }
 
-    let knowledgeBase: KnowledgeBase
-    let parserEngine: CrashParserEngine
-    let diagnosisEngine: DiagnosisEngine
+    var knowledgeBase: KnowledgeBase
+    var parserEngine: CrashParserEngine
+    var diagnosisEngine: DiagnosisEngine
     let usbService = USBDeviceService()
     let exportService = ExportService()
 
@@ -173,24 +180,30 @@ final class AppViewModel {
     }
 
     var categoryCounters: [(CrashCategory, Int)] {
+        if let cached = _categoryCounters { return cached }
         var counts: [CrashCategory: Int] = [:]
         for c in crashLogs { counts[c.category, default: 0] += 1 }
-        return CrashCategory.allCases.compactMap { cat in
+        let result = CrashCategory.allCases.compactMap { cat -> (CrashCategory, Int)? in
             guard let count = counts[cat], count > 0 else { return nil }
             return (cat, count)
         }
+        _categoryCounters = result
+        return result
     }
 
     var severityCounters: [(Severity, Int)] {
+        if let cached = _severityCounters { return cached }
         var counts: [Severity: Int] = [:]
         for c in crashLogs {
             let sev = c.diagnosis?.severity ?? .informational
             counts[sev, default: 0] += 1
         }
-        return Severity.allCases.compactMap { sev in
+        let result = Severity.allCases.compactMap { sev -> (Severity, Int)? in
             guard let count = counts[sev], count > 0 else { return nil }
             return (sev, count)
         }
+        _severityCounters = result
+        return result
     }
 
     // MARK: - Import (Batched Progressive Streaming)
@@ -215,7 +228,6 @@ final class AppViewModel {
         let engine = parserEngine
         let diag = diagnosisEngine
         var buffer: [CrashLog] = []
-        var lastFlushIndex = 0
         let batchSize = 20
         var parsedCount = 0
 
@@ -245,7 +257,6 @@ final class AppViewModel {
                 if shouldFlush && !buffer.isEmpty {
                     let batch = buffer
                     buffer = []
-                    lastFlushIndex = index
                     withAnimation(.easeOut(duration: 0.25)) {
                         crashLogs.append(contentsOf: batch)
                     }
@@ -283,6 +294,12 @@ final class AppViewModel {
         loadingStage = .done(count: crashLogs.count)
         isLoading = false
 
+        // Notify analysis complete
+        NotificationService.analysisComplete(
+            count: crashLogs.count,
+            verdict: report.overallVerdict.summary
+        )
+
         // Persist session to history + copy .ips files for later restore
         if !crashLogs.isEmpty && saveToHistory {
             let label = sourceLabel ?? url.lastPathComponent
@@ -303,10 +320,10 @@ final class AppViewModel {
             let encoder = JSONEncoder()
             encoder.dateEncodingStrategy = .secondsSince1970
             if let data = try? encoder.encode(crashLogs) {
-                try? data.write(to: storageURL.appendingPathComponent("crashlogs.json"))
+                try? data.write(to: storageURL.appendingPathComponent("crashlogs.json"), options: .atomic)
             }
             if let reportData = try? encoder.encode(analysisReport) {
-                try? reportData.write(to: storageURL.appendingPathComponent("report.json"))
+                try? reportData.write(to: storageURL.appendingPathComponent("report.json"), options: .atomic)
             }
 
             let session = AnalysisSession(
@@ -346,8 +363,20 @@ final class AppViewModel {
         }
 
         // Fallback: re-parse (old sessions without cache, or corrupted cache)
-        // saveToHistory: false to avoid creating a duplicate session entry
         await importFolder(url: folderURL, sourceLabel: session.sourceLabel, saveToHistory: false)
+
+        // After re-parse, write cache so next open is instant
+        let storageURL = historyStore.sessionStorageURL(for: session.id)
+        let enc = JSONEncoder()
+        enc.dateEncodingStrategy = .secondsSince1970
+        if let data = try? enc.encode(crashLogs) {
+            try? data.write(to: storageURL.appendingPathComponent("crashlogs.json"), options: .atomic)
+        }
+        if let report = analysisReport, let rd = try? enc.encode(report) {
+            try? rd.write(to: storageURL.appendingPathComponent("report.json"), options: .atomic)
+        }
+        historyStore.updateStoredPath(id: session.id, path: storageURL.path)
+        sessionHistory = historyStore.load()
     }
 
     /// Re-link a grayed-out session to a folder the user located manually
@@ -355,6 +384,19 @@ final class AppViewModel {
         historyStore.updateSourcePath(id: session.id, path: url.path)
         sessionHistory = historyStore.load()
         await importFolder(url: url, sourceLabel: session.sourceLabel, saveToHistory: false)
+
+        // Cache results so next open is instant
+        let storageURL = historyStore.sessionStorageURL(for: session.id)
+        let enc = JSONEncoder()
+        enc.dateEncodingStrategy = .secondsSince1970
+        if let data = try? enc.encode(crashLogs) {
+            try? data.write(to: storageURL.appendingPathComponent("crashlogs.json"), options: .atomic)
+        }
+        if let report = analysisReport, let rd = try? enc.encode(report) {
+            try? rd.write(to: storageURL.appendingPathComponent("report.json"), options: .atomic)
+        }
+        historyStore.updateStoredPath(id: session.id, path: storageURL.path)
+        sessionHistory = historyStore.load()
     }
 
     func dismissLicenseGate() {
@@ -446,7 +488,11 @@ final class AppViewModel {
             errorMessage = "No iPhone detected. Connect via USB cable."
             return
         }
-        connectedDevice = usbService.deviceInfo(udid: udid, knowledgeBase: knowledgeBase)
+        let svc = usbService
+        let kb = knowledgeBase
+        connectedDevice = await Task.detached(priority: .userInitiated) {
+            svc.deviceInfo(udid: udid, knowledgeBase: kb)
+        }.value
         isLoading = true
         loadingStage = .scanning
 
@@ -517,5 +563,16 @@ final class AppViewModel {
 
     func checkUSBAvailability() {
         usbAvailable = usbService.isAvailable
+    }
+
+    // MARK: - Knowledge Base reload
+
+    /// Reloads KnowledgeBase from disk (after an OTA update) without restarting the app.
+    /// Also rebuilds parserEngine and diagnosisEngine so new patterns are used immediately.
+    func reloadKnowledgeBase() {
+        let kb = KnowledgeBase()
+        knowledgeBase = kb
+        parserEngine = CrashParserEngine(knowledgeBase: kb)
+        diagnosisEngine = DiagnosisEngine(knowledgeBase: kb)
     }
 }

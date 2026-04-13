@@ -25,7 +25,7 @@ struct WhatsNewView: View {
                         .font(.system(size: 34, weight: .light))
                         .foregroundStyle(Color.orange)
                 }
-                Text("What's New in iCrashDiag")
+                Text("What's New in iCrashDiag", bundle: .module)
                     .font(.title2).fontWeight(.bold)
             }
             .padding(.top, 32)

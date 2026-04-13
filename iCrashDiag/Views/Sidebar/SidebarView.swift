@@ -35,7 +35,7 @@ struct SidebarView: View {
                         Image(systemName: "info.circle")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
-                        Text("USB requires libimobiledevice:\nbrew install libimobiledevice")
+                        Text("USB requires libimobiledevice:\nbrew install libimobiledevice", bundle: .module)
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
@@ -60,7 +60,7 @@ struct SidebarView: View {
                         Image(systemName: "tray")
                             .font(.title2)
                             .foregroundStyle(.tertiary)
-                        Text("No logs loaded")
+                        Text("No logs loaded", bundle: .module)
                             .font(.caption)
                             .foregroundStyle(.tertiary)
                     }
@@ -69,7 +69,11 @@ struct SidebarView: View {
                     List {
                         Section("Recent Sessions") {
                             ForEach(viewModel.sessionHistory) { session in
-                                SessionHistoryRow(session: session)
+                                SessionHistoryRow(session: session) {
+                                    Task { await viewModel.loadSession(session) }
+                                } onLocate: { url in
+                                    Task { await viewModel.locateSession(session, at: url) }
+                                }
                             }
                             .onDelete { offsets in
                                 for i in offsets {
@@ -182,7 +186,7 @@ struct SidebarView: View {
                                     return f
                                 }()
                                 HStack {
-                                    Text("Period")
+                                    Text("Period", bundle: .module)
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                     Spacer()
@@ -194,7 +198,7 @@ struct SidebarView: View {
                                     [.day], from: dr.start, to: dr.end
                                 ).day ?? 1)
                                 HStack {
-                                    Text("Avg/day")
+                                    Text("Avg/day", bundle: .module)
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                     Spacer()
@@ -210,7 +214,11 @@ struct SidebarView: View {
                     if !viewModel.sessionHistory.isEmpty {
                         Section("History") {
                             ForEach(viewModel.sessionHistory.prefix(5)) { session in
-                                SessionHistoryRow(session: session)
+                                SessionHistoryRow(session: session) {
+                                    Task { await viewModel.loadSession(session) }
+                                } onLocate: { url in
+                                    Task { await viewModel.locateSession(session, at: url) }
+                                }
                             }
                             .onDelete { offsets in
                                 for i in offsets {
@@ -252,7 +260,7 @@ private struct DeviceCard: View {
                 Image(systemName: "iphone.gen3")
                     .font(.caption)
                     .foregroundStyle(.green)
-                Text("Connected")
+                Text("Connected", bundle: .module)
                     .font(.caption2)
                     .fontWeight(.semibold)
                     .foregroundStyle(.green)
@@ -313,6 +321,10 @@ private struct DeviceCard: View {
 
 private struct SessionHistoryRow: View {
     let session: AnalysisSession
+    let onTap: () -> Void
+    var onLocate: ((URL) -> Void)? = nil
+
+    @State private var showLocatePicker = false
 
     private static let dateFmt: RelativeDateTimeFormatter = {
         let f = RelativeDateTimeFormatter()
@@ -321,30 +333,55 @@ private struct SessionHistoryRow: View {
     }()
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 3) {
-            HStack {
-                Text(session.sourceLabel)
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .lineLimit(1)
-                Spacer()
-                Text(Self.dateFmt.localizedString(for: session.date, relativeTo: .now))
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-            }
-            HStack(spacing: 4) {
-                if let cat = session.topCategory {
-                    Image(systemName: cat.systemImage)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 2) {
+            Button(action: onTap) {
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack {
+                        Text(session.sourceLabel)
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .lineLimit(1)
+                        Spacer()
+                        Text(Self.dateFmt.localizedString(for: session.date, relativeTo: .now))
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                    }
+                    HStack(spacing: 4) {
+                        if let cat = session.topCategory {
+                            Image(systemName: cat.systemImage)
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                        Text(session.severitySummary)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                        Spacer()
+                    }
                 }
-                Text(session.severitySummary)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+                .padding(.vertical, 2)
+            }
+            .buttonStyle(.plain)
+            .disabled(!session.isRestorable)
+            .opacity(session.isRestorable ? 1.0 : 0.5)
+            .help(session.isRestorable ? "Click to reload this session" : "Folder not found — use Locate to point to it")
+
+            if !session.isRestorable {
+                Button {
+                    showLocatePicker = true
+                } label: {
+                    Label("Locate folder…", systemImage: "folder.badge.questionmark")
+                        .font(.caption2)
+                        .foregroundStyle(.orange)
+                }
+                .buttonStyle(.plain)
+                .fileImporter(isPresented: $showLocatePicker, allowedContentTypes: [.folder]) { result in
+                    if case .success(let url) = result {
+                        onLocate?(url)
+                    }
+                }
             }
         }
-        .padding(.vertical, 2)
     }
 }
 

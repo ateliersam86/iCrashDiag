@@ -5,7 +5,7 @@ struct ProbabilityBarsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Probabilities")
+            Text("Probabilities", bundle: .module)
                 .font(.subheadline)
                 .fontWeight(.semibold)
 

@@ -148,8 +148,16 @@ private struct KnowledgeBaseSettingsTab: View {
                         Task {
                             isChecking = true
                             updateStatus = "Checking…"
-                            await KnowledgeBaseManager().checkAndUpdate()
-                            updateStatus = "Done — restart to apply."
+                            let result = await KnowledgeBaseManager().checkAndUpdate()
+                            switch result {
+                            case .updated(let v):
+                                viewModel.reloadKnowledgeBase()
+                                updateStatus = "Updated to v\(v) ✓"
+                            case .alreadyUpToDate:
+                                updateStatus = "Already up to date."
+                            case .failed(let msg):
+                                updateStatus = "Failed: \(msg)"
+                            }
                             isChecking = false
                         }
                     }
@@ -283,7 +291,8 @@ private struct AboutTab: View {
 
             VStack(spacing: 4) {
                 Text("iCrashDiag", bundle: .module).font(.title2).fontWeight(.bold)
-                Text("Version 1.0", bundle: .module).font(.caption).foregroundStyle(.secondary)
+                Text("Version \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—")")
+                    .font(.caption).foregroundStyle(.secondary)
                 Text("iPhone crash log analyzer for repair technicians", bundle: .module)
                     .font(.caption).foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)

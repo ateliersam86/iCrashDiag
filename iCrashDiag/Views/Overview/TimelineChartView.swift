@@ -14,7 +14,6 @@ struct TimelineChartView: View {
             )
             .foregroundStyle(.orange.gradient)
         }
-        .chartYAxisLabel("Crashes")
-        .frame(height: 180)
+        .chartXAxis(.hidden)
     }
 }

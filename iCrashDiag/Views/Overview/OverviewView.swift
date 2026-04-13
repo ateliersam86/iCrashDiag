@@ -3,111 +3,250 @@ import SwiftUI
 struct OverviewView: View {
     let report: AnalysisReport
     @Environment(AppViewModel.self) private var viewModel
+    @State private var exportError: String?
+
+    // MARK: - Computed helpers
+
+    private var hwPatternCount: Int {
+        report.topPatterns.filter { $0.severity == .hardware || $0.severity == .critical }
+            .map(\.count).reduce(0, +)
+    }
+
+    private var crashesPerDayAvg: String {
+        guard let dr = report.dateRange else { return "—" }
+        let days = max(1, Calendar.current.dateComponents([.day], from: dr.start, to: dr.end).day ?? 1)
+        let avg = Double(report.totalCrashes) / Double(days)
+        return avg < 1 ? "<1" : String(format: "%.1f", avg)
+    }
+
+    private var topDevice: String? {
+        report.deviceModels.max(by: { $0.value < $1.value })?.key
+    }
+
+    private var categoryRows: [(name: String, count: Int, color: Color)] {
+        let total = report.categoryBreakdown.values.reduce(0, +)
+        guard total > 0 else { return [] }
+        return report.categoryBreakdown
+            .sorted { $0.value > $1.value }
+            .prefix(6)
+            .map { key, val in
+                let cat = CrashCategory(rawValue: key) ?? .unknown
+                let color: Color = switch cat {
+                    case .kernelPanic:  .red
+                    case .jetsam:       .orange
+                    case .watchdog:     .yellow
+                    case .appCrash:     .blue
+                    case .thermal:      .purple
+                    case .gpuEvent:     .mint
+                    case .diskResource: .brown
+                    default:            .secondary
+                }
+                return (name: key, count: val, color: color)
+            }
+    }
+
+    // MARK: - Body
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                // Verdict banner
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Image(systemName: report.overallVerdict.isHardware ? "wrench.and.screwdriver.fill" : "checkmark.circle.fill")
-                            .font(.title)
-                            .foregroundStyle(report.overallVerdict.isHardware ? .orange : .green)
-                        VStack(alignment: .leading) {
-                            Text(report.overallVerdict.isHardware ? "HARDWARE ISSUE DETECTED" : "NO HARDWARE ISSUE")
-                                .font(.headline)
-                            Text("\(report.overallVerdict.confidence)% confidence")
-                                .font(.caption)
+            VStack(spacing: 14) {
+
+                // ── HERO — Verdict ───────────────────────────────────────────
+                let isHW = report.overallVerdict.isHardware
+                let verdictColor: Color = isHW ? .orange : .green
+
+                ZStack(alignment: .trailing) {
+                    // Background tint
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(verdictColor.opacity(0.08))
+                        .overlay(RoundedRectangle(cornerRadius: 16)
+                            .strokeBorder(verdictColor.opacity(0.22), lineWidth: 1))
+
+                    // Big confidence number (decorative, right-aligned)
+                    Text("\(report.overallVerdict.confidence)%")
+                        .font(.system(size: 72, weight: .black, design: .rounded))
+                        .foregroundStyle(verdictColor.opacity(0.08))
+                        .padding(.trailing, 20)
+
+                    HStack(spacing: 16) {
+                        // Icon
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(verdictColor.opacity(0.15))
+                                .frame(width: 56, height: 56)
+                            Image(systemName: isHW ? "wrench.and.screwdriver.fill" : "checkmark.circle.fill")
+                                .font(.system(size: 24, weight: .semibold))
+                                .foregroundStyle(verdictColor)
+                        }
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(isHW ? "Hardware Issue Detected" : "No Hardware Issue")
+                                .font(.title3).fontWeight(.bold)
+                                .foregroundStyle(verdictColor)
+                            Text(report.overallVerdict.summary)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(2)
+                            // Meta line
+                            HStack(spacing: 10) {
+                                if let dr = report.dateRange {
+                                    Label(dr.start.formatted(date: .abbreviated, time: .omitted)
+                                          + " – " + dr.end.formatted(date: .abbreviated, time: .omitted),
+                                          systemImage: "calendar")
+                                }
+                                if let dev = topDevice {
+                                    Label(dev, systemImage: "iphone")
+                                }
+                            }
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                            .lineLimit(1)
+                        }
+
+                        Spacer()
+
+                        VStack(spacing: 2) {
+                            Text("\(report.overallVerdict.confidence)%")
+                                .font(.system(size: 36, weight: .bold, design: .rounded))
+                                .foregroundStyle(verdictColor)
+                                .monospacedDigit()
+                            Text("confidence", bundle: .module)
+                                .font(.caption2)
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    Text(report.overallVerdict.summary)
-                        .font(.subheadline)
-                }
-                .padding()
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(report.overallVerdict.isHardware ? .orange.opacity(0.1) : .green.opacity(0.1))
-                )
-
-                if let diag = report.dominantDiagnosis {
-                    DiagnosisCardView(diagnosis: diag)
+                    .padding(18)
                 }
 
-                // Reboot Events Dashboard
-                let reboots = viewModel.rebootEvents
-                if !reboots.isEmpty {
-                    RebootDashboardCard(reboots: reboots)
+                // ── STAT TILES ───────────────────────────────────────────────
+                HStack(spacing: 10) {
+                    BigStatTile(value: "\(report.totalCrashes)", label: "Total Crashes",
+                                icon: "doc.text.fill", color: .primary)
+                    BigStatTile(value: "\(hwPatternCount)", label: "Hardware Events",
+                                icon: "wrench.fill", color: hwPatternCount > 0 ? .orange : .secondary)
+                    BigStatTile(value: "\(viewModel.rebootCount)", label: "Reboots",
+                                icon: "arrow.clockwise.circle.fill",
+                                color: viewModel.rebootCount > 0 ? .red : .secondary)
+                    BigStatTile(value: crashesPerDayAvg, label: "Per Day",
+                                icon: "chart.bar.fill", color: .blue)
+                    BigStatTile(value: "\(report.topPatterns.count)", label: "Patterns",
+                                icon: "magnifyingglass", color: .purple)
                 }
 
-                // Hardware probability gauge
-                HardwareGaugeView(report: report)
+                // ── MAIN GRID — 2 columns ────────────────────────────────────
+                HStack(alignment: .top, spacing: 12) {
 
-                HStack(spacing: 16) {
-                    StatCard(title: "Total Crashes", value: "\(report.totalCrashes)", icon: "doc.text.fill")
-                    StatCard(title: "Reboots", value: "\(viewModel.rebootCount)",
-                             icon: "arrow.clockwise.circle.fill",
-                             accent: viewModel.rebootCount > 0 ? .red : .secondary)
-                    if let dr = report.dateRange {
-                        let days = max(1, Calendar.current.dateComponents([.day], from: dr.start, to: dr.end).day ?? 1)
-                        StatCard(title: "Per Day", value: "\(report.totalCrashes / days)", icon: "calendar")
-                    }
-                    StatCard(title: "Patterns", value: "\(report.topPatterns.count)", icon: "magnifyingglass")
-                }
+                    // LEFT — Timeline + Category breakdown
+                    VStack(spacing: 12) {
 
-                if !report.crashesPerDay.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Timeline")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                        TimelineChartView(crashesPerDay: report.crashesPerDay)
-                    }
-                }
-
-                if !report.topPatterns.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Detected Patterns")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-
-                        ForEach(report.topPatterns) { pattern in
-                            HStack {
-                                SeverityBadge(severity: pattern.severity)
-                                Text(pattern.title)
-                                    .font(.caption)
-                                Spacer()
-                                Text("\(pattern.count)")
-                                    .font(.caption)
-                                    .fontWeight(.bold)
-                                    .monospacedDigit()
-                                Text(pattern.component)
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
+                        // Timeline
+                        if !report.crashesPerDay.isEmpty {
+                            DashboardCard(title: "Crash Timeline", icon: "chart.xyaxis.line") {
+                                TimelineChartView(crashesPerDay: report.crashesPerDay)
+                                    .frame(height: 90)
                             }
-                            .padding(.vertical, 2)
+                        }
+
+                        // Category breakdown — horizontal bars
+                        if !categoryRows.isEmpty {
+                            DashboardCard(title: "By Category", icon: "square.grid.2x2") {
+                                let total = categoryRows.map(\.count).reduce(0, +)
+                                VStack(spacing: 8) {
+                                    ForEach(categoryRows, id: \.name) { row in
+                                        VStack(spacing: 3) {
+                                            HStack {
+                                                Text(row.name)
+                                                    .font(.caption)
+                                                    .lineLimit(1)
+                                                Spacer()
+                                                Text("\(row.count)")
+                                                    .font(.caption)
+                                                    .fontWeight(.semibold)
+                                                    .monospacedDigit()
+                                                    .foregroundStyle(.secondary)
+                                                Text("(\(Int(Double(row.count)/Double(total)*100))%)")
+                                                    .font(.caption2)
+                                                    .foregroundStyle(.tertiary)
+                                                    .frame(width: 34, alignment: .trailing)
+                                            }
+                                            GeometryReader { geo in
+                                                ZStack(alignment: .leading) {
+                                                    RoundedRectangle(cornerRadius: 3)
+                                                        .fill(Color.secondary.opacity(0.1))
+                                                    RoundedRectangle(cornerRadius: 3)
+                                                        .fill(row.color.opacity(0.75))
+                                                        .frame(width: geo.size.width * Double(row.count) / Double(total))
+                                                }
+                                            }
+                                            .frame(height: 5)
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
+                    .frame(maxWidth: .infinity)
+
+                    // RIGHT — Diagnosis + Hardware gauge + Top patterns
+                    VStack(spacing: 12) {
+
+                        if let diag = report.dominantDiagnosis {
+                            DiagnosisCardView(diagnosis: diag)
+                        }
+
+                        HardwareGaugeView(report: report)
+
+                        if !report.topPatterns.isEmpty {
+                            DashboardCard(title: "Top Patterns", icon: "list.number") {
+                                VStack(spacing: 5) {
+                                    ForEach(report.topPatterns.prefix(5)) { p in
+                                        HStack(spacing: 6) {
+                                            SeverityBadge(severity: p.severity)
+                                            Text(p.title).font(.caption).lineLimit(1)
+                                            Spacer()
+                                            Text("\(p.count)×")
+                                                .font(.caption).fontWeight(.bold)
+                                                .monospacedDigit().foregroundStyle(.secondary)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        let reboots = viewModel.rebootEvents
+                        if !reboots.isEmpty {
+                            RebootDashboardCard(reboots: reboots)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
                 }
 
+                // ── FOOTER — spread + export ─────────────────────────────────
+                if isHW && report.overallVerdict.confidence >= 70 {
+                    SpreadWordBanner()
+                }
+
+                let isPro = viewModel.licenseService.isPro
                 HStack {
-                    Button("Copy Full Report") {
+                    Button(isPro ? "Copy Report" : "Copy Report (Pro)") {
                         viewModel.copyReportToClipboard()
                     }
-                    .buttonStyle(.borderedProminent)
-
-                    Button("Export JSON...") {
-                        exportJSON()
-                    }
-                    .buttonStyle(.bordered)
-
-                    Button("Export Markdown...") {
-                        exportMarkdown()
-                    }
-                    .buttonStyle(.bordered)
+                    .buttonStyle(.borderedProminent).tint(.orange)
+                    Button(isPro ? "Export JSON…" : "Export JSON… (Pro)") {
+                        if isPro { exportJSON() } else { viewModel.showLicenseGate = true }
+                    }.buttonStyle(.bordered)
+                    Button(isPro ? "Export Markdown…" : "Export Markdown… (Pro)") {
+                        if isPro { exportMarkdown() } else { viewModel.showLicenseGate = true }
+                    }.buttonStyle(.bordered)
+                    Spacer()
                 }
             }
-            .padding()
+            .padding(16)
+        }
+        .alert("Export Failed", isPresented: Binding(get: { exportError != nil }, set: { if !$0 { exportError = nil } })) {
+            Button("OK", role: .cancel) { exportError = nil }
+        } message: {
+            Text(exportError ?? "")
         }
     }
 
@@ -116,8 +255,12 @@ struct OverviewView: View {
         panel.allowedContentTypes = [.json]
         panel.nameFieldStringValue = "iCrashDiag-report.json"
         guard panel.runModal() == .OK, let url = panel.url else { return }
-        if let data = try? viewModel.exportService.generateJSON(crashes: viewModel.crashLogs, report: report) {
-            try? data.write(to: url)
+        let includeRaw = AppSettings.shared.exportIncludeRawBody
+        do {
+            let data = try viewModel.exportService.generateJSON(crashes: viewModel.crashLogs, report: report, includeRawBody: includeRaw)
+            try data.write(to: url)
+        } catch {
+            exportError = error.localizedDescription
         }
     }
 
@@ -127,7 +270,76 @@ struct OverviewView: View {
         panel.nameFieldStringValue = "iCrashDiag-report.md"
         guard panel.runModal() == .OK, let url = panel.url else { return }
         let md = viewModel.exportService.generateMarkdown(crashes: viewModel.crashLogs, report: report)
-        try? md.write(to: url, atomically: true, encoding: .utf8)
+        do {
+            try md.write(to: url, atomically: true, encoding: .utf8)
+        } catch {
+            exportError = error.localizedDescription
+        }
+    }
+}
+
+// MARK: - DashboardCard
+
+private struct DashboardCard<Content: View>: View {
+    let title: String
+    let icon: String
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(title)
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.secondary)
+                    .textCase(.uppercase)
+                    .tracking(0.5)
+            }
+            content()
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.quaternary, in: RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+// MARK: - Spread the Word Banner
+
+private struct SpreadWordBanner: View {
+    @AppStorage("iCrashDiag.spreadWordDismissed") private var dismissed = false
+
+    var body: some View {
+        if !dismissed {
+            HStack(spacing: 12) {
+                Image(systemName: "heart.fill")
+                    .foregroundStyle(.orange)
+                    .font(.callout)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Found a hardware issue?", bundle: .module)
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                    Text("Share iCrashDiag with your repair community — it's free to try.", bundle: .module)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Button {
+                    dismissed = true
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text("Dismiss"))
+            }
+            .padding(10)
+            .background(Color.orange.opacity(0.06), in: RoundedRectangle(cornerRadius: 10))
+            .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Color.orange.opacity(0.2), lineWidth: 1))
+        }
     }
 }
 
@@ -148,7 +360,7 @@ private struct HardwareGaugeView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("Hardware Risk")
+                Text("Hardware Risk", bundle: .module)
                     .font(.subheadline)
                     .fontWeight(.semibold)
                 Spacer()
@@ -179,9 +391,9 @@ private struct HardwareGaugeView: View {
             .frame(height: 8)
 
             HStack {
-                Text("Low risk").font(.caption2).foregroundStyle(.secondary)
+                Text("Low risk", bundle: .module).font(.caption2).foregroundStyle(.secondary)
                 Spacer()
-                Text("High risk").font(.caption2).foregroundStyle(.secondary)
+                Text("High risk", bundle: .module).font(.caption2).foregroundStyle(.secondary)
             }
         }
         .padding(12)
@@ -217,7 +429,7 @@ private struct RebootDashboardCard: View {
             HStack(spacing: 6) {
                 Image(systemName: "arrow.clockwise.circle.fill")
                     .foregroundStyle(.red)
-                Text("Reboot Events")
+                Text("Reboot Events", bundle: .module)
                     .font(.subheadline)
                     .fontWeight(.semibold)
                 Spacer()
@@ -263,7 +475,7 @@ private struct RebootDashboardCard: View {
             if !rebootPatterns.isEmpty {
                 Divider()
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Root causes")
+                    Text("Root causes", bundle: .module)
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
                         .textCase(.uppercase)
@@ -329,9 +541,41 @@ private struct RebootTypeChip: View {
     }
 }
 
+// MARK: - BigStatTile
+
+private struct BigStatTile: View {
+    let value: String
+    let label: String
+    let icon: String
+    let color: Color
+
+    var body: some View {
+        VStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(color == .primary ? Color.secondary : color)
+            Text(value)
+                .font(.system(size: 22, weight: .bold, design: .rounded))
+                .foregroundStyle(color)
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 12)
+        .padding(.horizontal, 8)
+        .background(.quaternary, in: RoundedRectangle(cornerRadius: 12))
+    }
+}
+
 // MARK: - StatCard
 
-struct StatCard: View {
+private struct StatCard: View {
     let title: String
     let value: String
     let icon: String

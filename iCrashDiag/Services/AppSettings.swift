@@ -36,6 +36,9 @@ final class AppSettings {
     var usbPollingEnabled: Bool {
         didSet { defaults.set(usbPollingEnabled, forKey: "usbPollingEnabled") }
     }
+    var autoCaptureLogs: Bool {
+        didSet { defaults.set(autoCaptureLogs, forKey: "autoCaptureLogs") }
+    }
 
     // MARK: - Export
     var exportIncludeRawBody: Bool {
@@ -56,6 +59,7 @@ final class AppSettings {
         self.notifyOnDeviceConnect = defaults.object(forKey: "notifyOnDeviceConnect") as? Bool ?? true
         self.notifyOnAnalysisComplete = defaults.object(forKey: "notifyOnAnalysisComplete") as? Bool ?? true
         self.usbPollingEnabled     = defaults.object(forKey: "usbPollingEnabled") as? Bool ?? true
+        self.autoCaptureLogs       = defaults.object(forKey: "autoCaptureLogs") as? Bool ?? false
         self.exportIncludeRawBody  = defaults.object(forKey: "exportIncludeRawBody") as? Bool ?? false
         self.lastSeenVersion       = defaults.string(forKey: "lastSeenVersion") ?? ""
     }
@@ -82,7 +86,6 @@ final class AppSettings {
         ("ja",   "日本語",          "🇯🇵"),
         ("ko",   "한국어",          "🇰🇷"),
         ("zh-Hans", "简体中文",     "🇨🇳"),
-        ("zh-Hant", "繁體中文",     "🇹🇼"),
         ("ar",   "العربية",        "🇸🇦"),
     ]
 }

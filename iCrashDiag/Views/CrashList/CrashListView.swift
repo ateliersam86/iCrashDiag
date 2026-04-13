@@ -11,7 +11,7 @@ struct CrashListView: View {
                 ContentUnavailableView(
                     "No Crash Logs",
                     systemImage: "doc.text.magnifyingglass",
-                    description: Text("Import a folder or pull from an iPhone.")
+                    description: Text("Import a folder or pull from an iPhone.", bundle: .module)
                 )
                 .transition(.opacity.combined(with: .scale(scale: 0.97)))
             } else {
@@ -124,14 +124,14 @@ private struct LockedCrashesBanner: View {
                     Text("\(lockedCount) crashes hidden")
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(.primary)
-                    Text("Upgrade to Pro to see all results")
+                    Text("Upgrade to Pro to see all results", bundle: .module)
                         .font(.system(size: 11))
                         .foregroundStyle(.secondary)
                 }
 
                 Spacer()
 
-                Text("Unlock Pro →")
+                Text("Unlock Pro →", bundle: .module)
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundStyle(.orange)
                     .padding(.horizontal, 10)

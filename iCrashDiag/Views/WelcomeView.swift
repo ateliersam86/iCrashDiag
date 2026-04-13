@@ -41,10 +41,10 @@ struct WelcomeView: View {
                 }
 
                 VStack(spacing: 4) {
-                    Text("iCrashDiag")
+                    Text("iCrashDiag", bundle: .module)
                         .font(.title)
                         .fontWeight(.bold)
-                    Text("iPhone Crash Log Analyzer")
+                    Text("iPhone Crash Log Analyzer", bundle: .module)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -81,7 +81,7 @@ struct WelcomeView: View {
                             .fontWeight(.semibold)
                         HStack(spacing: 4) {
                             if let model = device.modelName { Text(model) }
-                            if let ios = device.osVersion { Text("• iOS \(ios)") }
+                            if let ios = device.osVersion { Text("• iOS \(ios)", bundle: .module) }
                         }
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -127,18 +127,30 @@ struct WelcomeView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "exclamationmark.circle")
                             .font(.caption2)
-                        Text("USB unavailable — install via: brew install libimobiledevice")
+                        Text("USB unavailable — install via: brew install libimobiledevice", bundle: .module)
                             .font(.caption2)
                     }
                     .foregroundStyle(.secondary)
                 }
 
-                Text("Tip: On your iPhone, go to Settings → Privacy → Analytics & Improvements → Analytics Data, then copy .ips files to a folder.")
+                // Demo button
+                Button {
+                    Task { await viewModel.loadSamples() }
+                } label: {
+                    Label("Try with Sample Logs", systemImage: "sparkles")
+                        .frame(width: 260)
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondary)
+                .font(.caption)
+                .padding(.top, 4)
+
+                Text("Tip: On your iPhone, go to Settings → Privacy → Analytics & Improvements → Analytics Data, then copy .ips files to a folder.", bundle: .module)
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 60)
-                    .padding(.top, 4)
+                    .padding(.top, 2)
             }
 
             Spacer()
@@ -171,7 +183,7 @@ struct WelcomeView: View {
                         Image(systemName: "arrow.down.circle.fill")
                             .font(.system(size: 40))
                             .foregroundStyle(Color.accentColor)
-                        Text("Drop folder or .ips files")
+                        Text("Drop folder or .ips files", bundle: .module)
                             .font(.headline)
                             .foregroundStyle(Color.accentColor)
                     }

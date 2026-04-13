@@ -30,5 +30,7 @@ struct CategoryBadge: View {
         .padding(.horizontal, 6)
         .padding(.vertical, 3)
         .background(category.badgeColor.opacity(0.12), in: Capsule())
+        .accessibilityLabel(Text("\(category.rawValue) category"))
+        .accessibilityElement(children: .ignore)
     }
 }

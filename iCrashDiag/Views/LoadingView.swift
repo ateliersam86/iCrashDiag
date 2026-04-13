@@ -157,10 +157,10 @@ struct LoadingView: View {
 
     private var stageLabel: String {
         switch stage {
-        case .scanning:    return "Scanning folder…"
-        case .parsing:     return "Parsing crash logs…"
-        case .analyzing:   return "Building analysis report…"
-        case .done:        return "Complete"
+        case .scanning:    return NSLocalizedString("Scanning…", bundle: .main, comment: "")
+        case .parsing:     return NSLocalizedString("Parsing crash logs…", bundle: .main, comment: "")
+        case .analyzing:   return NSLocalizedString("Building analysis report…", bundle: .main, comment: "")
+        case .done:        return NSLocalizedString("Complete", bundle: .main, comment: "")
         default:           return ""
         }
     }

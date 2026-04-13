@@ -3,6 +3,20 @@ import UserNotifications
 
 @main
 struct iCrashDiagApp: App {
+    init() {
+        // Must run before any bundle localization is resolved
+        LocalizationShim.install()
+
+        let code = UserDefaults.standard.string(forKey: "languageCode") ?? "auto"
+        if code != "auto" {
+            UserDefaults.standard.set([code], forKey: "AppleLanguages")
+        } else {
+            // "auto" = follow system. Remove any previously forced AppleLanguages so
+            // Bundle.module falls back naturally to the OS locale (fr-FR, en-US, etc.).
+            UserDefaults.standard.removeObject(forKey: "AppleLanguages")
+        }
+    }
+
     @State private var viewModel = AppViewModel()
     @State private var settings = AppSettings.shared
     @State private var showWhatsNew = false
@@ -37,20 +51,16 @@ struct iCrashDiagApp: App {
         // Validate license in background
         await viewModel.licenseService.validateOnLaunch()
 
-        // Apply language override (takes effect on next launch)
-        if settings.languageCode != "auto" {
-            UserDefaults.standard.set([settings.languageCode], forKey: "AppleLanguages")
-        } else {
-            UserDefaults.standard.removeObject(forKey: "AppleLanguages")
-        }
-
         // Request notification permission silently
         try? await UNUserNotificationCenter.current()
             .requestAuthorization(options: [.alert, .sound])
 
         // Knowledge base auto-update
         if settings.autoUpdateKB {
-            await KnowledgeBaseManager().checkAndUpdate()
+            let kbResult = await KnowledgeBaseManager().checkAndUpdate()
+            if case .updated = kbResult {
+                viewModel.reloadKnowledgeBase()
+            }
         }
 
         // What's New
@@ -71,11 +81,21 @@ struct iCrashDiagApp: App {
         await usbMonitor.start(interval: 3.0)
         await usbMonitor.setCallbacks(
             onConnected: { @MainActor [self] udid in
-                let device = viewModel.usbService.deviceInfo(udid: udid, knowledgeBase: viewModel.knowledgeBase)
-                viewModel.connectedDevice = device
                 viewModel.usbAvailable = true
-                if let d = device {
-                    NotificationService.deviceConnected(name: d.name)
+                let svc = viewModel.usbService
+                let kb = viewModel.knowledgeBase
+                let autoCap = settings.autoCaptureLogs
+                Task.detached(priority: .userInitiated) { [self] in
+                    let device = svc.deviceInfo(udid: udid, knowledgeBase: kb)
+                    await MainActor.run {
+                        self.viewModel.connectedDevice = device
+                        if let d = device {
+                            NotificationService.deviceConnected(name: d.name)
+                            if autoCap {
+                                Task { await self.viewModel.pullFromUSB() }
+                            }
+                        }
+                    }
                 }
             },
             onDisconnected: { @MainActor [self] _ in

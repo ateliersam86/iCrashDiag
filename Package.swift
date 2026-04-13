@@ -12,6 +12,7 @@ let package = Package(
             path: "iCrashDiag",
             resources: [
                 .copy("Resources/knowledge"),
+                .copy("Resources/samples"),
                 .process("Resources/en.lproj"),
                 .process("Resources/fr.lproj"),
                 .process("Resources/de.lproj"),

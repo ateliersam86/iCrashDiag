@@ -7,7 +7,8 @@ final class KnowledgeBase: Sendable {
     let version: String
 
     init() {
-        let appSupportDir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        let appSupportDir = (FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? FileManager.default.temporaryDirectory)
             .appendingPathComponent("iCrashDiag/knowledge")
 
         self.patterns = Self.loadPatterns(appSupportDir: appSupportDir)

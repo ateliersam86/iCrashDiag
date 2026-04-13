@@ -12,6 +12,29 @@ struct AnalysisSession: Identifiable, Codable, Sendable {
     let hardwareCount: Int
     let softwareCount: Int
     let topCategory: CrashCategory?
+    /// Path to ~/Library/Application Support/iCrashDiag/sessions/{uuid}/ — nil for old sessions
+    var storedFolderPath: String?
+    /// Original source folder path (fallback when storedFolderPath doesn't exist)
+    var sourceFolderPath: String?
+
+    /// Best available URL to restore from: App Support copy first, original source as fallback
+    var restorableURL: URL? {
+        let fm = FileManager.default
+        if let p = storedFolderPath {
+            let url = URL(fileURLWithPath: p)
+            if fm.fileExists(atPath: p) { return url }
+        }
+        if let p = sourceFolderPath {
+            let url = URL(fileURLWithPath: p)
+            if fm.fileExists(atPath: p) { return url }
+        }
+        return nil
+    }
+
+    // Keep backward compat
+    var storedFolderURL: URL? { restorableURL }
+
+    var isRestorable: Bool { restorableURL != nil }
 
     init(
         date: Date = .now,
@@ -19,7 +42,9 @@ struct AnalysisSession: Identifiable, Codable, Sendable {
         deviceName: String? = nil,
         deviceModel: String? = nil,
         iosVersion: String? = nil,
-        crashes: [CrashLog]
+        crashes: [CrashLog],
+        storedFolderPath: String? = nil,
+        sourceFolderPath: String? = nil
     ) {
         self.id = UUID()
         self.date = date
@@ -27,6 +52,8 @@ struct AnalysisSession: Identifiable, Codable, Sendable {
         self.deviceName = deviceName
         self.deviceModel = deviceModel
         self.iosVersion = iosVersion
+        self.storedFolderPath = storedFolderPath
+        self.sourceFolderPath = sourceFolderPath
         self.crashCount = crashes.count
         self.criticalCount  = crashes.filter { $0.diagnosis?.severity == .critical }.count
         self.hardwareCount  = crashes.filter { $0.diagnosis?.severity == .hardware }.count

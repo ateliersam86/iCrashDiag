@@ -7,5 +7,11 @@ account_id = "7d79fd825ebb2a7e44ea967ae090464b"
 binding = "LICENSES"
 id = "e547c3f9a0574c729378dfc5a86c4a6c"
 
+# Create with: wrangler kv:namespace create COMMUNITY
+# Then replace the id below with the output
+[[kv_namespaces]]
+binding = "COMMUNITY"
+id = "9be4e7a2af8d4456b21ea4d60fbd0438"
+
 [vars]
 WORKER_ENV = "production"
