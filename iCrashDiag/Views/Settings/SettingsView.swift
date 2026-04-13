@@ -93,29 +93,49 @@ private struct GeneralSettingsTab: View {
 
 private struct NotificationsSettingsTab: View {
     @State private var settings = AppSettings.shared
+    @State private var authStatus: UNAuthorizationStatus = .notDetermined
+    @State private var showOnboarding = false
 
     var body: some View {
         Form {
             Section {
                 Toggle("iPhone connected", isOn: $settings.notifyOnDeviceConnect)
                 Toggle("Analysis complete", isOn: $settings.notifyOnAnalysisComplete)
-            } header: { Text("System Notifications", bundle: .module) }
+            } header: { Text("Events", bundle: .module) }
 
             Section {
-                Button("Request Notification Permission") {
-                    requestPermission()
+                HStack {
+                    Text("System permission")
+                    Spacer()
+                    switch authStatus {
+                    case .authorized:
+                        Label("Allowed", systemImage: "checkmark.circle.fill")
+                            .foregroundStyle(.green).font(.callout)
+                    case .denied:
+                        Button("Open System Settings") {
+                            NSWorkspace.shared.open(
+                                URL(string: "x-apple.systempreferences:com.apple.preference.notifications")!
+                            )
+                        }.buttonStyle(.bordered).controlSize(.small)
+                    default:
+                        Button("Allow Notifications…") { showOnboarding = true }
+                            .buttonStyle(.borderedProminent).controlSize(.small)
+                    }
                 }
             } header: { Text("Permissions", bundle: .module) }
+             footer: { Text("Notifications are only sent when iCrashDiag is running.", bundle: .module) }
         }
         .formStyle(.grouped)
         .padding()
+        .task { await refreshStatus() }
+        .sheet(isPresented: $showOnboarding, onDismiss: { Task { await refreshStatus() } }) {
+            PermissionOnboardingView()
+        }
     }
 
-    private func requestPermission() {
-        Task {
-            try? await UNUserNotificationCenter.current()
-                .requestAuthorization(options: [.alert, .sound, .badge])
-        }
+    private func refreshStatus() async {
+        let s = await UNUserNotificationCenter.current().notificationSettings()
+        authStatus = s.authorizationStatus
     }
 }
 

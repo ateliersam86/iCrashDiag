@@ -351,12 +351,27 @@ final class AppViewModel {
         decoder.dateDecodingStrategy = .secondsSince1970
 
         if let cd = try? Data(contentsOf: crashCache),
-           let rd = try? Data(contentsOf: reportCache),
-           let logs   = try? decoder.decode([CrashLog].self, from: cd),
-           let report = try? decoder.decode(AnalysisReport.self, from: rd) {
-            // Instant restore — no re-parsing
-            crashLogs      = logs
-            analysisReport = report
+           let logs = try? decoder.decode([CrashLog].self, from: cd) {
+            // Instant restore — apply freemium cap before surfacing anything
+            crashLogs = logs
+            relockCrashes()
+
+            // Rebuild report from only the visible (unlocked) logs so free users
+            // don't see aggregate stats computed from their locked files.
+            let visibleLogs = licenseService.isPro
+                ? logs
+                : Array(logs.prefix(Self.freeFileCap))
+
+            if let rd = try? Data(contentsOf: reportCache),
+               let cachedReport = try? decoder.decode(AnalysisReport.self, from: rd),
+               licenseService.isPro {
+                // Pro: use cached report as-is (fast path)
+                analysisReport = cachedReport
+            } else {
+                // Free or no cached report: recompute from visible logs only
+                analysisReport = diagnosisEngine.analyzeAll(crashes: visibleLogs)
+            }
+
             selectedCrashID = nil
             sessionHistory = historyStore.load()
             return

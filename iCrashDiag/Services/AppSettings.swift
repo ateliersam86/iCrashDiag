@@ -50,6 +50,11 @@ final class AppSettings {
         didSet { defaults.set(lastSeenVersion, forKey: "lastSeenVersion") }
     }
 
+    // MARK: - Permissions onboarding
+    var notificationPermissionAsked: Bool {
+        didSet { defaults.set(notificationPermissionAsked, forKey: "notificationPermissionAsked") }
+    }
+
     // MARK: - Init
 
     private init() {
@@ -61,7 +66,8 @@ final class AppSettings {
         self.usbPollingEnabled     = defaults.object(forKey: "usbPollingEnabled") as? Bool ?? true
         self.autoCaptureLogs       = defaults.object(forKey: "autoCaptureLogs") as? Bool ?? false
         self.exportIncludeRawBody  = defaults.object(forKey: "exportIncludeRawBody") as? Bool ?? false
-        self.lastSeenVersion       = defaults.string(forKey: "lastSeenVersion") ?? ""
+        self.lastSeenVersion               = defaults.string(forKey: "lastSeenVersion") ?? ""
+        self.notificationPermissionAsked   = defaults.object(forKey: "notificationPermissionAsked") as? Bool ?? false
     }
 
     // MARK: - Computed

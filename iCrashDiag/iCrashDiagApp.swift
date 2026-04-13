@@ -20,6 +20,7 @@ struct iCrashDiagApp: App {
     @State private var viewModel = AppViewModel()
     @State private var settings = AppSettings.shared
     @State private var showWhatsNew = false
+    @State private var showPermissions = false
     @State private var usbMonitor = USBMonitor()
 
     var body: some Scene {
@@ -30,6 +31,9 @@ struct iCrashDiagApp: App {
                 .task { await onLaunch() }
                 .sheet(isPresented: $showWhatsNew) {
                     WhatsNewView()
+                }
+                .sheet(isPresented: $showPermissions) {
+                    PermissionOnboardingView()
                 }
                 .onOpenURL { url in
                     guard url.pathExtension.lowercased() == "ips" else { return }
@@ -51,9 +55,16 @@ struct iCrashDiagApp: App {
         // Validate license in background
         await viewModel.licenseService.validateOnLaunch()
 
-        // Request notification permission silently
-        try? await UNUserNotificationCenter.current()
-            .requestAuthorization(options: [.alert, .sound])
+        // Show in-app permission onboarding on first launch (never silently)
+        if !settings.notificationPermissionAsked {
+            let current = await UNUserNotificationCenter.current().notificationSettings()
+            if current.authorizationStatus == .notDetermined {
+                try? await Task.sleep(nanoseconds: 800_000_000) // let main window settle
+                showPermissions = true
+            } else {
+                settings.notificationPermissionAsked = true
+            }
+        }
 
         // Knowledge base auto-update
         if settings.autoUpdateKB {
