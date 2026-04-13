@@ -17,16 +17,20 @@ struct AnalysisSession: Identifiable, Codable, Sendable {
     /// Original source folder path (fallback when storedFolderPath doesn't exist)
     var sourceFolderPath: String?
 
-    /// Best available URL to restore from: App Support copy first, original source as fallback
+    /// Best available URL to restore from: App Support copy first, original source as fallback.
+    /// Does NOT call fileExists — that triggers macOS folder-access privacy prompts at render time.
+    /// Existence is checked lazily in loadSession() only when the user actually clicks.
     var restorableURL: URL? {
-        let fm = FileManager.default
+        // App Support cache (safe, inside app container — check is harmless)
         if let p = storedFolderPath {
             let url = URL(fileURLWithPath: p)
-            if fm.fileExists(atPath: p) { return url }
+            if FileManager.default.fileExists(atPath: p) { return url }
         }
+        // Source folder path: return URL without checking existence.
+        // macOS triggers a privacy prompt if we call fileExists on Desktop/Documents/etc.
+        // The load attempt will fail gracefully and show "Locate folder" if missing.
         if let p = sourceFolderPath {
-            let url = URL(fileURLWithPath: p)
-            if fm.fileExists(atPath: p) { return url }
+            return URL(fileURLWithPath: p)
         }
         return nil
     }
@@ -34,7 +38,8 @@ struct AnalysisSession: Identifiable, Codable, Sendable {
     // Keep backward compat
     var storedFolderURL: URL? { restorableURL }
 
-    var isRestorable: Bool { restorableURL != nil }
+    /// True if we have any path to try — actual availability checked lazily on load.
+    var isRestorable: Bool { storedFolderPath != nil || sourceFolderPath != nil }
 
     init(
         date: Date = .now,

@@ -275,7 +275,14 @@ final class AppViewModel {
         let total = crashLogs.count
         loadingStage = .analyzing(done: 0, total: total)
 
-        let snapshotForReport = crashLogs
+        // For free users: lock logs beyond cap BEFORE building the report,
+        // so aggregate stats only reflect the visible 10 files.
+        let isPro = licenseService.isPro
+        if !isPro && crashLogs.count > Self.freeFileCap {
+            lockedCrashIDs = Set(crashLogs.dropFirst(Self.freeFileCap).map(\.id))
+        }
+
+        let snapshotForReport = isPro ? crashLogs : Array(crashLogs.prefix(Self.freeFileCap))
         let report = await Task.detached(priority: .userInitiated) {
             diag.analyzeAll(crashes: snapshotForReport)
         }.value
@@ -285,10 +292,9 @@ final class AppViewModel {
             analysisReport = report
         }
 
-        // Mark logs beyond free cap as locked (for free users)
-        if !licenseService.isPro && crashLogs.count > Self.freeFileCap {
-            let locked = Set(crashLogs.dropFirst(Self.freeFileCap).map(\.id))
-            lockedCrashIDs = locked
+        // Re-apply lock order after sort (sort changes dropFirst order)
+        if !isPro && crashLogs.count > Self.freeFileCap {
+            lockedCrashIDs = Set(crashLogs.dropFirst(Self.freeFileCap).map(\.id))
         }
 
         loadingStage = .done(count: crashLogs.count)
@@ -343,7 +349,15 @@ final class AppViewModel {
 
     /// Restore a previous session — loads from cache if available, re-parses only if needed
     func loadSession(_ session: AnalysisSession) async {
-        guard let folderURL = session.storedFolderURL else { return }
+        guard let folderURL = session.storedFolderURL else {
+            errorMessage = "Session folder not found. Use \"Locate folder…\" to point to it."
+            return
+        }
+        // Verify the folder actually exists before touching it (avoids macOS privacy prompt crash)
+        guard FileManager.default.fileExists(atPath: folderURL.path) else {
+            errorMessage = "Folder \"\(folderURL.lastPathComponent)\" is no longer available. Use \"Locate folder…\" to find it."
+            return
+        }
 
         let crashCache  = folderURL.appendingPathComponent("crashlogs.json")
         let reportCache = folderURL.appendingPathComponent("report.json")
@@ -472,7 +486,7 @@ final class AppViewModel {
         }
     }
 
-    /// Import a single .ips file (e.g. double-clicked from Finder)
+    /// Import a single .ips file (e.g. double-clicked from Finder or drag-dropped)
     func importSingleIPS(url: URL) async {
         guard let crash = try? parserEngine.parseFile(url: url) else { return }
         var diagnosed = crash
@@ -481,8 +495,11 @@ final class AppViewModel {
             crashLogs.append(diagnosed)
             crashLogs.sort { $0.timestamp > $1.timestamp }
         }
+        // Enforce freemium cap — prevents bypass via repeated single-file imports
+        relockCrashes()
         if !crashLogs.isEmpty {
-            let snap = crashLogs
+            let isPro = licenseService.isPro
+            let snap = isPro ? crashLogs : Array(crashLogs.prefix(Self.freeFileCap))
             let diag = diagnosisEngine
             let report = await Task.detached(priority: .userInitiated) {
                 diag.analyzeAll(crashes: snap)
