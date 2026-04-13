@@ -197,78 +197,117 @@ private struct ExportSettingsTab: View {
     }
 }
 
-// MARK: - About
+// MARK: - License
 
 private struct LicenseSettingsTab: View {
     @State private var licenseService = LicenseService.shared
     @State private var showActivate = false
 
-    var body: some View {
-        VStack(spacing: 20) {
-            // Status badge
-            HStack(spacing: 10) {
-                Image(systemName: licenseService.isPro ? "checkmark.seal.fill" : "lock.fill")
-                    .font(.title2)
-                    .foregroundStyle(licenseService.isPro ? Color.green : Color.secondary)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(licenseService.isPro ? "iCrashDiag Pro" : "Free Version")
-                        .font(.headline)
-                    if licenseService.state == .graceExpired {
-                        Text("Grace period expired — reconnect to validate", bundle: .module)
-                            .font(.caption)
-                            .foregroundStyle(.orange)
-                    } else if licenseService.isPro {
-                        Text("Unlimited crash log analysis", bundle: .module)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    } else {
-                        Text("10 crash log file limit", bundle: .module)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                Spacer()
-            }
-            .padding()
-            .background(
-                licenseService.isPro ? Color.green.opacity(0.08) : Color.secondary.opacity(0.06),
-                in: RoundedRectangle(cornerRadius: 10)
-            )
+    private let features: [(icon: String, label: String, free: String, pro: String)] = [
+        ("doc.text.magnifyingglass", "Crash log analysis",  "10 files max",   "Unlimited"),
+        ("chart.bar.doc.horizontal","Analysis report",      "✓",              "✓"),
+        ("timeline.selection",      "Timeline & charts",    "✓",              "✓"),
+        ("arrow.clockwise.icloud",  "KB auto-updates",      "✓",              "✓"),
+        ("doc.on.clipboard",        "Copy as Markdown",     "—",              "✓"),
+        ("doc.text",                "Save Markdown file",   "—",              "✓"),
+        ("doc.richtext",            "Export PDF",           "—",              "✓"),
+        ("square.and.arrow.up",     "Export JSON",          "—",              "✓"),
+        ("iphone.gen3",             "USB log extraction",   "—",              "✓"),
+    ]
 
-            if licenseService.isPro, let key = licenseService.licenseKey {
-                HStack {
-                    Text("License key:", bundle: .module)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text(String(key.prefix(8)) + "•••••••••••••")
-                        .font(.system(.caption, design: .monospaced))
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+
+                // Status badge
+                HStack(spacing: 10) {
+                    Image(systemName: licenseService.isPro ? "checkmark.seal.fill" : "lock.fill")
+                        .font(.title2)
+                        .foregroundStyle(licenseService.isPro ? Color.green : Color.secondary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(licenseService.isPro ? "iCrashDiag Pro" : "Free Version")
+                            .font(.headline)
+                        if licenseService.state == .graceExpired {
+                            Text("Grace period expired — reconnect to validate")
+                                .font(.caption).foregroundStyle(.orange)
+                        } else if licenseService.isPro {
+                            if let key = licenseService.licenseKey {
+                                Text(String(key.prefix(8)) + "••••••••••••")
+                                    .font(.system(.caption, design: .monospaced))
+                                    .foregroundStyle(.secondary)
+                            }
+                        } else {
+                            Text("Analyse limited to \(AppViewModel.freeFileCap) crash log files")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                    }
                     Spacer()
                 }
-            }
+                .padding(12)
+                .background(
+                    licenseService.isPro ? Color.green.opacity(0.08) : Color.secondary.opacity(0.06),
+                    in: RoundedRectangle(cornerRadius: 10)
+                )
 
-            Spacer()
-
-            HStack {
-                if licenseService.isPro {
-                    Button("Deactivate License") {
-                        licenseService.deactivate()
+                // Comparison table
+                VStack(spacing: 0) {
+                    // Header
+                    HStack {
+                        Text("Feature").font(.caption).fontWeight(.semibold).foregroundStyle(.secondary)
+                        Spacer()
+                        Text("Free").font(.caption).fontWeight(.semibold).foregroundStyle(.secondary)
+                            .frame(width: 80, alignment: .center)
+                        Text("Pro").font(.caption).fontWeight(.semibold).foregroundStyle(.orange)
+                            .frame(width: 60, alignment: .center)
                     }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(.red)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(Color.secondary.opacity(0.07), in: RoundedRectangle(cornerRadius: 8))
+
+                    ForEach(Array(features.enumerated()), id: \.offset) { idx, row in
+                        HStack(spacing: 8) {
+                            Image(systemName: row.icon)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .frame(width: 16)
+                            Text(row.label).font(.callout)
+                            Spacer()
+                            Text(row.free)
+                                .font(.caption)
+                                .foregroundStyle(row.free == "—" ? Color.secondary.opacity(0.4) : Color.primary)
+                                .frame(width: 80, alignment: .center)
+                            Text(row.pro)
+                                .font(.caption).fontWeight(.medium)
+                                .foregroundStyle(licenseService.isPro ? Color.green : Color.orange)
+                                .frame(width: 60, alignment: .center)
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 7)
+                        .background(idx % 2 == 0 ? Color.clear : Color.secondary.opacity(0.03))
+                    }
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.secondary.opacity(0.15)))
+
+                // CTA
+                if !licenseService.isPro {
+                    HStack(spacing: 10) {
+                        Button("Enter License Key…") { showActivate = true }
+                            .buttonStyle(.borderedProminent)
+                        Button("Get Pro — $9.99") {
+                            if let url = gumroadProductURL { NSWorkspace.shared.open(url) }
+                        }
+                        .buttonStyle(.bordered)
+                    }
                 } else {
-                    Button("Enter License Key…") {
-                        showActivate = true
-                    }
-                    .buttonStyle(.borderedProminent)
-
-                    Button("Get a License — $9.99") {
-                        if let url = gumroadProductURL { NSWorkspace.shared.open(url) }
-                    }
-                    .buttonStyle(.bordered)
+                    Button("Deactivate License") { licenseService.deactivate() }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(.red)
+                        .font(.caption)
                 }
             }
+            .padding(16)
         }
-        .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .sheet(isPresented: $showActivate) {
             ActivateLicenseView()

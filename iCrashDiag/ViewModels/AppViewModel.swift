@@ -208,7 +208,7 @@ final class AppViewModel {
 
     // MARK: - Import (Batched Progressive Streaming)
 
-    let freeFileCap = 10
+    static let freeFileCap = 10
     // IDs of crash logs locked behind Pro (beyond the 10-file cap)
     private(set) var lockedCrashIDs: Set<UUID> = []
 
@@ -286,8 +286,8 @@ final class AppViewModel {
         }
 
         // Mark logs beyond free cap as locked (for free users)
-        if !licenseService.isPro && crashLogs.count > freeFileCap {
-            let locked = Set(crashLogs.dropFirst(freeFileCap).map(\.id))
+        if !licenseService.isPro && crashLogs.count > Self.freeFileCap {
+            let locked = Set(crashLogs.dropFirst(Self.freeFileCap).map(\.id))
             lockedCrashIDs = locked
         }
 
@@ -410,8 +410,8 @@ final class AppViewModel {
     }
 
     private func relockCrashes() {
-        guard !licenseService.isPro && crashLogs.count > freeFileCap else { return }
-        lockedCrashIDs = Set(crashLogs.dropFirst(freeFileCap).map(\.id))
+        guard !licenseService.isPro && crashLogs.count > Self.freeFileCap else { return }
+        lockedCrashIDs = Set(crashLogs.dropFirst(Self.freeFileCap).map(\.id))
         showLicenseGate = true
     }
 

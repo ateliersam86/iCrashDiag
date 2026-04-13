@@ -4,8 +4,6 @@ struct LicenseGateView: View {
     @Environment(AppViewModel.self) private var viewModel
     @State private var showActivate = false
 
-    // MARK: - Gumroad URL
-    // TODO: Replace with your real Gumroad product URL after creating it on gumroad.com
     private let gumroadURL = "https://ateliersam.gumroad.com/l/icrashdiag"
 
     var body: some View {
