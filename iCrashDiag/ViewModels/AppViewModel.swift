@@ -275,16 +275,17 @@ final class AppViewModel {
         let total = crashLogs.count
         loadingStage = .analyzing(done: 0, total: total)
 
-        // For free users: lock logs beyond cap BEFORE building the report,
-        // so aggregate stats only reflect the visible 10 files.
+        // Lock logs beyond free cap — but report is always computed from ALL logs
+        // so the verdict ("hardware issue detected") reflects the true picture.
+        // Details of locked logs are hidden behind the paywall in the UI.
         let isPro = licenseService.isPro
         if !isPro && crashLogs.count > Self.freeFileCap {
             lockedCrashIDs = Set(crashLogs.dropFirst(Self.freeFileCap).map(\.id))
         }
 
-        let snapshotForReport = isPro ? crashLogs : Array(crashLogs.prefix(Self.freeFileCap))
+        let snapshot = crashLogs
         let report = await Task.detached(priority: .userInitiated) {
-            diag.analyzeAll(crashes: snapshotForReport)
+            diag.analyzeAll(crashes: snapshot)
         }.value
 
         withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
@@ -370,20 +371,15 @@ final class AppViewModel {
             crashLogs = logs
             relockCrashes()
 
-            // Rebuild report from only the visible (unlocked) logs so free users
-            // don't see aggregate stats computed from their locked files.
-            let visibleLogs = licenseService.isPro
-                ? logs
-                : Array(logs.prefix(Self.freeFileCap))
-
-            if let rd = try? Data(contentsOf: reportCache),
-               let cachedReport = try? decoder.decode(AnalysisReport.self, from: rd),
-               licenseService.isPro {
-                // Pro: use cached report as-is (fast path)
+            // Report always covers ALL logs — shows the true verdict.
+            // Pro: use cached report (fast path). Free: always recompute from all logs
+            // to avoid stale caches that were computed from only the first 10 files.
+            if licenseService.isPro,
+               let rd = try? Data(contentsOf: reportCache),
+               let cachedReport = try? decoder.decode(AnalysisReport.self, from: rd) {
                 analysisReport = cachedReport
             } else {
-                // Free or no cached report: recompute from visible logs only
-                analysisReport = diagnosisEngine.analyzeAll(crashes: visibleLogs)
+                analysisReport = diagnosisEngine.analyzeAll(crashes: logs)
             }
 
             selectedCrashID = nil
@@ -498,8 +494,8 @@ final class AppViewModel {
         // Enforce freemium cap — prevents bypass via repeated single-file imports
         relockCrashes()
         if !crashLogs.isEmpty {
-            let isPro = licenseService.isPro
-            let snap = isPro ? crashLogs : Array(crashLogs.prefix(Self.freeFileCap))
+            // Report always covers all logs — shows true verdict to motivate upgrade
+            let snap = crashLogs
             let diag = diagnosisEngine
             let report = await Task.detached(priority: .userInitiated) {
                 diag.analyzeAll(crashes: snap)
