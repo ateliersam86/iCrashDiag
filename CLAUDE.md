@@ -214,5 +214,5 @@ git push origin main   # users receive it automatically on next launch
 | `CFBundleVersion` | 4 |
 | Latest git tag | v1.3.0 |
 | Knowledge base version | 2026.04.10 |
-| Tags pushed to GitHub | ❌ not yet — ask user before pushing |
-| GitHub Releases | ❌ none yet — ask user before creating |
+| Tags pushed to GitHub | ✅ v1.0.0, v1.1.0, v1.2.0, v1.3.0 |
+| GitHub Releases | ✅ all four releases created |
