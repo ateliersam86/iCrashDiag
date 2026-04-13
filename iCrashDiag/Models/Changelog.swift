@@ -21,6 +21,12 @@ enum Changelog {
 
     static let entries: [ChangelogEntry] = [
 
+        ChangelogEntry(version: "1.3.1", date: "April 2026", items: [
+            ChangelogItem(icon: "checkmark.seal",           color: .green,  title: "Verdict on all logs",       detail: "The overall diagnosis now covers every crash log — free users see the real severity even before upgrading."),
+            ChangelogItem(icon: "bell.badge",               color: .orange, title: "Notifications onboarding",  detail: "Permission request now happens inside the app, after the window opens — no more system dialog at startup."),
+            ChangelogItem(icon: "folder.badge.minus",       color: .red,    title: "No Desktop folder prompt",  detail: "Fixed a macOS privacy dialog appearing before the main window when the resource bundle was missing from the app package."),
+        ]),
+
         ChangelogEntry(version: "1.3.0", date: "April 2026", items: [
             ChangelogItem(icon: "gearshape",             color: .orange, title: "Settings button",           detail: "The ⚙ toolbar button now reliably opens the Settings window via ⌘,."),
             ChangelogItem(icon: "globe",                 color: .blue,   title: "Language auto-detection",   detail: "App follows macOS system language automatically (French, English…)."),
