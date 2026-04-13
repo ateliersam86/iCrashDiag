@@ -3,17 +3,11 @@ import SwiftUI
 struct WhatsNewView: View {
     @Environment(\.dismiss) private var dismiss
 
-    private let changes: [(icon: String, color: Color, title: String, detail: String)] = [
-        ("stethoscope",              .orange,  "iCrashDiag 1.0",         "Native macOS crash log analyzer for repair technicians."),
-        ("doc.text.magnifyingglass", .blue,    "32 diagnostic patterns",  "Covers kernel panics, watchdogs, sensor failures, GPU, NAND, audio IC, Face ID, NFC, UWB, and more."),
-        ("chart.bar.doc.horizontal", .purple,  "Progressive analysis",    "Crash logs appear in real-time as they're parsed. Hardware vs software verdict with confidence score."),
-        ("iphone.gen3",              .green,   "USB extraction",          "Pull crash logs directly from a connected iPhone via libimobiledevice."),
-        ("square.and.arrow.up",      .indigo,  "Export Markdown & JSON",  "Full diagnosis report for clipboard, file, or AI analysis tools."),
-        ("arrow.clockwise.icloud",   .teal,    "Auto-updating KB",        "New iPhone models and patterns fetched from GitHub without an app update."),
-    ]
+    private let entry = Changelog.current
 
     var body: some View {
         VStack(spacing: 0) {
+
             // Header
             VStack(spacing: 12) {
                 ZStack {
@@ -25,8 +19,10 @@ struct WhatsNewView: View {
                         .font(.system(size: 34, weight: .light))
                         .foregroundStyle(Color.orange)
                 }
-                Text("What's New in iCrashDiag", bundle: .module)
+                Text("What's New in \(entry.version)", bundle: .module)
                     .font(.title2).fontWeight(.bold)
+                Text(entry.date)
+                    .font(.subheadline).foregroundStyle(.secondary)
             }
             .padding(.top, 32)
             .padding(.bottom, 24)
@@ -34,25 +30,8 @@ struct WhatsNewView: View {
             // Feature list
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    ForEach(Array(changes.enumerated()), id: \.offset) { _, item in
-                        HStack(alignment: .top, spacing: 14) {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(item.color.opacity(0.15))
-                                    .frame(width: 40, height: 40)
-                                Image(systemName: item.icon)
-                                    .font(.system(size: 18, weight: .medium))
-                                    .foregroundStyle(item.color)
-                            }
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text(item.title)
-                                    .fontWeight(.semibold)
-                                Text(item.detail)
-                                    .font(.callout)
-                                    .foregroundStyle(.secondary)
-                                    .fixedSize(horizontal: false, vertical: true)
-                            }
-                        }
+                    ForEach(Array(entry.items.enumerated()), id: \.offset) { _, item in
+                        ChangelogItemRow(item: item)
                     }
                 }
                 .padding(.horizontal, 32)

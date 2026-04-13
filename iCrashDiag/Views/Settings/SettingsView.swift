@@ -34,7 +34,7 @@ struct SettingsView: View {
                 .tabItem { Label("About", systemImage: "info.circle") }
                 .tag("about")
         }
-        .frame(width: 480, height: 360)
+        .frame(width: 520, height: 420)
         .preferredColorScheme(settings.colorScheme)
     }
 }
@@ -278,35 +278,110 @@ private struct LicenseSettingsTab: View {
 
 private struct AboutTab: View {
     var body: some View {
-        VStack(spacing: 20) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 18)
-                    .fill(Color(red: 0.09, green: 0.11, blue: 0.18))
-                    .frame(width: 72, height: 72)
-                    .shadow(radius: 4, y: 2)
-                Image(systemName: "stethoscope")
-                    .font(.system(size: 32, weight: .light))
-                    .foregroundStyle(Color.orange)
-            }
+        ScrollView {
+            VStack(spacing: 0) {
 
-            VStack(spacing: 4) {
-                Text("iCrashDiag", bundle: .module).font(.title2).fontWeight(.bold)
-                Text("Version \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—")")
-                    .font(.caption).foregroundStyle(.secondary)
-                Text("iPhone crash log analyzer for repair technicians", bundle: .module)
-                    .font(.caption).foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-            }
+                // App identity
+                VStack(spacing: 16) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 18)
+                            .fill(Color(red: 0.09, green: 0.11, blue: 0.18))
+                            .frame(width: 72, height: 72)
+                            .shadow(radius: 4, y: 2)
+                        Image(systemName: "stethoscope")
+                            .font(.system(size: 32, weight: .light))
+                            .foregroundStyle(Color.orange)
+                    }
 
-            HStack(spacing: 16) {
-                if let url = githubRepoURL {
-                    Link("GitHub", destination: url).font(.caption)
+                    VStack(spacing: 4) {
+                        Text("iCrashDiag", bundle: .module).font(.title2).fontWeight(.bold)
+                        Text("Version \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—")")
+                            .font(.caption).foregroundStyle(.secondary)
+                        Text("iPhone crash log analyzer for repair technicians", bundle: .module)
+                            .font(.caption).foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
+
+                    HStack(spacing: 16) {
+                        if let url = githubRepoURL {
+                            Link("GitHub", destination: url).font(.caption)
+                        }
+                        Text("•").foregroundStyle(.tertiary)
+                        Text("MIT License", bundle: .module).font(.caption).foregroundStyle(.secondary)
+                    }
                 }
-                Text("•", bundle: .module).foregroundStyle(.tertiary)
-                Text("MIT License", bundle: .module).font(.caption).foregroundStyle(.secondary)
+                .padding(.top, 24)
+                .padding(.bottom, 20)
+
+                Divider().padding(.horizontal, 24)
+
+                // Changelog
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("Release Notes", bundle: .module)
+                        .font(.headline)
+                        .padding(.horizontal, 24)
+                        .padding(.top, 16)
+                        .padding(.bottom, 12)
+
+                    ForEach(Changelog.entries, id: \.version) { entry in
+                        ChangelogVersionSection(entry: entry)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                Spacer(minLength: 16)
             }
         }
-        .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+private struct ChangelogVersionSection: View {
+    let entry: ChangelogEntry
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text("v\(entry.version)")
+                    .font(.system(.subheadline, design: .monospaced).weight(.semibold))
+                Text(entry.date)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 24)
+
+            ForEach(Array(entry.items.enumerated()), id: \.offset) { _, item in
+                ChangelogItemRow(item: item)
+                    .padding(.horizontal, 24)
+            }
+        }
+        .padding(.bottom, 16)
+    }
+}
+
+// MARK: - Shared row (used in WhatsNewView too)
+
+struct ChangelogItemRow: View {
+    let item: ChangelogItem
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(item.color.opacity(0.15))
+                    .frame(width: 34, height: 34)
+                Image(systemName: item.icon)
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundStyle(item.color)
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                Text(item.title).font(.callout).fontWeight(.semibold)
+                Text(item.detail)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 0)
+        }
     }
 }
